@@ -33,8 +33,6 @@ button { margin-top: 1rem; padding: 0.5rem 1rem; border-radius: 6px; border: non
 
 <script>
 let questions = [
-
-
   {"hu": "ház", "options": ["house", "brother", "book"], "correct": 0},
 {"hu": "alma", "options": ["apple", "snow", "blue"], "correct": 0},
 {"hu": "ház", "options": ["house", "brother", "book"], "correct": 0},
@@ -12101,11 +12099,9 @@ let questions = [
     "example": "She studies English every day."
   }
 
-
-
 ];
 
-// Véletlenszerű sorrend és helyes válasz index beállítása
+// Shuffle answers és meghatározni a helyes indexet
 questions = questions.map(q => {
   let opts = [...q.options];
   let correctAnswer = opts[q.correct];
@@ -12116,11 +12112,11 @@ questions = questions.map(q => {
   return {
     hu: q.hu,
     options: opts,
-    correct: opts.indexOf(correctAnswer)
+    correct: opts.findIndex(opt => opt === correctAnswer)
   };
 });
 
-// Véletlenszerű sorrendben csak egyszer jelenjenek meg
+// Shuffle questions, hogy egyszer jelenjenek meg véletlenszerű sorrendben
 questions = shuffleArray(questions);
 
 function shuffleArray(array) {
