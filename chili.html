@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Szövegszerkesztés teszt - Chili feladat</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f8f8f8; }
+  h1 { text-align: center; }
+  .question { margin-bottom: 20px; padding: 10px; background: #fff; border-radius: 8px; }
+  .answers label { display: block; margin: 5px 0; padding: 4px; border-radius: 5px; cursor: pointer; }
+  .correct { background-color: #c8e6c9; } /* zöld */
+  .incorrect { background-color: #ffcdd2; } /* piros */
+  button { padding: 10px 20px; margin-top: 20px; font-size: 16px; cursor: pointer; }
+  #result { margin-top: 30px; font-size: 18px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Szövegszerkesztés teszt – Chili feladat (Word 2016)</h1>
+
+<form id="quiz">
+
+<div class="question">
+  <p>1. Hogyan kell a címet (Chili) középre igazítani?</p>
+  <div class="answers">
+    <label><input type="radio" name="q1" value="1"> Kijelölés → Kezdőlap → Középre igazítás</label>
+    <label><input type="radio" name="q1" value="0"> Beszúrás → Kép</label>
+    <label><input type="radio" name="q1" value="0"> Elrendezés → Margók</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>2. Hogyan lehet a cím betűméretét 20 pontra állítani?</p>
+  <div class="answers">
+    <label><input type="radio" name="q2" value="0"> Elrendezés → Betűméret</label>
+    <label><input type="radio" name="q2" value="1"> Kezdőlap → Betűtípus → 20 pt</label>
+    <label><input type="radio" name="q2" value="0"> Nézet → Nagyítás</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>3. Hogyan lehet a címhez félkövér stílust adni?</p>
+  <div class="answers">
+    <label><input type="radio" name="q3" value="1"> Kezdőlap → Félkövér (B)</label>
+    <label><input type="radio" name="q3" value="0"> Elrendezés → Hasábok</label>
+    <label><input type="radio" name="q3" value="0"> Beszúrás → Oldalszám</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>4. Hogyan szúrható be az élőfej a dokumentumba?</p>
+  <div class="answers">
+    <label><input type="radio" name="q4" value="1"> Beszúrás → Élőfej</label>
+    <label><input type="radio" name="q4" value="0"> Kezdőlap → Bekezdés</label>
+    <label><input type="radio" name="q4" value="0"> Nézet → Vázlat</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>5. Hol lehet az élőfejben a szöveget jobbra igazítani?</p>
+  <div class="answers">
+    <label><input type="radio" name="q5" value="0"> Kezdőlap → Balra igazítás</label>
+    <label><input type="radio" name="q5" value="1"> Élőfej szerkesztése → Jobbra igazítás</label>
+    <label><input type="radio" name="q5" value="0"> Elrendezés → Margók</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>6. Hogyan lehet a szöveget két hasábba tördelni?</p>
+  <div class="answers">
+    <label><input type="radio" name="q6" value="0"> Beszúrás → Táblázat</label>
+    <label><input type="radio" name="q6" value="1"> Elrendezés → Hasábok → Kettő</label>
+    <label><input type="radio" name="q6" value="0"> Kezdőlap → Stílusok</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>7. Hogyan kell 1,5-ös sortávolságot beállítani?</p>
+  <div class="answers">
+    <label><input type="radio" name="q7" value="0"> Beszúrás → Oldalszám</label>
+    <label><input type="radio" name="q7" value="0"> Elrendezés → Margók</label>
+    <label><input type="radio" name="q7" value="1"> Kezdőlap → Bekezdés → Sortávolság</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>8. Hogyan lehet képet beszúrni a dokumentumba?</p>
+  <div class="answers">
+    <label><input type="radio" name="q8" value="1"> Beszúrás → Képek</label>
+    <label><input type="radio" name="q8" value="0"> Kezdőlap → Betűtípus</label>
+    <label><input type="radio" name="q8" value="0"> Nézet → Nagyítás</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>9. Hogyan állítható a kép körbefuttatása a szöveg mellett?</p>
+  <div class="answers">
+    <label><input type="radio" name="q9" value="0"> Kezdőlap → Igazítás</label>
+    <label><input type="radio" name="q9" value="1"> Képformátum → Körbefuttatás</label>
+    <label><input type="radio" name="q9" value="0"> Elrendezés → Margók</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>10. Hogyan lehet vastag szegélyt adni a kép köré?</p>
+  <div class="answers">
+    <label><input type="radio" name="q10" value="0"> Kezdőlap → Szegélyek</label>
+    <label><input type="radio" name="q10" value="1"> Képformátum → Képszegély</label>
+    <label><input type="radio" name="q10" value="0"> Beszúrás → Táblázat</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>11. Hogyan lehet a dokumentumban felsorolást készíteni?</p>
+  <div class="answers">
+    <label><input type="radio" name="q11" value="1"> Kezdőlap → Felsorolás</label>
+    <label><input type="radio" name="q11" value="0"> Elrendezés → Hasábok</label>
+    <label><input type="radio" name="q11" value="0"> Beszúrás → Oldalszám</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>12. Hol állítható a bekezdés első sorának behúzása?</p>
+  <div class="answers">
+    <label><input type="radio" name="q12" value="1"> Bekezdés → Speciális behúzás</label>
+    <label><input type="radio" name="q12" value="0"> Betűtípus → Kiskapitális</label>
+    <label><input type="radio" name="q12" value="0"> Elrendezés → Táblázat</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>13. Hogyan lehet lábjegyzetet beszúrni?</p>
+  <div class="answers">
+    <label><input type="radio" name="q13" value="0"> Kezdőlap → Betűtípus</label>
+    <label><input type="radio" name="q13" value="1"> Hivatkozások → Lábjegyzet beszúrása</label>
+    <label><input type="radio" name="q13" value="0"> Nézet → Elrendezés</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>14. Hogyan lehet kiskapitális formátumot alkalmazni a szövegre?</p>
+  <div class="answers">
+    <label><input type="radio" name="q14" value="0"> Elrendezés → Hasábok</label>
+    <label><input type="radio" name="q14" value="1"> Kezdőlap → Betűtípus → Kiskapitális</label>
+    <label><input type="radio" name="q14" value="0"> Beszúrás → Oldalszám</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>15. Hol lehet automatikus elválasztást beállítani?</p>
+  <div class="answers">
+    <label><input type="radio" name="q15" value="0"> Kezdőlap → Stílusok</label>
+    <label><input type="radio" name="q15" value="0"> Beszúrás → Táblázat</label>
+    <label><input type="radio" name="q15" value="1"> Elrendezés → Elválasztás</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>16. Hogyan lehet a dokumentum margóját beállítani?</p>
+  <div class="answers">
+    <label><input type="radio" name="q16" value="1"> Elrendezés → Margók</label>
+    <label><input type="radio" name="q16" value="0"> Kezdőlap → Bekezdés</label>
+    <label><input type="radio" name="q16" value="0"> Nézet → Nagyítás</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>17. Hogyan lehet szöveget sorkizártra igazítani?</p>
+  <div class="answers">
+    <label><input type="radio" name="q17" value="1"> Kezdőlap → Bekezdés → Sorkizárt</label>
+    <label><input type="radio" name="q17" value="0"> Beszúrás → Kép</label>
+    <label><input type="radio" name="q17" value="0"> Elrendezés → Hasábok</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>18. Hogyan lehet a dokumentumba táblázatot beszúrni?</p>
+  <div class="answers">
+    <label><input type="radio" name="q18" value="1"> Beszúrás → Táblázat</label>
+    <label><input type="radio" name="q18" value="0"> Elrendezés → Margók</label>
+    <label><input type="radio" name="q18" value="0"> Kezdőlap → Stílusok</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>19. Hogyan lehet a táblázat celláinak szegélyét módosítani?</p>
+  <div class="answers">
+    <label><input type="radio" name="q19" value="0"> Kezdőlap → Betűtípus</label>
+    <label><input type="radio" name="q19" value="1"> Táblázateszközök → Tervezés → Szegélyek</label>
+    <label><input type="radio" name="q19" value="0"> Nézet → Oldaltörés</label>
+  </div>
+</div>
+
+<div class="question">
+  <p>20. Hogyan lehet a dokumentum végére oldaltörést beszúrni?</p>
+  <div class="answers">
+    <label><input type="radio" name="q20" value="1"> Beszúrás → Oldaltörés</label>
+    <label><input type="radio" name="q20" value="0"> Kezdőlap → Keresés</label>
+    <label><input type="radio" name="q20" value="0"> Elrendezés → Margók</label>
+  </div>
+</div>
+
+</form>
+
+<button type="button" onclick="checkAnswers()">Értékelés</button>
+<div id="result"></div>
+
+<script>
+function checkAnswers() {
+  const form = document.getElementById('quiz');
+  const answers = form.querySelectorAll('input[type=radio]');
+  let score = 0;
+  let total = 20;
+
+  answers.forEach(ans => {
+    ans.parentElement.classList.remove("correct", "incorrect");
+  });
+
+  for (let i = 1; i <= total; i++) {
+    const selected = form.querySelector('input[name="q' + i + '"]:checked');
+    if (selected) {
+      if (selected.value === "1") {
+        score++;
+        selected.parentElement.classList.add("correct");
+      } else {
+        selected.parentElement.classList.add("incorrect");
+      }
+    }
+  }
+
+  const percent = (score / total) * 100;
+  let grade = "";
+  if (percent < 50) grade = "Közepes (3)";
+  else if (percent <= 75) grade = "Jó (4)";
+  else grade = "Jeles (5)";
+  document.getElementById('result').innerHTML =
+    `Elért pontszám: ${score}/${total} (${percent.toFixed(0)}%) – Érdemjegy: ${grade}`;
+}
+</script>
+
+</body>
+</html>
