@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Fasor Feladat Teszt</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+h1 { color: darkgreen; }
+h2 { color: #2F4F4F; }
+.question { margin-bottom: 15px; background: white; padding: 10px; border-radius: 5px; }
+.correct { color: green; font-weight: bold; }
+.wrong { color: red; font-weight: bold; }
+button { background-color: darkgreen; color: white; padding: 8px 12px; border: none; cursor: pointer; }
+button:hover { background-color: green; }
+.result { margin-top: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Fasor feladat – Interaktív teszt</h1>
+
+<div id="quiz"></div>
+<button onclick="checkAnswers()">Értékelés</button>
+<div class="result" id="result"></div>
+
+<script>
+const questions = [
+  {q: "Milyen formátumban kell betölteni a telepites.txt fájlt Excelbe?", a:["CSV", "Tabulátorral tagolt, UTF-8", "Word dokumentum"], correct: "B"},
+  {q: "Melyik Excel funkcióval lehet rendezni helyszín és fafajta szerint?", a:["SZŰRÉS", "RENDEZÉS", "DARABTELI"], correct: "B"},
+  {q: "Melyik képlet adja meg az összes facsemete számát?", a:["=SZUM(C2:C41)", "=DARABTELI(C2:C41;G7)", "=MAX(C2:C41)"], correct: "A"},
+  {q: "Milyen függvénnyel számoljuk meg, hány helyszínre lesz ültetve egy fafajta?", a:["DARABTELI", "SZUMHA", "INDEX"], correct: "A"},
+  {q: "Melyik képlet adja meg a legtöbb facsemetét egy fafajtából?", a:["=MAX(I7:I19)", "=MIN(I7:I19)", "=DARABTELI(I7:I19;G7)"], correct: "A"},
+  {q: "Melyik függvény adja meg egy fafaj nevét a legtöbb facsemetével?", a:["INDEX+HOL.VAN", "SZUM", "DARABTELI"], correct: "A"},
+  {q: "Hogyan állítható be egyéni dátumformátum Excelben?", a:["Formátum cellák → Egyéni", "Beszúrás → Diagram", "Adatok → Rendezés"], correct: "A"},
+  {q: "Melyik cellatartomány tartalmazza a címkéket?", a:["G2:G3 és G6:I6", "A1:E41", "B1:B10"], correct: "A"},
+  {q: "Hogyan lehet ismétlődés nélkül kigyűjteni fafajtákat?", a:["Kézi beírás vagy szűrés", "SZUM függvény", "RENDEZÉS"], correct: "A"},
+  {q: "Melyik szalagfül alatt található a Rendezés funkció?", a:["Adatok", "Kezdőlap", "Beszúrás"], correct: "A"},
+  {q: "Melyik képlet adja meg összesen egy fafaj facsemetéit?", a:["=SZUMHA(B:B;G7;C:C)", "=DARABTELI(C:C;G7)", "=MAX(C:C)"], correct: "A"},
+  {q: "Hol állítható be a cellák vízszintes igazítása?", a:["Kezdőlap → Igazítás", "Adatok → Rendezés", "Nézet → Elrendezés"], correct: "A"},
+  {q: "Melyik beállítás szükséges a címkék formázásához?", a:["Sötétzöld háttér, fehér betű, félkövér, középre igazítás", "Alapértelmezett formátum", "Minimális betűméret"], correct: "A"},
+  {q: "Melyik tartományt kell szegélyezni vékony belső és vastag külső vonallal?", a:["A1:E41 és G6:I19", "B1:B10", "J1:J10"], correct: "A"},
+  {q: "Hol található a Diagram beszúrásának funkciója?", a:["Beszúrás → Diagram", "Kezdőlap → Formátum", "Adatok → Rendezés"], correct: "A"},
+  {q: "Milyen típusú diagramot kell készíteni a feladatban?", a:["Sávdiagram", "Vonaldiagram", "Kördiagram"], correct: "A"},
+  {q: "Hol helyezkedjen el a diagram?", a:["J–Q oszlopok szélességében", "A1 cellánál", "Z oszlopban"], correct: "A"},
+  {q: "Milyen legyen a diagram szegélyének színe és vastagsága?", a:["Sötétzöld, 2 pontos", "Piros, 1 pontos", "Kék, 3 pontos"], correct: "A"},
+  {q: "Mire kell figyelni a diagram címének elhelyezésekor?", a:["Alul, ne takarjon semmit", "Felül, középre igazítva", "Jobbra, balra igazítva"], correct: "A"},
+  {q: "Melyik Excel menüben található a Szűrés funkció?", a:["Adatok", "Kezdőlap", "Nézet"], correct: "A"},
+  {q: "Melyik képlet segít automatikusan kigyűjteni ismétlődő adatokat?", a:["EGYEDI", "SZUMHA", "DARAB"], correct: "A"},
+  {q: "Melyik ikon jelzi a Rendezés funkciót?", a:["A→Z nyíl", "Szűrő", "Kép ikon"], correct: "A"},
+  {q: "Hogyan készíthetünk sávdiagramot Excelben?", a:["Beszúrás → Diagram → Sávdiagram", "Adatok → Szűrés", "Kezdőlap → Formátum"], correct: "A"},
+  {q: "Melyik függvény adja meg a cellák számát egy tartományban?", a:["DARAB", "SZUM", "MAX"], correct: "A"},
+  {q: "Melyik beállítás segít a diagram színezésében?", a:["Formátum → Diagramtervezés", "Adatok → Rendezés", "Kezdőlap → Igazítás"], correct: "A"}
+];
+
+const quizContainer = document.getElementById("quiz");
+questions.forEach((q, index) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `<h2>${index+1}. ${q.q}</h2>`;
+    q.a.forEach((ans, i) => {
+        const val = String.fromCharCode(65+i);
+        div.innerHTML += `<label><input type='radio' name='q${index}' value='${val}'> ${ans}</label><br>`;
+    });
+    quizContainer.appendChild(div);
+});
+
+function checkAnswers() {
+    let score = 0;
+    questions.forEach((q, i) => {
+        const selected = document.querySelector(`input[name='q${i}']:checked`);
+        const options = document.getElementsByName(`q${i}`);
+        options.forEach(opt => {
+            opt.parentElement.classList.remove('correct','wrong');
+            if(opt.value === q.correct) {
+                opt.parentElement.classList.add('correct');
+            }
+        });
+        if(selected && selected.value === q.correct) {
+            score++;
+        } else if(selected) {
+            selected.parentElement.classList.add('wrong');
+        }
+    });
+    const percent = Math.round((score / questions.length) * 100);
+    let grade = "";
+    if (percent <= 50) grade = "Közepes (3)";
+    else if (percent <= 75) grade = "Jó (4)";
+    else grade = "Jeles (5)";
+    document.getElementById("result").innerHTML = `Pontszámod: ${score} / ${questions.length} (${percent}%) - Értékelés: ${grade}`;
+}
+</script>
+
+</body>
+</html>
