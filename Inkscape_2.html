@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Inkscape Tudáspróba – 20 kérdés</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+      font-family: Arial, sans-serif;
+      background: #f0f4ff;
+      padding: 20px;
+      color: #003366;
+  }
+  h1 {
+      text-align: center;
+  }
+  .question {
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  }
+  button {
+      display: inline-block;
+      margin: 10px 8px;
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #3366cc;
+      color: white;
+  }
+  #result {
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+  }
+  .controls { text-align: center; }
+</style>
+</head>
+<body>
+<h1>Inkscape – 20 kérdéses teszt</h1>
+
+<div class="controls">
+  <button id="finishBtn">Befejezés</button>
+  <button id="restartBtn" type="button">Újrarendez (véletlenszerű)</button>
+</div>
+
+<form id="quizForm"></form>
+<div id="result"></div>
+
+<script>
+const questions = [
+  {id: 'q1', q: 'Melyik formátum vektorgrafikus?', options: [{v:'svg',t:'SVG'},{v:'png',t:'PNG'},{v:'eps',t:'EPS'}], correct:['svg','eps']},
+  {id: 'q2', q: 'Melyik eszköz szolgál az objektumok kijelölésére?', options: [{v:'select',t:'Kijelölő eszköz (nyíl)'},{v:'node',t:'Csomópont eszköz'},{v:'text',t:'Szöveg eszköz'}], correct:['select']},
+  {id: 'q3', q: 'Mit jelent az, hogy egy objektum "átalakítható útvonallá"?', options: [{v:'path',t:'Görbévé alakítható, csomópontok szerkeszthetők'},{v:'raster',t:'Raszterképpé alakítja'},{v:'shape',t:'Alakját megtartja, de nem szerkeszthető'}], correct:['path']},
+  {id: 'q4', q: 'Melyik menüben található az igazítás (Align and Distribute)?', options: [{v:'object',t:'Object'},{v:'view',t:'View'},{v:'path',t:'Path'}], correct:['object']},
+  {id: 'q5', q: 'Melyik művelet NEM útvonalművelet?', options: [{v:'union',t:'Union'},{v:'difference',t:'Difference'},{v:'blur',t:'Blur'}], correct:['blur']},
+  {id: 'q6', q: 'Mit lehet szerkeszteni a Node (Csomópont) eszközzel?', options: [{v:'nodes',t:'Csomópontokat'},{v:'handles',t:'Irányítókarokat'},{v:'image',t:'Képpontokat'}], correct:['nodes','handles']},
+  {id: 'q7', q: 'Milyen formátumba lehet menteni az Inkscape alapértelmezett fájlját?', options: [{v:'svg',t:'SVG'},{v:'jpg',t:'JPG'},{v:'pdf',t:'PDF'}], correct:['svg','pdf']},
+  {id: 'q8', q: 'Mi a kijelölés gyorsbillentyűje?', options: [{v:'f1',t:'F1'},{v:'f2',t:'F2'},{v:'ctrlc',t:'Ctrl+C'}], correct:['f1']},
+  {id: 'q9', q: 'Melyik NEM objektum-átszínezési mód?', options: [{v:'fill',t:'Kitöltés módosítása'},{v:'stroke',t:'Kontúr módosítása'},{v:'dpi',t:'DPI módosítása'}], correct:['dpi']},
+  {id: 'q10', q: 'Melyik igaz az Inkscape-re?', options: [{v:'free',t:'Ingyenes'},{v:'open',t:'Nyílt forráskódú'},{v:'paid',t:'Fizetős licenc szükséges'}], correct:['free','open']},
+  {id: 'q11', q: 'Melyik objektum átlátszóságának beállítása?', options: [{v:'opacity',t:'Átlátszóság (Opacity)'},{v:'export',t:'Exportálási minőség'},{v:'blur',t:'Elmosás'}], correct:['opacity','blur']},
+  {id: 'q12', q: 'Melyik export formátum raszteres?', options: [{v:'png',t:'PNG'},{v:'svg',t:'SVG'},{v:'webp',t:'WEBP'}], correct:['png','webp']},
+  {id: 'q13', q: 'Melyik eszközzel lehet szöveget írni?', options: [{v:'text',t:'Text eszköz'},{v:'select',t:'Kijelölő eszköz'},{v:'spray',t:'Spray eszköz'}], correct:['text']},
+  {id: 'q14', q: 'Mi történik a Union (Egyesítés) művelettel?', options: [{v:'merge',t:'Egyesíti az útvonalakat'},{v:'cut',t:'Kivágja az egyik alakzatot'},{v:'multiply',t:'Szorozza a színeket'}], correct:['merge']},
+  {id: 'q15', q: 'Mit csinál a Difference (Különbség) művelet?', options: [{v:'subtract',t:'Kivonja az egyik alakzatot a másikból'},{v:'merge',t:'Egyesít'},{v:'invert',t:'Invertál'}], correct:['subtract']},
+  {id: 'q16', q: 'Melyik igaz a rétegekre?', options: [{v:'multiple',t:'Több réteg lehet egy dokumentumban'},{v:'locked',t:'Zárhatók'},{v:'one',t:'Csak 1 réteg lehet'}], correct:['multiple','locked']},
+  {id: 'q17', q: 'A Pen (Toll) eszközzel milyen vonal készül?', options: [{v:'path',t:'Útvonal'},{v:'shape',t:'Alakzat automatikusan'},{v:'bitmap',t:'Bitmap vonal'}], correct:['path']},
+  {id: 'q18', q: 'Melyik képpont alapú funkció?', options: [{v:'blur',t:'Elmosás (Blur)'},{v:'nodes',t:'Csomópont mozgatás'},{v:'union',t:'Egyesítés'}], correct:['blur']},
+  {id: 'q19', q: 'Melyik lehet az útvonal törése (Break Apart)?', options: [{v:'split',t:'Szétválasztja az összefüggő vonalakat'},{v:'merge',t:'Összevon'},{v:'cut',t:'Levág egy részt'}], correct:['split']},
+  {id: 'q20', q: 'Melyik raszteres export parancs?', options: [{v:'exportpng',t:'Export PNG'},{v:'saveas',t:'Save As SVG'},{v:'pathops',t:'Útvonalműveletek'}], correct:['exportpng']}
+];
+
+function buildForm(qs) {
+  const form = document.getElementById('quizForm');
+  form.innerHTML = '';
+  qs.forEach((qObj, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.dataset.qid = qObj.id;
+
+    const p = document.createElement('p');
+    p.innerHTML = `<b>${idx+1}. ${qObj.q}</b>`;
+    div.appendChild(p);
+
+    qObj.options.forEach(opt => {
+      const label = document.createElement('label');
+      label.style.display = 'block';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.name = qObj.id;
+      input.value = opt.v;
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(' ' + opt.t));
+      div.appendChild(label);
+    });
+
+    form.appendChild(div);
+  });
+}
+
+function shuffleArray(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+}
+
+function finishQuiz() {
+  const total = questions.length;
+  let score = 0;
+
+  questions.forEach(qObj => {
+    const checkboxes = Array.from(document.querySelectorAll(`input[name="${qObj.id}"]`));
+    const selected = checkboxes.filter(cb => cb.checked).map(cb => cb.value);
+    const correct = qObj.correct.slice().sort();
+    selected.sort();
+
+    if (selected.length === correct.length && selected.every(v => correct.includes(v))) score++;
+  });
+
+  const percent = Math.round((score / total) * 100);
+  let grade = '';
+  if (percent <= 60) grade = 'Közepes (3)';
+  else if (percent <= 80) grade = 'Jó (4)';
+  else grade = 'Jeles (5)';
+
+  document.getElementById('result').textContent = `Eredmény: ${percent}% – ${grade}`;
+}
+
+function restartQuiz() {
+  shuffleArray(questions);
+  buildForm(questions);
+  document.getElementById('result').textContent = '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  shuffleArray(questions);
+  buildForm(questions);
+  document.getElementById('finishBtn').addEventListener('click', finishQuiz);
+  document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+});
+</script>
+</body>
+</html>
