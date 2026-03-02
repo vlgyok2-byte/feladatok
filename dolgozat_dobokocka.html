@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Kockadobás – Programmegértési teszt</title>
+<style>
+body { font-family: Arial; margin: 30px; }
+h1 { margin-bottom: 10px; }
+h3 { margin-top: 20px; }
+button { margin-top: 20px; padding: 8px 15px; }
+#eredmeny { margin-top: 20px; font-weight: bold; font-size: 18px; }
+</style>
+</head>
+<body>
+
+<h1>Kockadobás – Python program megértése</h1>
+
+<form id="teszt">
+
+<h3>1. Mit jelent a <code>tomb = [0] * 5</code> sor?</h3>
+<input type="radio" name="q1" value="a"> Öt darab véletlen számot generál<br>
+<input type="radio" name="q1" value="b"> Létrehoz egy 5 elemű listát, amely kezdetben 0-kat tartalmaz<br>
+<input type="radio" name="q1" value="c"> Kinullázza a dobásokat<br>
+
+<h3>2. Mit csinál a <code>random.randint(1, 6)</code>?</h3>
+<input type="radio" name="q2" value="a"> 1 és 5 közötti számot ad<br>
+<input type="radio" name="q2" value="b"> 1 és 6 közötti egész számot ad vissza<br>
+<input type="radio" name="q2" value="c"> 0 és 6 közötti számot ad<br>
+
+<h3>3. Mikor kap pontot Péter?</h3>
+<input type="radio" name="q3" value="a"> Ha 3-at vagy 4-et dobunk<br>
+<input type="radio" name="q3" value="b"> Ha 1-et vagy 6-ot dobunk<br>
+<input type="radio" name="q3" value="c"> Ha 2-t vagy 5-öt dobunk<br>
+
+<h3>4. Miért két külön <code>if</code> szerepel a ciklusban?</h3>
+<input type="radio" name="q4" value="a"> Mert egy dobás akár két feltételnek is megfelelhetne<br>
+<input type="radio" name="q4" value="b"> Mert az egyik Pétert, a másik Pált vizsgálja külön<br>
+<input type="radio" name="q4" value="c"> Mert az elif nem működne<br>
+
+<h3>5. Mit ad vissza a <code>len(tomb)</code> (ha használnánk)?</h3>
+<input type="radio" name="q5" value="a"> A dobások számát<br>
+<input type="radio" name="q5" value="b"> Péter pontszámát<br>
+<input type="radio" name="q5" value="c"> A győztes nevét<br>
+
+<h3>6. Mikor írja ki a program, hogy „A játék döntetlen.”?</h3>
+<input type="radio" name="q6" value="a"> Ha egyik játékos sem szerzett pontot<br>
+<input type="radio" name="q6" value="b"> Ha Péter és Pál pontszáma megegyezik<br>
+<input type="radio" name="q6" value="c"> Ha minden dobás páros szám volt<br>
+
+<button type="button" onclick="ertekel()">Értékelés</button>
+
+</form>
+
+<div id="eredmeny"></div>
+
+<script>
+function ertekel() {
+    let helyes = 0;
+
+    const megoldasok = {
+        q1: "b",
+        q2: "b",
+        q3: "b",
+        q4: "b",
+        q5: "a",
+        q6: "b"
+    };
+
+    for (let kerdes in megoldasok) {
+        let valasz = document.querySelector('input[name="' + kerdes + '"]:checked');
+        if (valasz && valasz.value === megoldasok[kerdes]) {
+            helyes++;
+        }
+    }
+
+    let jegy;
+    if (helyes >= 5) {
+        jegy = "Jeles (5)";
+    } else if (helyes >= 3) {
+        jegy = "Jó (4)";
+    } else {
+        jegy = "Közepes (3)";
+    }
+
+    document.getElementById("eredmeny").innerHTML =
+        "Helyes válaszok száma: " + helyes + " / 6<br>Érdemjegy: " + jegy;
+}
+</script>
+
+</body>
+</html>
