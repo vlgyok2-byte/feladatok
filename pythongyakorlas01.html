@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Interaktív Python oktató – részletes</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:20px; }
+.container { max-width: 900px; margin:auto; }
+.card { background:white; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); margin-bottom:20px; }
+h1,h2 { color:#2c3e50; }
+button { margin:5px; padding:10px 15px; border:none; border-radius:8px; cursor:pointer; }
+.correct { background:#2ecc71; color:white; }
+.wrong { background:#e74c3c; color:white; }
+.next { background:#3498db; color:white; }
+pre { background:#1e1e1e; color:#dcdcdc; padding:15px; border-radius:10px; }
+.hidden { display:none; }
+.explanation { margin-top:15px; padding:10px; background:#ecf0f1; border-radius:8px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Interaktív Python tanulás (részletes)</h1>
+<p>Válaszolj helyesen, és építsd fel lépésről lépésre a programot!</p>
+
+<div id="quiz" class="card"></div>
+
+<div id="result" class="card hidden">
+<h2>Kész program 🎉</h2>
+<pre id="code"></pre>
+</div>
+
+</div>
+
+<script>
+
+const steps = [
+{
+q: "Hogyan kérünk be egy egész számot Pythonban?",
+options: [
+"n = input()",
+"n = int(input())",
+"input(n)"
+],
+correct: 1,
+explanation: "Az input() szöveget ad vissza, ezért int()-tel számmá kell alakítani.",
+wrong: [
+"Azért hibás, mert az input() szöveget ad vissza, nem számot.",
+"Azért hibás, mert ez nem helyes Python szintaxis."
+],
+code: "n = int(input(\"Adj meg egy számot: \"))\n"
+},
+{
+q: "Miért kell az int() függvény?",
+options: [
+"Hogy gyorsabb legyen a program",
+"Hogy számmá alakítsuk a bemenetet",
+"Nem kell"
+],
+correct: 1,
+explanation: "Az input() mindig szöveget ad vissza, ezért kell konvertálni.",
+wrong: [
+"Azért hibás, mert az int() nem a sebesség miatt kell.",
+"Azért hibás, mert szükséges az átalakítás."
+],
+code: ""
+},
+{
+q: "Melyik ciklus alkalmas, ha nem tudjuk előre a lépések számát?",
+options: [
+"for",
+"while",
+"if"
+],
+correct: 1,
+explanation: "A while ciklus addig fut, amíg a feltétel igaz.",
+wrong: [
+"Azért hibás, mert a for ciklus inkább ismert elemszámnál jó.",
+"Azért hibás, mert az if nem ciklus."
+],
+code: "i = 1\nwhile i * i <= n:\n"
+},
+{
+q: "Mit jelent az i * i <= n feltétel?",
+options: [
+"i kisebb mint n",
+"i négyzete kisebb vagy egyenlő n-nel",
+"i mindig nő"
+],
+correct: 1,
+explanation: "Így csak azokat a számokat vesszük, amelyek négyzete még belefér n-be.",
+wrong: [
+"Azért hibás, mert itt nem i-t hasonlítjuk n-hez.",
+"Azért hibás, mert ez nem feltétel jelentése."
+],
+code: ""
+},
+{
+q: "Hogyan írjuk ki szépen: 3 -> 9?",
+options: [
+"print(i*i)",
+"print(i, i*i)",
+"print(f\"{i} -> {i*i}\")"
+],
+correct: 2,
+explanation: "Az f-string segítségével formázott szöveget írhatunk ki.",
+wrong: [
+"Azért hibás, mert nem jelenik meg az i értéke.",
+"Azért hibás, mert nem a kívánt formátumban ír ki."
+],
+code: "    print(f\"{i} -> {i*i}\")\n    i += 1\n"
+},
+{
+q: "Mi a prímszám?",
+options: [
+"Csak 1-gyel osztható",
+"Pontosan két osztója van",
+"Minden páros szám"
+],
+correct: 1,
+explanation: "A prímszámoknak pontosan két osztójuk van: 1 és önmaga.",
+wrong: [
+"Azért hibás, mert minden szám osztható 1-gyel.",
+"Azért hibás, mert a páros számok többsége nem prímszám."
+],
+code: ""
+},
+{
+q: "Miért használunk külön függvényt a prímszám ellenőrzéshez?",
+options: [
+"Hogy rövidebb legyen",
+"Hogy újra felhasználható legyen",
+"Nem szükséges"
+],
+correct: 1,
+explanation: "A függvények segítenek a kód újrafelhasználásában.",
+wrong: [
+"Azért hibás, mert nem ez a fő cél.",
+"Azért hibás, mert nagyon hasznos a függvény."
+],
+code: "\ndef prim_e(szam):\n    if szam < 2:\n        return False\n    for i in range(2, int(szam**0.5)+1):\n        if szam % i == 0:\n            return False\n    return True\n"
+},
+{
+q: "Hogyan járjuk be az 1-től n-ig tartó számokat?",
+options: [
+"for i in range(n)",
+"for i in range(1, n+1)",
+"while True"
+],
+correct: 1,
+explanation: "A range(1, n+1) tartalmazza az n-et is.",
+wrong: [
+"Azért hibás, mert nem tartalmazza az n-et.",
+"Azért hibás, mert végtelen ciklus lenne."
+],
+code: "\nfor i in range(1, n+1):\n    if prim_e(i):\n        print(i, end=\" \")\n"
+}
+];
+
+let current = 0;
+let finalCode = "";
+
+function loadQuestion() {
+const q = steps[current];
+const quizDiv = document.getElementById("quiz");
+quizDiv.innerHTML = `<h2>${q.q}</h2>`;
+
+q.options.forEach((opt, index) => {
+const btn = document.createElement("button");
+btn.innerText = opt;
+btn.onclick = () => checkAnswer(index, btn);
+quizDiv.appendChild(btn);
+});
+}
+
+function checkAnswer(index, btn) {
+const q = steps[current];
+
+if (index === q.correct) {
+btn.classList.add("correct");
+finalCode += q.code;
+
+const expl = document.createElement("div");
+expl.className = "explanation";
+expl.innerText = "✔ " + q.explanation;
+document.getElementById("quiz").appendChild(expl);
+
+const nextBtn = document.createElement("button");
+nextBtn.innerText = "Következő";
+nextBtn.className = "next";
+nextBtn.onclick = () => {
+current++;
+if (current < steps.length) loadQuestion();
+else showResult();
+};
+
+document.getElementById("quiz").appendChild(nextBtn);
+
+} else {
+btn.classList.add("wrong");
+
+const wrongExpl = document.createElement("div");
+wrongExpl.className = "explanation";
+wrongExpl.innerText = "✖ " + q.wrong[index];
+document.getElementById("quiz").appendChild(wrongExpl);
+}
+}
+
+function showResult() {
+document.getElementById("quiz").classList.add("hidden");
+document.getElementById("result").classList.remove("hidden");
+document.getElementById("code").innerText = finalCode;
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
