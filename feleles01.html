@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Látványos Lottósorsolás</title>
+    <style>
+        :root {
+            --neon-color: #00f2ff;
+            --bg-color: #0a0a0c;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .inputs {
+            margin-bottom: 20px;
+        }
+
+        input {
+            background: #222;
+            border: 1px solid #444;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px;
+            width: 150px;
+        }
+
+        #display-box {
+            font-size: 120px;
+            font-weight: bold;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neon-color);
+            text-shadow: 0 0 10px var(--neon-color), 0 0 40px var(--neon-color);
+            transition: transform 0.1s;
+        }
+
+        .status-msg {
+            margin-top: 20px;
+            color: #888;
+            font-style: italic;
+        }
+
+        .winner {
+            animation: celebrate 0.5s ease infinite alternate;
+        }
+
+        @keyframes celebrate {
+            from { transform: scale(1); text-shadow: 0 0 20px var(--neon-color); }
+            to { transform: scale(1.1); text-shadow: 0 0 50px #ff00ff, 0 0 80px #ff00ff; color: #ff00ff; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>FELELÉS</h1>
+    
+    <div class="inputs">
+        <input type="number" id="maxNum" placeholder="Maximum szám" value="17">
+        <input type="text" id="exceptions" placeholder="Kivételek (pl: 5, 12)">
+    </div>
+
+    <div id="display-box">0</div>
+    
+    <p class="status-msg">Nyomd meg az <strong>ENTER</strong>-t az indításhoz / megállításhoz!</p>
+</div>
+
+<script>
+    let rolling = false;
+    let intervalId = null;
+    let currentNumber = 0;
+
+    const displayBox = document.getElementById('display-box');
+    const maxInput = document.getElementById('maxNum');
+    const excInput = document.getElementById('exceptions');
+
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            if (!rolling) {
+                startRolling();
+            } else {
+                stopRolling();
+            }
+        }
+    });
+
+    function startRolling() {
+        const max = parseInt(maxInput.value) || 90;
+        const exceptions = excInput.value.split(',')
+                            .map(s => parseInt(s.trim()))
+                            .filter(n => !isNaN(n));
+
+        displayBox.classList.remove('winner');
+        rolling = true;
+
+        intervalId = setInterval(() => {
+            let nextNum;
+            // Olyan számot keresünk, ami nincs a kivételek között
+            do {
+                nextNum = Math.floor(Math.random() * max) + 1;
+            } while (exceptions.includes(nextNum) && max > exceptions.length);
+
+            currentNumber = nextNum;
+            displayBox.innerText = currentNumber;
+        }, 50); // 50ms = gyors pörgés
+    }
+
+    function stopRolling() {
+        clearInterval(intervalId);
+        rolling = false;
+        displayBox.classList.add('winner');
+        // Nagybetűs stílus helyett itt az animáció és a szín emeli ki
+    }
+</script>
+
+</body>
+</html>
