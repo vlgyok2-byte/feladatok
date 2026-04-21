@@ -4,24 +4,111 @@
     <meta charset="UTF-8">
     <title>Webteszt</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; background-color: #f4f4f9; }
-        .quiz-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; width: 100%; }
-        h1 { text-align: center; color: #333; }
-        .question-box { margin-bottom: 20px; padding: 15px; border-bottom: 1px solid #eee; }
-        input[type="text"] { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        button:hover { background-color: #45a049; }
-        #results { margin-top: 20px; display: none; }
-        .result-item { margin-bottom: 10px; padding: 10px; border-radius: 5px; }
-        .correct { background-color: #d4edda; color: #155724; border-left: 5px solid #28a745; }
-        .wrong { background-color: #f8d7da; color: #721c24; border-left: 5px solid #dc3545; }
-        .score { font-size: 1.2em; font-weight: bold; text-align: center; margin-bottom: 20px; }
+        :root {
+            --primary: #4CAF50;
+            --secondary: #2196F3;
+            --background: #f4f4f9;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background-color: var(--background);
+        }
+
+        .quiz-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--secondary);
+        }
+
+        #timer {
+            text-align:center;
+            font-size:20px;
+            margin-bottom:15px;
+            color:#d9534f;
+        }
+
+        .question-box {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #results {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 5px solid #28a745;
+        }
+
+        .wrong {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 5px solid #dc3545;
+        }
+
+        .score {
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 
 <div class="quiz-container">
-    <h1>Webteszt</h1>
+    <h3>0%-70% -- közepes(3)</h3>
+    <h3>71%-85% -- jó(4)</h3>
+    <h3>86%-100% -- jeles(5)</h3>
+    <h1>Webteszt</h1>  
+    <div id="timer">Idő: 120 mp</div>
     <div id="quiz-content"></div>
     <button id="submit-btn" onclick="evaluateQuiz()">Kiértékelés</button>
 
@@ -43,27 +130,22 @@ const allQuestions = [
     { q: "Melyik a legnagyobb óceán?", a: "Csendes-óceán" },
     { q: "Hány napból áll egy szökőév?", a: "366" },
     { q: "Mi Japán fővárosa?", a: "Tokió" },
-    { q: "Hány foka van egy derékszögnek?", a: "90" },
- { q: "Hány lába van egy póknak?", a: "8" },
-        { q: "Melyik kontinensen található Magyarország?", a: "Európa" },
-        { q: "Hány évig tartott a százéves háború?", a: "116" },
-        { q: "Mi a magyar főváros?", a: "Budapest" },
-        { q: "Hány bolygó van a Naprendszerben?", a: "8" },
-        { q: "Ki írta a Toldit?", a: "Arany János" },
-        { q: "Melyik évben volt a honfoglalás?", a: "895" },
-        { q: "Mi a víz vegyjele?", a: "H2O" },
-        { q: "Hány másodperc van egy percben?", a: "60" },
-        { q: "Melyik a legnagyobb óceán?", a: "Csendes-óceán" },
- 	{ q: "Hány lába van egy póknak?", a: "8" },
-    	{ q: "Melyik kontinensen található Magyarország?", a: "Európa" },
-	{ q: "Hány évig tartott a százéves háború?", a: "116" },
-	{ q: "Mi a magyar főváros?", a: "Budapest" },
+    { q: "Hány foka van három derékszögnek?", a: "270" },
+    { q: "Melyik kontinensen található Málta", a: "Európa" },
+    { q: "Hány évig tartott a százéves háború?", a: "116" },
+    { q: "Mi a német főváros?", a: "Berlin" },
     { q: "Hány bolygó van a Naprendszerben?", a: "8" },
     { q: "Ki írta a Toldit?", a: "Arany János" },
     { q: "Melyik évben volt a honfoglalás?", a: "895" },
-    { q: "Mi a víz vegyjele?", a: "H2O" },
-    { q: "Hány másodperc van egy percben?", a: "60" },
+    { q: "Mi a kénsav vegyjele?", a: "H2SO4" },
+    { q: "Hány másodperc van hét és fél percben?", a: "450" },
     { q: "Melyik a legnagyobb óceán?", a: "Csendes-óceán" },
+    { q: "Hány lába van egy póknak?", a: "8" },
+    { q: "Melyik kontinensen található Lettország?", a: "Európa" },
+    { q: "Mi a lett főváros?", a: "Riga" },
+    { q: "Hány bolygó van a Naprendszerben?", a: "8" },
+    { q: "Mi az ezüstnitrát vegyjele?", a: "AgNO3" },
+    { q: "Hány másodperc van negyed percben?", a: "15" },
     { q: "Hány napból áll egy szökőév?", a: "366" },
     { q: "Melyik ország fővárosa Párizs?", a: "Franciaország" },
     { q: "Hány húrja van egy hegedűnek?", a: "4" },
@@ -83,7 +165,7 @@ const allQuestions = [
     { q: "Hány színe van a szivárványnak?", a: "7" },
     { q: "Melyik városban található az Eiffel-torony?", a: "Párizs" },
     { q: "Hány kerék van egy triciklin?", a: "3" },
-    { q: "Mi Ausztria fővárosa?", a: "Bécs" },
+    { q: "Mi Norvégia fővárosa?", a: "Oslo" },
     { q: "Hány játékos van egy focicsapatban a pályán?", a: "11" },
     { q: "Melyik évben süllyedt el a Titanic?", a: "1912" },
     { q: "Hány perc egy futballmérkőzés alapideje?", a: "90" },
@@ -96,7 +178,7 @@ const allQuestions = [
     { q: "Hány lába van egy rovarnak?", a: "6" },
     { q: "Melyik országban található a gízai nagy piramis?", a: "Egyiptom" },
     { q: "Ki írta a Himnuszt?", a: "Kölcsey Ferenc" },
-    { q: "Hány centiméter egy méter?", a: "100" },
+    { q: "Hány centiméter másfél méter?", a: "150" },
     { q: "Mi Olaszország fővárosa?", a: "Róma" },
     { q: "Melyik a legmagasabb hegycsúcs a világon?", a: "Mount Everest" },
     { q: "Hány órából áll egy nap?", a: "24" },
@@ -110,13 +192,13 @@ const allQuestions = [
     { q: "Hány gramm egy kilogramm?", a: "1000" },
     { q: "Melyik tenger határolja Olaszországot keletről?", a: "Adriai-tenger" },
     { q: "Hány éves kortól nagykorú valaki Magyarországon?", a: "18" },
-    { q: "Melyik ország zászlója a juharlevél?", a: "Kanada" },
+    { q: "Melyik ország zászlójában van juharlevél?", a: "Kanada" },
     { q: "Mi Csehország fővárosa?", a: "Prága" },
     { q: "Hány oldala van egy háromszögnek?", a: "3" },
     { q: "Melyik bolygó van a legközelebb a Naphoz?", a: "Merkúr" },
     { q: "Ki volt a 'legnagyobb magyar'?", a: "Széchenyi István" },
     { q: "Hány hónap van egy évben?", a: "12" },
-    { q: "Melyik fém folyékony szobahőmérsékleten?", a: "Higany" },
+    { q: "Milyen halmazállapotú fém a higany szobahőmérsékleten?", a: "folyékony" },
     { q: "Hány év egy évtized?", a: "10" },
     { q: "Mi az Egyesült Királyság fővárosa?", a: "London" },
     { q: "Hány éle van egy téglatestnek?", a: "12" },
@@ -131,7 +213,7 @@ const allQuestions = [
     { q: "Ki írta az Egri csillagokat?", a: "Gárdonyi Géza" },
     { q: "Hány lába van egy lónak?", a: "4" },
     { q: "Melyik elem vegyjele az O?", a: "Oxigén" },
-    { q: "Hány milliméter egy centiméter?", a: "10" },
+    { q: "Hány milliméter két centiméter?", a: "20" },
     { q: "Mi Spanyolország fővárosa?", a: "Madrid" },
     { q: "Hány év egy évszázad?", a: "100" },
     { q: "Melyik madár a magyarok mitológiai madara?", a: "Turul" },
@@ -145,121 +227,121 @@ const allQuestions = [
     { q: "Melyik a leggyorsabb szárazföldi állat?", a: "Gepárd" },
     { q: "Hány oxigénatom van a vízmolekulában?", a: "1" },
     { q: "Ki volt a napkirály?", a: "XIV. Lajos" },
-    { q: "Hány méter egy kilométer?", a: "1000" },
-    { q: "Mi Portugália fővárosa?", a: "Lisszabon" },
+    { q: "Hány méter négy és fél kilométer?", a: "4500" },
     { q: "Melyik a legnépesebb ország a világon?", a: "India" },
     { q: "Hány vonal van egy kottasorban?", a: "5" },
     { q: "Ki találta fel a könyvnyomtatást?", a: "Gutenberg" },
     { q: "Hány dimenziós egy síkidom?", a: "2" },
     { q: "Mi Görögország fővárosa?", a: "Athén" },
-    { q: "Hány éves a kapitány, ha 1980-ban született és 2020 van?", a: "40" },
-    { q: "Melyik a legkisebb prímszám?", a: "2" },
-{ q: "Hány perc egy negyedóra?", a: "15" },
-{ q: "Melyik kontinensen található a Kilimandzsáró?", a: "Afrika" },
-{ q: "Hány feje volt a lerneai hidrának?", a: "9" },
-{ q: "Mi Belgium fővárosa?", a: "Brüsszel" },
-{ q: "Hány protonja van a héliumnak?", a: "2" },
-{ q: "Melyik évben koronázták meg Szent Istvánt?", a: "1000" },
-{ q: "Hány lába van egy poloskának?", a: "6" },
-{ q: "Ki írta a Pál utcai fiúkat?", a: "Molnár Ferenc" },
-{ q: "Hány fokú az egyenesszög?", a: "180" },
-{ q: "Melyik ország fővárosa Lisszabon?", a: "Portugália" },
-{ q: "Hány liter egy hektoliter?", a: "100" },
-{ q: "Melyik évben robbant fel a csernobili erőmű?", a: "1986" },
-{ q: "Hány húrja van egy csellónak?", a: "4" },
-{ q: "Ki volt a „haza bölcse”?", a: "Deák Ferenc" },
-{ q: "Hány bolygónak van gyűrűje a Naprendszerben?", a: "4" },
-{ q: "Mi Hollandia fővárosa?", a: "Amszterdam" },
-{ q: "Hány bites egy IP-cím (IPv4)?", a: "32" },
-{ q: "Melyik tenger választja el Európát Afrikától?", a: "Földközi-tenger" },
-{ q: "Hány bábúja van egy játékosnak a dám játékban?", a: "12" },
-{ q: "Ki festette a „Sikoly” című képet?", a: "Edvard Munch" },
-{ q: "Hány jegyű a legkisebb négyjegyű szám?", a: "4" },
-{ q: "Melyik elem vegyjele az N?", a: "Nitrogén" },
-{ q: "Hány versszakból áll a Himnusz?", a: "8" },
-{ q: "Mi Finnország fővárosa?", a: "Helsinki" },
-{ q: "Hány éle van egy háromoldalú gúlának (tetraéder)?", a: "6" },
-{ q: "Melyik évben indult útjára a honfoglalás?", a: "895" },
-{ q: "Hány másodperc van 10 percben?", a: "600" },
-{ q: "Ki írta a „Toldi estéje” című művet?", a: "Arany János" },
-{ q: "Hány csillag van az Európai Unió zászlóján?", a: "12" },
-{ q: "Mi Svédország fővárosa?", a: "Stockholm" },
-{ q: "Hány lába van egy százlábúnak (ténylegesen gyakori fajoknál)?", a: "30" },
-{ q: "Melyik bolygó a legnagyobb a Naprendszerben?", a: "Jupiter" },
-{ q: "Hány napig tartott az 1956-os forradalom?", a: "13" },
-{ q: "Ki fedezte fel a Penicillint?", a: "Alexander Fleming" },
-{ q: "Hány foga van egy lónak (csődör)?", a: "40" },
-{ q: "Mi Görögország fővárosa?", a: "Athén" },
-{ q: "Hány méter egy tengeri mérföld (kerekítve)?", a: "1852" },
-{ q: "Melyik országban található a Machu Picchu?", a: "Peru" },
-{ q: "Hány játékos van egy jégkorongcsapatban egyszerre a jégen?", a: "6" },
-{ q: "Ki írta a „Faust” című művet?", a: "Goethe" },
-{ q: "Hány milligramm egy gramm?", a: "1000" },
-{ q: "Melyik évben kezdődött a reformáció?", a: "1517" },
-{ q: "Hány szoba van a Fehér Házban?", a: "132" },
-{ q: "Mi Dánia fővárosa?", a: "Koppenhága" },
-{ q: "Hány oxigénatom van a szén-dioxidban?", a: "2" },
-{ q: "Melyik a Föld legmélyebb tava?", a: "Bajkál-tó" },
-{ q: "Hány kerék van egy monociklin?", a: "1" },
-{ q: "Ki volt az „egri nők” vezére az ostromkor?", a: "Dobó István" },
-{ q: "Hány vonalból áll a kínai nagy fal (fővonalak száma)?", a: "1" },
-{ q: "Mi Svájc fővárosa?", a: "Bern" },
-{ q: "Hány lába van egy skorpiónak?", a: "8" },
-{ q: "Melyik évben adták át a Lánchidat?", a: "1849" },
-{ q: "Hány karja van egy átlagos polipnak?", a: "8" },
-{ q: "Ki szerezte a „Négy évszak” című művet?", a: "Vivaldi" },
-{ q: "Hány cm egy inch (coll)?", a: "2.54" },
-{ q: "Mi Törökország fővárosa?", a: "Ankara" },
-{ q: "Hány kilométer a maratoni táv pontosan?", a: "42" },
-{ q: "Melyik a legkisebb madár a világon?", a: "Kolibri" },
-{ q: "Hány állam alkotja az Amerikai Egyesült Államokat?", a: "50" },
-{ q: "Ki írta a „Szigeti veszedelem” című művet?", a: "Zrínyi Miklós" },
-{ q: "Hány fokon fagy meg a víz?", a: "0" },
-{ q: "Mi Írország fővárosa?", a: "Dublin" },
-{ q: "Hány színű a francia zászló?", a: "3" },
-{ q: "Melyik évben dobták le az atombombát Hirosimára?", a: "1945" },
-{ q: "Hány lába van egy bolhának?", a: "6" },
-{ q: "Ki festette a „Vénusz születése” című képet?", a: "Botticelli" },
-{ q: "Hány bűne volt a hollónak a mesében?", a: "0" },
-{ q: "Mi Egyiptom fővárosa?", a: "Kairó" },
-{ q: "Hány billentyű van egy fuvolán (átlagosan)?", a: "16" },
-{ q: "Melyik folyó folyik át Londonon?", a: "Temze" },
-{ q: "Hány éves egy ezüstlakodalmas házaspár?", a: "25" },
-{ q: "Ki írta a „Kőszívű ember fiai” című regényt?", a: "Jókai Mór" },
-{ q: "Hány km/h a fénysebesség (kerekítve, millió km/h)?", a: "1080" },
-{ q: "Mi Norvégia fővárosa?", a: "Oslo" },
-{ q: "Hány húrja van egy hárfának (pedálhárfa)?", a: "47" },
-{ q: "Melyik évben volt a francia forradalom?", a: "1789" },
-{ q: "Hány gramm egy kiló liszt?", a: "1000" },
-{ q: "Ki találta fel a gőzgépet?", a: "James Watt" },
-{ q: "Hány lába van a ráknak?", a: "10" },
-{ q: "Mi Brazília fővárosa?", a: "Brazíliaváros" },
-{ q: "Hány bit egy kilobájt (hagyományosan)?", a: "8192" },
-{ q: "Melyik a legnagyobb sziget a világon?", a: "Grönland" },
-{ q: "Hány másodpercig tart egy perc?", a: "60" },
-{ q: "Ki írta az „Óda” című verset?", a: "József Attila" },
-{ q: "Hány pontot ér a sakkban a vezér?", a: "9" },
-{ q: "Mi Kanada fővárosa?", a: "Ottawa" },
-{ q: "Hány hónapból áll egy évszak?", a: "3" },
-{ q: "Melyik bolygót hívják a „gyűrűs bolygónak”?", a: "Szaturnusz" },
-{ q: "Hány gyermeke volt Mária Teréziának?", a: "16" },
-{ q: "Ki fedezte fel a gravitációt?", a: "Newton" },
-{ q: "Hány lába van a tyúknak?", a: "2" },
-{ q: "Mi Izland fővárosa?", a: "Reykjavík" },
-{ q: "Hány játékos van egy vízilabdacsapatban a vízben?", a: "7" },
-{ q: "Melyik évben volt az első holdraszállás?", a: "1969" },
-{ q: "Hány évesen halt meg Petőfi Sándor?", a: "26" },
-{ q: "Ki írta a „Bánk bán” drámát?", a: "Katona József" },
-{ q: "Hány kerék van egy motorkerékpáron?", a: "2" },
-{ q: "Mi Marokkó fővárosa?", a: "Rabat" },
-{ q: "Hány foka van a körnek?", a: "360" },
-{ q: "Melyik a legkisebb prímszám?", a: "2" }
+    { q: "Hány éves a kapitány, ha 1972-ben született és 2026 van?", a: "54" },
+    { q: "Melyik a legkisebb páros prímszám?", a: "2" },
+    { q: "Hány perc egy negyedóra?", a: "15" },
+    { q: "Melyik kontinensen található a Kilimandzsáró?", a: "Afrika" },
+    { q: "Hány feje volt a lerneai hidrának?", a: "9" },
+    { q: "Mi Belgium fővárosa?", a: "Brüsszel" },
+    { q: "Hány protonja van a héliumnak?", a: "2" },
+    { q: "Melyik évben koronázták meg Szent Istvánt?", a: "1000" },
+    { q: "Hány lába van egy poloskának?", a: "6" },
+    { q: "Ki írta a Pál utcai fiúkat?", a: "Molnár Ferenc" },
+    { q: "Hány fokú az egyenesszög?", a: "180" },
+    { q: "Melyik ország fővárosa Lisszabon?", a: "Portugália" },
+    { q: "Hány liter két hektoliter?", a: "200" },
+    { q: "Melyik évben robbant fel a csernobili erőmű?", a: "1986" },
+    { q: "Hány húrja van egy csellónak?", a: "4" },
+    { q: "Ki volt a „haza bölcse”?", a: "Deák Ferenc" },
+    { q: "Hány bolygónak van gyűrűje a Naprendszerben?", a: "4" },
+    { q: "Mi Hollandia fővárosa?", a: "Amszterdam" },
+    { q: "Hány bites egy IP-cím (IPv4)?", a: "32" },
+    { q: "Melyik tenger választja el Európát Afrikától?", a: "Földközi-tenger" },
+    { q: "Hány bábúja van egy játékosnak a dám játékban?", a: "12" },
+    { q: "Ki festette a „Sikoly” című képet?", a: "Edvard Munch" },
+    { q: "Hány jegyű a legkisebb négyjegyű szám?", a: "4" },
+    { q: "Melyik elem vegyjele az Au?", a: "Arany" },
+    { q: "Hány versszakból áll a Himnusz?", a: "8" },
+    { q: "Mi Finnország fővárosa?", a: "Helsinki" },
+    { q: "Hány éle van egy háromoldalú gúlának (tetraéder)?", a: "6" },
+    { q: "Melyik évben indult útjára a honfoglalás?", a: "895" },
+    { q: "Hány másodperc van 10 percben?", a: "600" },
+    { q: "Ki írta a „Toldi estéje” című művet?", a: "Arany János" },
+    { q: "Hány csillag van az Európai Unió zászlóján?", a: "12" },
+    { q: "Mi Svédország fővárosa?", a: "Stockholm" },
+    { q: "Hány lába van egy százlábúnak (ténylegesen gyakori fajoknál)?", a: "30" },
+    { q: "Melyik bolygó a legnagyobb a Naprendszerben?", a: "Jupiter" },
+    { q: "Hány napig tartott az 1956-os forradalom?", a: "13" },
+    { q: "Ki fedezte fel a Penicillint?", a: "Alexander Fleming" },
+    { q: "Hány foga van egy lónak (csődör)?", a: "40" },
+    { q: "Mi Görögország fővárosa?", a: "Athén" },
+    { q: "Hány méter egy tengeri mérföld (kerekítve)?", a: "1852" },
+    { q: "Melyik országban található a Machu Picchu?", a: "Peru" },
+    { q: "Hány játékos van egy jégkorongcsapatban egyszerre a jégen?", a: "6" },
+    { q: "Ki írta a „Faust” című művet?", a: "Goethe" },
+    { q: "Hány milligramm egy gramm?", a: "1000" },
+    { q: "Melyik évben kezdődött a reformáció?", a: "1517" },
+    { q: "Hány szoba van a Fehér Házban?", a: "132" },
+    { q: "Mi Dánia fővárosa?", a: "Koppenhága" },
+    { q: "Hány oxigénatom van a szén-dioxidban?", a: "2" },
+    { q: "Melyik a Föld legmélyebb tava?", a: "Bajkál-tó" },
+    { q: "Hány kerék van egy monociklin?", a: "1" },
+    { q: "Ki volt az „egri nők” vezére az ostromkor?", a: "Dobó István" },
+    { q: "Hány vonalból áll a kínai nagy fal (fővonalak száma)?", a: "1" },
+    { q: "Mi Svájc fővárosa?", a: "Bern" },
+    { q: "Hány lába van egy skorpiónak?", a: "8" },
+    { q: "Melyik évben adták át a Lánchidat?", a: "1849" },
+    { q: "Hány karja van egy átlagos polipnak?", a: "8" },
+    { q: "Ki szerezte a „Négy évszak” című művet?", a: "Vivaldi" },
+    { q: "Hány cm egy inch (coll)?", a: "2.54" },
+    { q: "Mi Törökország fővárosa?", a: "Ankara" },
+    { q: "Hány kilométer a maratoni táv pontosan?", a: "42" },
+    { q: "Melyik a legkisebb madár a világon?", a: "Kolibri" },
+    { q: "Hány állam alkotja az Amerikai Egyesült Államokat?", a: "50" },
+    { q: "Ki írta a „Szigeti veszedelem” című művet?", a: "Zrínyi Miklós" },
+    { q: "Hány fokon fagy meg a víz?", a: "0" },
+    { q: "Mi Írország fővárosa?", a: "Dublin" },
+    { q: "Hány színű a francia zászló?", a: "3" },
+    { q: "Melyik évben dobták le az atombombát Hirosimára?", a: "1945" },
+    { q: "Hány lába van egy bolhának?", a: "6" },
+    { q: "Ki festette a „Vénusz születése” című képet?", a: "Botticelli" },
+    { q: "Hány bűne volt a hollónak a mesében?", a: "0" },
+    { q: "Mi Egyiptom fővárosa?", a: "Kairó" },
+    { q: "Hány billentyű van egy fuvolán (átlagosan)?", a: "16" },
+    { q: "Melyik folyó folyik át Londonon?", a: "Temze" },
+    { q: "Hány éves egy ezüstlakodalmas házaspár?", a: "25" },
+    { q: "Ki írta a „Kőszívű ember fiai” című regényt?", a: "Jókai Mór" },
+    { q: "Hány km/h a fénysebesség (kerekítve, millió km/h)?", a: "1080" },
+    { q: "Mi Norvégia fővárosa?", a: "Oslo" },
+    { q: "Hány húrja van egy hárfának (pedálhárfa)?", a: "47" },
+    { q: "Melyik évben volt a francia forradalom?", a: "1789" },
+    { q: "Hány gramm ötvenegy kiló liszt?", a: "51000" },
+    { q: "Ki találta fel a gőzgépet?", a: "James Watt" },
+    { q: "Hány lába van a ráknak?", a: "10" },
+    { q: "Mi Brazília fővárosa?", a: "Brazíliaváros" },
+    { q: "Hány bit egy kilobájt (hagyományosan)?", a: "8192" },
+    { q: "Melyik a legnagyobb sziget a világon?", a: "Grönland" },
+    { q: "Hány másodpercig tart négy perc?", a: "240" },
+    { q: "Ki írta az „Óda” című verset?", a: "József Attila" },
+    { q: "Hány pontot ér a sakkban a vezér?", a: "9" },
+    { q: "Mi Kanada fővárosa?", a: "Ottawa" },
+    { q: "Hány hónapból áll egy évszak?", a: "3" },
+    { q: "Melyik bolygót hívják a „gyűrűs bolygónak”?", a: "Szaturnusz" },
+    { q: "Hány gyermeke volt Mária Teréziának?", a: "16" },
+    { q: "Ki fedezte fel a gravitációt?", a: "Newton" },
+    { q: "Hány lába van a tyúknak?", a: "2" },
+    { q: "Mi Izland fővárosa?", a: "Reykjavík" },
+    { q: "Hány játékos van egy vízilabdacsapatban a vízben?", a: "7" },
+    { q: "Melyik évben volt az első holdraszállás?", a: "1969" },
+    { q: "Hány évesen halt meg Petőfi Sándor?", a: "26" },
+    { q: "Ki írta a „Bánk bán” drámát?", a: "Katona József" },
+    { q: "Hány kerék van egy motorkerékpáron?", a: "2" },
+    { q: "Mi Marokkó fővárosa?", a: "Rabat" },
+    { q: "Hány foka van a körnek?", a: "360" },
+    { q: "Melyik a legnagyobb páros prímszám?", a: "2" }
 ];
 
 let selectedQuestions = [];
+let timeLeft = 120;
+let timerInterval;
+let quizFinished = false;
 
-
-// ✅ Fisher–Yates keverés
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -267,16 +349,28 @@ function shuffle(array) {
     }
 }
 
+function startTimer() {
+    const timerDisplay = document.getElementById("timer");
 
-// ✅ Kérdések indítása
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.innerText = `Idő: ${timeLeft} mp`;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            evaluateQuiz();
+        }
+    }, 1000);
+}
+
 function startQuiz() {
     const container = document.getElementById('quiz-content');
-    container.innerHTML = ""; // fontos!
+    container.innerHTML = "";
 
-    const copy = [...allQuestions]; // másolat
+    const copy = [...allQuestions];
     shuffle(copy);
 
-    selectedQuestions = copy.slice(0, 5);
+    selectedQuestions = copy.slice(0, 20);
 
     selectedQuestions.forEach((item, index) => {
         container.innerHTML += `
@@ -286,11 +380,16 @@ function startQuiz() {
             </div>
         `;
     });
+
+    startTimer();
 }
 
-
-// ✅ Kiértékelés
 function evaluateQuiz() {
+    if (quizFinished) return;
+    quizFinished = true;
+
+    clearInterval(timerInterval);
+
     let score = 0;
     let resultsHtml = "";
 
@@ -310,15 +409,18 @@ function evaluateQuiz() {
         `;
     });
 
+    const percent = Math.round((score / selectedQuestions.length) * 100);
+
     document.getElementById('quiz-content').style.display = "none";
     document.getElementById('submit-btn').style.display = "none";
+    document.getElementById('timer').style.display = "none";
 
-    const resultsDiv = document.getElementById('results');
-    resultsDiv.style.display = "block";
-    document.getElementById('score-display').innerText = `Találatok: ${score} / ${selectedQuestions.length}`;
+    document.getElementById('results').style.display = "block";
+    document.getElementById('score-display').innerText =
+        `Találatok: ${score} / ${selectedQuestions.length} (${percent}%)`;
+
     document.getElementById('answers-list').innerHTML = resultsHtml;
 }
-
 
 window.onload = startQuiz;
 </script>
