@@ -22,9 +22,7 @@
 
 <div class="quiz-container">
     <h1>Webteszt</h1>
-    <div id="quiz-content">
-        <!-- Itt jelennek meg a kérdések -->
-    </div>
+    <div id="quiz-content"></div>
     <button id="submit-btn" onclick="evaluateQuiz()">Kiértékelés</button>
 
     <div id="results">
@@ -35,9 +33,18 @@
 </div>
 
 <script>
-    // 1. Kérdés adatbázis (bővíthető)
-    const allQuestions = [
-        { q: "Hány lába van egy póknak?", a: "8" },
+const allQuestions = [
+    { q: "Hány lába van egy póknak?", a: "8" },
+    { q: "Melyik kontinensen található Magyarország?", a: "Európa" },
+    { q: "Mi a magyar főváros?", a: "Budapest" },
+    { q: "Hány bolygó van a Naprendszerben?", a: "8" },
+    { q: "Mi a víz vegyjele?", a: "H2O" },
+    { q: "Hány másodperc van egy percben?", a: "60" },
+    { q: "Melyik a legnagyobb óceán?", a: "Csendes-óceán" },
+    { q: "Hány napból áll egy szökőév?", a: "366" },
+    { q: "Mi Japán fővárosa?", a: "Tokió" },
+    { q: "Hány foka van egy derékszögnek?", a: "90" },
+ { q: "Hány lába van egy póknak?", a: "8" },
         { q: "Melyik kontinensen található Magyarország?", a: "Európa" },
         { q: "Hány évig tartott a százéves háború?", a: "116" },
         { q: "Mi a magyar főváros?", a: "Budapest" },
@@ -247,61 +254,73 @@
 { q: "Mi Marokkó fővárosa?", a: "Rabat" },
 { q: "Hány foka van a körnek?", a: "360" },
 { q: "Melyik a legkisebb prímszám?", a: "2" }
+];
+
+let selectedQuestions = [];
 
 
-    ];
-
-    let selectedQuestions = [];
-
-    // 2. Véletlenszerű 5 kérdés kiválasztása
-    function startQuiz() {
-        const shuffled = allQuestions.sort(() => 0.5 - Math.random());
-        selectedQuestions = shuffled.slice(0, 5);
-        
-        const container = document.getElementById('quiz-content');
-        selectedQuestions.forEach((item, index) => {
-            container.innerHTML += `
-                <div class="question-box">
-                    <p><strong>${index + 1}. ${item.q}</strong></p>
-                    <input type="text" id="ans-${index}" placeholder="Írd ide a választ...">
-                </div>
-            `;
-        });
+// ✅ Fisher–Yates keverés
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
+}
 
-    // 3. Értékelés
-    function evaluateQuiz() {
-        let score = 0;
-        let resultsHtml = "";
 
-        selectedQuestions.forEach((item, index) => {
-            const userAns = document.getElementById(`ans-${index}`).value.trim().toLowerCase();
-            const correctAns = item.a.toLowerCase();
-            
-            const isCorrect = (userAns === correctAns);
-            if (isCorrect) score++;
+// ✅ Kérdések indítása
+function startQuiz() {
+    const container = document.getElementById('quiz-content');
+    container.innerHTML = ""; // fontos!
 
-            // 4. Helyes válaszok összeállítása
-            resultsHtml += `
-                <div class="result-item ${isCorrect ? 'correct' : 'wrong'}">
-                    <strong>${index + 1}. Kérdés:</strong> ${item.q}<br>
-                    Válaszod: ${userAns || "üres"}<br>
-                    Helyes válasz: ${item.a}
-                </div>
-            `;
-        });
+    const copy = [...allQuestions]; // másolat
+    shuffle(copy);
 
-        // 5. Pontszám és eredmények kiírása
-        document.getElementById('quiz-content').style.display = "none";
-        document.getElementById('submit-btn').style.display = "none";
-        
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.style.display = "block";
-        document.getElementById('score-display').innerText = `Találatok: 5 / ${score}`;
-        document.getElementById('answers-list').innerHTML = resultsHtml;
-    }
+    selectedQuestions = copy.slice(0, 5);
 
-    window.onload = startQuiz;
+    selectedQuestions.forEach((item, index) => {
+        container.innerHTML += `
+            <div class="question-box">
+                <p><strong>${index + 1}. ${item.q}</strong></p>
+                <input type="text" id="ans-${index}" placeholder="Írd ide a választ...">
+            </div>
+        `;
+    });
+}
+
+
+// ✅ Kiértékelés
+function evaluateQuiz() {
+    let score = 0;
+    let resultsHtml = "";
+
+    selectedQuestions.forEach((item, index) => {
+        const userAns = document.getElementById(`ans-${index}`).value.trim().toLowerCase();
+        const correctAns = item.a.toLowerCase();
+
+        const isCorrect = (userAns === correctAns);
+        if (isCorrect) score++;
+
+        resultsHtml += `
+            <div class="result-item ${isCorrect ? 'correct' : 'wrong'}">
+                <strong>${index + 1}. Kérdés:</strong> ${item.q}<br>
+                Válaszod: ${userAns || "üres"}<br>
+                Helyes válasz: ${item.a}
+            </div>
+        `;
+    });
+
+    document.getElementById('quiz-content').style.display = "none";
+    document.getElementById('submit-btn').style.display = "none";
+
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.style.display = "block";
+    document.getElementById('score-display').innerText = `Találatok: ${score} / ${selectedQuestions.length}`;
+    document.getElementById('answers-list').innerHTML = resultsHtml;
+}
+
+
+window.onload = startQuiz;
 </script>
 
 </body>
