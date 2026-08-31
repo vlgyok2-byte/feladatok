@@ -138,7 +138,7 @@
         <div class="stats">
             <span id="question-counter">Kérdés: 1/15</span>
             <span id="score-counter">Helyes válaszok: 0</span>
-            <span id="timer-text">Idő: 12 mp</span>
+            <span id="timer-text">Idő: 35 mp</span>
         </div>
         
         <div class="timer-bar-container">
@@ -484,7 +484,7 @@ const questionBank = [
 let currentQuestions = [];
 let currentIndex = 0;
 let correctAnswersCount = 0;
-let timeLeft = 12;
+let timeLeft = 35;
 let timerInterval = null;
 
 // Segédfunkció tömbök véletlenszerű megkeverésére (Fisher-Yates)
@@ -543,7 +543,7 @@ function loadQuestion() {
     }
     
     clearInterval(timerInterval);
-    timeLeft = 12;
+    timeLeft = 35;
     updateTimerDisplay();
     
     const qData = currentQuestions[currentIndex];
@@ -577,7 +577,7 @@ function loadQuestion() {
 
 function updateTimerDisplay() {
     document.getElementById('timer-text').innerText = `Idő: ${timeLeft} mp`;
-    const percentage = (timeLeft / 12) * 100;
+    const percentage = (timeLeft / 35) * 100;
     const bar = document.getElementById('timer-bar');
     bar.style.width = `${percentage}%`;
     
