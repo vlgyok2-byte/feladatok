@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webteszt - Iskolai Értékelés</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background: #161623;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            border: 1px solid #2a2a40;
+        }
+        h1 { color: #00d2ff; margin-top: 0; }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #b0b0d0;
+            background: #1f1f38;
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+        .timer-bar-container {
+            width: 100%;
+            height: 12px;
+            background: #252542;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #00d2ff, #00ff87);
+            transition: width 1s linear, background 0.5s;
+        }
+        .question {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            min-height: 60px;
+            line-height: 1.4;
+        }
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media(max-width: 480px) {
+            .answers-grid { grid-template-columns: 1fr; }
+        }
+        .btn {
+            background: #252542;
+            color: white;
+            border: 2px solid #3d3d66;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .btn:hover:not(:disabled) {
+            background: #3d3d66;
+            border-color: #00d2ff;
+        }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn.correct { background: #00ff87 !important; color: #121212; border-color: #00ff87; font-weight: bold; }
+        .btn.wrong { background: #ff3838 !important; color: white; border-color: #ff3838; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .result-screen h2 { color: #00ff87; }
+        .grade-badge {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 10px;
+            background: #1f1f38;
+            color: #00d2ff;
+            border: 1px solid #00d2ff;
+        }
+        .action-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        .primary-btn {
+            background: #00d2ff;
+            color: #121212;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .primary-btn:hover { background: #00b4db; }
+        .secondary-btn {
+            background: transparent;
+            color: #00d2ff;
+            border: 2px solid #00d2ff;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .secondary-btn:hover { background: rgba(0,210,255,0.1); }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>Webteszt - Ismétlés</h1>
+    
+    <!-- Játék Képernyő -->
+    <div id="game-screen" class="screen active">
+        <div class="stats">
+            <span id="question-counter">Kérdés: 1/15</span>
+            <span id="score-counter">Helyes válaszok: 0</span>
+            <span id="timer-text">Idő: 35 mp</span>
+        </div>
+        
+        <div class="timer-bar-container">
+            <div id="timer-bar" class="timer-bar"></div>
+        </div>
+
+        <div id="question-text" class="question">Kérdés betöltése...</div>
+        
+        <div class="answers-grid">
+            <button class="btn" id="btn-0" onclick="checkAnswer(0)"></button>
+            <button class="btn" id="btn-1" onclick="checkAnswer(1)"></button>
+            <button class="btn" id="btn-2" onclick="checkAnswer(2)"></button>
+            <button class="btn" id="btn-3" onclick="checkAnswer(3)"></button>
+        </div>
+    </div>
+
+    <!-- Helyes Válasz Képernyő -->
+    <div id="correct-screen" class="screen">
+        <h2>Helyes válasz! 🎉</h2>
+        <p id="correct-msg"></p>
+        <div class="action-btns">
+            <button class="primary-btn" onclick="nextQuestion()">Folytatás</button>
+            <button class="secondary-btn" onclick="endGame(true)">Megállok és kérem a jegyet</button>
+        </div>
+    </div>
+
+    <!-- Kiértékelés Képernyő -->
+    <div id="result-screen" class="screen">
+        <h2>Kiértékelés</h2>
+        <div id="grade-container" class="grade-badge"></div>
+        <p id="result-text"></p>
+        <button class="primary-btn" onclick="initGame()">Új próbálkozás</button>
+    </div>
+</div>
+
+<script>
+const questionBank = [
+ // I. Isten, a Teremtés és a Szentháromság (1-15)
+    { q: "Ki a Világmindenség teremtője?", a: ["A szentek", "Isten", "Az angyalok", "Az evolúció magától"], correct: 1 },
+    { q: "Hány személy van az egyetlen Istenben?", a: ["Egy", "Kettő", "Három", "Négy"], correct: 2 },
+    { q: "Kik a Szentháromság személyei?", a: ["Ábrahám, Izsák és Jákob", "Péter, Pál és János", "Atya, Fiú és Szentlélek", "Jézus, Mária és József"], correct: 2 },
+    { q: "Mit jelent az, hogy Isten örökkévaló?", a: ["Hogy nagyon öreg", "Hogy nincs kezdete és nincs vége", "Hogy a világ végén született", "Hogy csak a jövőben létezik"], correct: 1 },
+    { q: "Milyennek teremtette Isten az embert?", a: ["Saját képmására", "Tökéletlen állatnak", "Angyalnak", "Halhatatlan testűnek"], correct: 0 },
+    { q: "Mi az ember két fő alkotórésze?", a: ["Hús és vér", "Test és lélek", "Ész és akarat", "Szív és tüdő"], correct: 1 },
+    { q: "Mivel ajándékozta meg Isten az embert, amivel dönthet jó és rossz között?", a: ["Ösztönnel", "Szabad akarattal", "Gazdagsággal", "Szerencsével"], correct: 1 },
+    { q: "Hogyan nevezzük az első emberpár engedetlenségét?", a: ["Könnyű bűn", "Eredeti (áteredő) bűn", "Személyes bűn", "Megbocsáthatatlan bűn"], correct: 1 },
+    { q: "Kik voltak az első emberek a Biblia szerint?", a: ["Káin és Ábel", "Ábrahám és Sára", "Ádám és Éva", "Péter és Pál"], correct: 2 },
+    { q: "Kik az angyalok?", a: ["Elhunyt emberek lelkei", "Isten test nélküli, szellemi lényei, követei", "Képzeletbeli lények", "Szent életű királyok"], correct: 1 },
+    { q: "Ki a lázadó angyal, a kísértő?", a: ["Gábriel", "Mihály", "A sátán (ördög)", "Rafael"], correct: 2 },
+    { q: "Mit jelent az, hogy Isten gondviselő?", a: ["Hogy mindent előre lát, de nem törődik velünk", "Hogy szeretettel irányítja és fenntartja a világot", "Hogy csak a jókat segíti", "Hogy megbünteti a világot"], correct: 1 },
+    { q: "Megismerheti-e az ember Istent a józanész segítségével?", a: ["Nem, egyáltalán nem", "Igen, a teremtett világból következtethet rá", "Csak ha látomást kap", "Csak ha tudós"], correct: 1 },
+    { q: "Hogyan nyilatkoztatta ki magát Isten legteljesebben?", a: ["A próféták által", "A természet törvényein keresztül", "Jézus Krisztus által", "Az álmokon keresztül"], correct: 2 },
+    { q: "Mi Isten legfőbb tulajdonsága János apostol szerint?", a: ["A harag", "A szeretet", "A távolságtartás", "A szigor"], correct: 1 },
+
+    // II. Jézus Krisztus és a Megváltás (16-30)
+    { q: "Ki Jézus Krisztus?", a: ["Egy jövőbeli próféta", "Isten Fia, aki emberré lett", "Egy egyszerű tanító", "Keresztelő János tanítványa"], correct: 1 },
+    { q: "Mit jelent a Jézus név?", a: ["Isten velünk", "A Felkent", "Isten megszabadít (Megváltó)", "Békesség"], correct: 2 },
+    { q: "Mit jelent a Krisztus név?", a: ["Király", "Felkent", "Szent", "Isten Fia"], correct: 1 },
+    { q: "Ki Jézus földi édesanyja?", a: ["Szent Erzsébet", "Mária Magdolna", "Szűz Mária", "Sára"], correct: 2 },
+    { q: "Ki volt Jézus nevelőapja?", a: ["Szent József", "Keresztelő János", "Zakariás", "Szent Péter"], correct: 0 },
+    { q: "Hol született Jézus?", a: ["Názáretben", "Jeruzsálemben", "Betlehemben", "Rómában"], correct: 2 },
+    { q: "Melyik városban nevelkedett Jézus?", a: ["Betlehemben", "Názáretben", "Kafarnaumban", "Egyiptomban"], correct: 1 },
+    { q: "Ki keresztelte meg Jézust a Jordán folyóban?", a: ["Szent Péter", "Keresztelő Szent János", "Mózes", "Az Atya Isten"], correct: 1 },
+    { q: "Hány apostolt választott Jézus?", a: ["7", "10", "12", "72"], correct: 2 },
+    { q: "Ki árulta el Jézust 30 ezüstpénzért?", a: ["Péter apostol", "Iskarióti Júdás", "Tamás apostol", "Pilátus"], correct: 1 },
+    { q: "Ki volt a római helytartó, aki halálra ítélte Jézust?", a: ["Heródes", "Néró", "Poncius Pilátus", "Cajafás"], correct: 2 },
+    { q: "Milyen halállal halt meg Jézus?", a: ["Kard által", "Kereszthalállal", "Öregségben", "Megkövezéssel"], correct: 1 },
+    { q: "Mit tett Jézus a halála utáni harmadik napon?", a: ["Megjelent a templomban", "Feltámadt a halálból", "Mennybe ment azonnal", "Újra meghalt"], correct: 1 },
+    { q: "Hány napig maradt a földön Jézus a feltámadása után?", a: ["3 napig", "7 napig", "40 napig", "50 napig"], correct: 2 },
+    { q: "Mi történt a 40. napon Jézus feltámadása után?", a: ["Pünkösd", "Mennybemenetel (Áldozócsütörtök)", "A templom lerombolása", "Az utolsó vacsora"], correct: 1 },
+
+    // III. A Szentlélek és a Pünkösd (31-45)
+    { q: "Ki a Szentlélek?", a: ["Egy jó érzés az emberben", "A Szentháromság harmadik személye, valóságos Isten", "Egy angyal", "Jézus emberi lelke"], correct: 1 },
+    { q: "Mikor áradt ki a Szentlélek az apostolokra?", a: ["Húsvétkor", "Karácsonykor", "Pünkösdkor", "Gyümölcsoltó Boldogasszonykor"], correct: 2 },
+    { q: "Hány nappal Húsvét után ünnepeljük a Pünkösdöt?", a: ["3", "10", "40", "50"], correct: 3 },
+    { q: "Milyen jelek kísérték a Szentlélek eljövetelét pünkösdkor?", a: ["Földrengés és sötétség", "Heves szélvész és tüzes nyelvek", "Eső és szivárvány", "Angyali énekszó"], correct: 1 },
+    { q: "Hány ajándéka van a Szentléleknek?", a: ["3", "7", "10", "12"], correct: 1 },
+    { q: "Melyik NEM a Szentlélek ajándéka?", a: ["Bölcsesség", "Értelem", "Gazdagság", "Jámborság"], correct: 2 },
+    { q: "Melyik Szentlélek-ajándék segít Isten akaratának felismerésében a nehéz helyzetekben?", a: ["A jótanács ajándéka", "A tudomány ajándéka", "Az erősség ajándéka", "A félelem ajándéka"], correct: 0 },
+    { q: "Mit ad a Szentlélek az erősség ajándékával?", a: ["Nagy fizikai erőt", "Bátorságot a hit megvallásához és a jó cselekvéséhez", "Vezetői képességet", "Gazdag életet"], correct: 1 },
+    { q: "Mit jelent az Istenfélelem ajándéka?", a: ["Hogy rettegünk Isten büntetésétől", "Gyermeki szeretetet, amellyel félünk megbántani Istent", "Hogy nem merünk imádkozni", "Hogy félünk a templomtól"], correct: 1 },
+    { q: "Melyik állat a Szentlélek leggyakoribb bibliai jelképe?", a: ["Oroszlán", "Bárány", "Galamb", "Sas"], correct: 2 },
+    { q: "Mit művel a Szentlélek az Egyházban?", a: ["Megosztja a hívőket", "Élteti, megszenteli és vezeti az Egyházat", "Csak a papokat segíti", "Semmit, már nincs jelen"], correct: 1 },
+    { q: "Kiket ihletett meg a Szentlélek a Szentírás megírásakor?", a: ["A szentírókat (hagiográfusokat)", "A római császárokat", "Az ókori filozófusokat", "A nyomdászokat"], correct: 0 },
+    { q: "Ki kapja meg a Szentlélek ajándékainak teljességét?", a: ["Csak a pápa", "A megkeresztelt és megbérmált ember", "Aki sokat tanul", "Minden ember a születésekor"], correct: 1 },
+    { q: "Melyik szentségben kapjuk meg a 'Szentlélek pecsétjét'?", a: ["Keresztség", "Bérmálás", "Eucharisztia", "Házasság"], correct: 1 },
+    { q: "Milyen gyümölcsei vannak a Szentlélek jelenlétének az életünkben?", a: ["Szeretet, öröm, békesség, türelem", "Pénz, hírnév, hatalom", "Bánat, félelem, aggodalom", "Tudás, büszkeség, erő"], correct: 0 },
+
+    // IV. Az Egyház és a Szentírás (46-60)
+    { q: "Mi az Egyház?", a: ["Egy régi épület", "Isten népe, a Krisztusban hívők közössége", "A püspökök magántulajdona", "Egy politikai párt"], correct: 1 },
+    { q: "Ki az Egyház láthatatlan feje?", a: ["A pápa", "A püspök", "Jézus Krisztus", "A Szentlélek"], correct: 2 },
+    { q: "Ki az Egyház látható feje, Krisztus földi helytartója?", a: ["A mindenkori pápa", "A helyi plébános", "A köztársasági elnök", "Szent István király"], correct: 0 },
+    { q: "Ki volt az első pápa?", a: ["Szent Pál", "Szent Péter", "Szent János", "Szent István"], correct: 1 },
+    { q: "Hogyan nevezzük a pápa és a püspökök tanítói feladatát?", a: ["Egyházi törvénykezés", "Magisztérium (Tanítóhivatal)", "Zsinat", "Prédikáció"], correct: 1 },
+    { q: "Melyek az Egyház ismertetőjegyei?", a: ["Régi, nagy, gazdag, európai", "Egy, szent, katolikus és apostoli", "Szigorú, zárt, titkos, szent", "Magyar, római, modern, szabad"], correct: 1 },
+    { q: "Mit jelent a 'katolikus' szó?", a: ["Keresztény", "Egyetemes, mindenkire kiterjedő", "Római", "Szent"], correct: 1 },
+    { q: "Kik a püspökök?", a: ["A plébánosok segédei", "Az apostolok utódai", "Az egyházi énekkar vezetői", "Idős szerzetesek"], correct: 1 },
+    { q: "Mi a Szentírás (Biblia)?", a: ["Emberi mesék gyűjteménye", "Isten sugalmazott szava, könyvek gyűjteménye", "A zsidó nép történelemkönyve", "Egy ókori törvénykönyv"], correct: 1 },
+    { q: "Két fő része van a Bibliának. Melyek azok?", a: ["Ószövetség és Újszövetség", "Törvény és Próféták", "Evangéliumok és Levelek", "Genezis és Jelenések"], correct: 0 },
+    { q: "Hány evangélista írta le Jézus életét?", a: ["2", "3", "4", "12"], correct: 2 },
+    { q: "Kik az evangélisták?", a: ["Péter, Pál, Jakab, János", "Máté, Márk, Lukács, János", "Ábrahám, Mózes, Dávid, Illés", "István, László, Imre, Gellért"], correct: 1 },
+    { q: "Miről szól az Újszövetség?", a: ["A világ teremtéséről", "A zsidó királyokról", "Jézus Krisztus életéről, tanításáról és az ősegyházról", "A világ végéről szóló jóslatokról"], correct: 2 },
+    { q: "Mi az Egyház hagyománya (Szent Hagyomány)?", a: ["A régi népszokások", "A hit igazságainak szóbeli átadása a Szentlélek vezetése mellett", "A templomi öltözködési szabályok", "A karácsonyi menü"], correct: 1 },
+    { q: "Ki a ti egyházmegyétek (püspökségetek) jelenlegi főpásztora?", a: ["A plébános", "A mindenkori megyéspüspök", "A pápa", "A köztársasági elnök"], correct: 1 },
+
+    // V. A Szentségek (61-80)
+    { q: "Mik a szentségek?", a: ["Szent tárgyak a templomban", "Jézus Krisztus által alapított látható jelek, amelyek láthatatlan kegyelmet közvetítenek", "Imádságok a mise végén", "A papok ruhái"], correct: 1 },
+    { q: "Hány szentség van a Katolikus Egyházban?", a: ["3", "5", "7", "10"], correct: 2 },
+    { q: "Melyik a szentségek kapuja, az elsőként felveendő szentség?", a: ["Bérmálás", "Keresztség", "Eucharisztia", "Bűnbánat"], correct: 1 },
+
+    // I. Isten, a Teremtés és a Szentháromság (1-15)
+    { q: "Ki a Világmindenség teremtője?", a: ["A szentek", "Isten", "Az angyalok", "Az evolúció magától"], correct: 1 },
+    { q: "Hány személy van az egyetlen Istenben?", a: ["Egy", "Kettő", "Három", "Négy"], correct: 2 },
+    { q: "Kik a Szentháromság személyei?", a: ["Ábrahám, Izsák és Jákob", "Péter, Pál és János", "Atya, Fiú és Szentlélek", "Jézus, Mária és József"], correct: 2 },
+    { q: "Mit jelent az, hogy Isten örökkévaló?", a: ["Hogy nagyon öreg", "Hogy nincs kezdete és nincs vége", "Hogy a világ végén született", "Hogy csak a jövőben létezik"], correct: 1 },
+    { q: "Milyennek teremtette Isten az embert?", a: ["Saját képmására", "Tökéletlen állatnak", "Angyalnak", "Halhatatlan testűnek"], correct: 0 },
+    { q: "Mi az ember két fő alkotórésze?", a: ["Hús és vér", "Test és lélek", "Ész és akarat", "Szív és tüdő"], correct: 1 },
+    { q: "Mivel ajándékozta meg Isten az embert, amivel dönthet jó és rossz között?", a: ["Ösztönnel", "Szabad akarattal", "Gazdagsággal", "Szerencsével"], correct: 1 },
+    { q: "Hogyan nevezzük az első emberpár engedetlenségét?", a: ["Könnyű bűn", "Eredeti (áteredő) bűn", "Személyes bűn", "Megbocsáthatatlan bűn"], correct: 1 },
+    { q: "Kik voltak az első emberek a Biblia szerint?", a: ["Káin és Ábel", "Ábrahám és Sára", "Ádám és Éva", "Péter és Pál"], correct: 2 },
+    { q: "Kik az angyalok?", a: ["Elhunyt emberek lelkei", "Isten test nélküli, szellemi lényei, követei", "Képzeletbeli lények", "Szent életű királyok"], correct: 1 },
+    { q: "Ki a lázadó angyal, a kísértő?", a: ["Gábriel", "Mihály", "A sátán (ördög)", "Rafael"], correct: 2 },
+    { q: "Mit jelent az, hogy Isten gondviselő?", a: ["Hogy mindent előre lát, de nem törődik velünk", "Hogy szeretettel irányítja és fenntartja a világot", "Hogy csak a jókat segíti", "Hogy megbünteti a világot"], correct: 1 },
+    { q: "Megismerheti-e az ember Istent a józanész segítségével?", a: ["Nem, egyáltalán nem", "Igen, a teremtett világból következtethet rá", "Csak ha látomást kap", "Csak ha tudós"], correct: 1 },
+    { q: "Hogyan nyilatkoztatta ki magát Isten legteljesebben?", a: ["A próféták által", "A természet törvényein keresztül", "Jézus Krisztus által", "Az álmokon keresztül"], correct: 2 },
+    { q: "Mi Isten legfőbb tulajdonsága János apostol szerint?", a: ["A harag", "A szeretet", "A távolságtartás", "A szigor"], correct: 1 },
+
+    // II. Jézus Krisztus és a Megváltás (16-30)
+    { q: "Ki Jézus Krisztus?", a: ["Egy jövőbeli próféta", "Isten Fia, aki emberré lett", "Egy egyszerű tanító", "Keresztelő János tanítványa"], correct: 1 },
+    { q: "Mit jelent a Jézus név?", a: ["Isten velünk", "A Felkent", "Isten megszabadít (Megváltó)", "Békesség"], correct: 2 },
+    { q: "Mit jelent a Krisztus név?", a: ["Király", "Felkent", "Szent", "Isten Fia"], correct: 1 },
+    { q: "Ki Jézus földi édesanyja?", a: ["Szent Erzsébet", "Mária Magdolna", "Szűz Mária", "Sára"], correct: 2 },
+    { q: "Ki volt Jézus nevelőapja?", a: ["Szent József", "Keresztelő János", "Zakariás", "Szent Péter"], correct: 0 },
+    { q: "Hol született Jézus?", a: ["Názáretben", "Jeruzsálemben", "Betlehemben", "Rómában"], correct: 2 },
+    { q: "Melyik városban nevelkedett Jézus?", a: ["Betlehemben", "Názáretben", "Kafarnaumban", "Egyiptomban"], correct: 1 },
+    { q: "Ki keresztelte meg Jézust a Jordán folyóban?", a: ["Szent Péter", "Keresztelő Szent János", "Mózes", "Az Atya Isten"], correct: 1 },
+    { q: "Hány apostolt választott Jézus?", a: ["7", "10", "12", "72"], correct: 2 },
+    { q: "Ki árulta el Jézust 30 ezüstpénzért?", a: ["Péter apostol", "Iskarióti Júdás", "Tamás apostol", "Pilátus"], correct: 1 },
+    { q: "Ki volt a római helytartó, aki halálra ítélte Jézust?", a: ["Heródes", "Néró", "Poncius Pilátus", "Cajafás"], correct: 2 },
+    { q: "Milyen halállal halt meg Jézus?", a: ["Kard által", "Kereszthalállal", "Öregségben", "Megkövezéssel"], correct: 1 },
+    { q: "Mit tett Jézus a halála utáni harmadik napon?", a: ["Megjelent a templomban", "Feltámadt a halálból", "Mennybe ment azonnal", "Újra meghalt"], correct: 1 },
+    { q: "Hány napig maradt a földön Jézus a feltámadása után?", a: ["3 napig", "7 napig", "40 napig", "50 napig"], correct: 2 },
+    { q: "Mi történt a 40. napon Jézus feltámadása után?", a: ["Pünkösd", "Mennybemenetel (Áldozócsütörtök)", "A templom lerombolása", "Az utolsó vacsora"], correct: 1 },
+
+    // III. A Szentlélek és a Pünkösd (31-45)
+    { q: "Ki a Szentlélek?", a: ["Egy jó érzés az emberben", "A Szentháromság harmadik személye, valóságos Isten", "Egy angyal", "Jézus emberi lelke"], correct: 1 },
+    { q: "Mikor áradt ki a Szentlélek az apostolokra?", a: ["Húsvétkor", "Karácsonykor", "Pünkösdkor", "Gyümölcsoltó Boldogasszonykor"], correct: 2 },
+    { q: "Hány nappal Húsvét után ünnepeljük a Pünkösdöt?", a: ["3", "10", "40", "50"], correct: 3 },
+    { q: "Milyen jelek kísérték a Szentlélek eljövetelét pünkösdkor?", a: ["Földrengés és sötétség", "Heves szélvész és tüzes nyelvek", "Eső és szivárvány", "Angyali énekszó"], correct: 1 },
+    { q: "Hány ajándéka van a Szentléleknek?", a: ["3", "7", "10", "12"], correct: 1 },
+    { q: "Melyik NEM a Szentlélek ajándéka?", a: ["Bölcsesség", "Értelem", "Gazdagság", "Jámborság"], correct: 2 },
+    { q: "Melyik Szentlélek-ajándék segít Isten akaratának felismerésében a nehéz helyzetekben?", a: ["A jótanács ajándéka", "A tudomány ajándéka", "Az erősség ajándéka", "A félelem ajándéka"], correct: 0 },
+    { q: "Mit ad a Szentlélek az erősség ajándékával?", a: ["Nagy fizikai erőt", "Bátorságot a hit megvallásához és a jó cselekvéséhez", "Vezetői képességet", "Gazdag életet"], correct: 1 },
+    { q: "Mit jelent az Istenfélelem ajándéka?", a: ["Hogy rettegünk Isten büntetésétől", "Gyermeki szeretetet, amellyel félünk megbántani Istent", "Hogy nem merünk imádkozni", "Hogy félünk a templomtól"], correct: 1 },
+    { q: "Melyik állat a Szentlélek leggyakoribb bibliai jelképe?", a: ["Oroszlán", "Bárány", "Galamb", "Sas"], correct: 2 },
+    { q: "Mit művel a Szentlélek az Egyházban?", a: ["Megosztja a hívőket", "Élteti, megszenteli és vezeti az Egyházat", "Csak a papokat segíti", "Semmit, már nincs jelen"], correct: 1 },
+    { q: "Kiket ihletett meg a Szentlélek a Szentírás megírásakor?", a: ["A szentírókat (hagiográfusokat)", "A római császárokat", "Az ókori filozófusokat", "A nyomdászokat"], correct: 0 },
+    { q: "Ki kapja meg a Szentlélek ajándékainak teljességét?", a: ["Csak a pápa", "A megkeresztelt és megbérmált ember", "Aki sokat tanul", "Minden ember a születésekor"], correct: 1 },
+    { q: "Melyik szentségben kapjuk meg a 'Szentlélek pecsétjét'?", a: ["Keresztség", "Bérmálás", "Eucharisztia", "Házasság"], correct: 1 },
+    { q: "Milyen gyümölcsei vannak a Szentlélek jelenlétének az életünkben?", a: ["Szeretet, öröm, békesség, türelem", "Pénz, hírnév, hatalom", "Bánat, félelem, aggodalom", "Tudás, büszkeség, erő"], correct: 0 },
+
+    // IV. Az Egyház és a Szentírás (46-60)
+    { q: "Mi az Egyház?", a: ["Egy régi épület", "Isten népe, a Krisztusban hívők közössége", "A püspökök magántulajdona", "Egy politikai párt"], correct: 1 },
+    { q: "Ki az Egyház láthatatlan feje?", a: ["A pápa", "A püspök", "Jézus Krisztus", "A Szentlélek"], correct: 2 },
+    { q: "Ki az Egyház látható feje, Krisztus földi helytartója?", a: ["A mindenkori pápa", "A helyi plébános", "A köztársasági elnök", "Szent István király"], correct: 0 },
+    { q: "Ki volt az első pápa?", a: ["Szent Pál", "Szent Péter", "Szent János", "Szent István"], correct: 1 },
+    { q: "Hogyan nevezzük a pápa és a püspökök tanítói feladatát?", a: ["Egyházi törvénykezés", "Magisztérium (Tanítóhivatal)", "Zsinat", "Prédikáció"], correct: 1 },
+    { q: "Melyek az Egyház ismertetőjegyei?", a: ["Régi, nagy, gazdag, európai", "Egy, szent, katolikus és apostoli", "Szigorú, zárt, titkos, szent", "Magyar, római, modern, szabad"], correct: 1 },
+    { q: "Mit jelent a 'katolikus' szó?", a: ["Keresztény", "Egyetemes, mindenkire kiterjedő", "Római", "Szent"], correct: 1 },
+    { q: "Kik a püspökök?", a: ["A plébánosok segédei", "Az apostolok utódai", "Az egyházi énekkar vezetői", "Idős szerzetesek"], correct: 1 },
+    { q: "Mi a Szentírás (Biblia)?", a: ["Emberi mesék gyűjteménye", "Isten sugalmazott szava, könyvek gyűjteménye", "A zsidó nép történelemkönyve", "Egy ókori törvénykönyv"], correct: 1 },
+    { q: "Két fő része van a Bibliának. Melyek azok?", a: ["Ószövetség és Újszövetség", "Törvény és Próféták", "Evangéliumok és Levelek", "Genezis és Jelenések"], correct: 0 },
+    { q: "Hány evangélista írta le Jézus életét?", a: ["2", "3", "4", "12"], correct: 2 },
+    { q: "Kik az evangélisták?", a: ["Péter, Pál, Jakab, János", "Máté, Márk, Lukács, János", "Ábrahám, Mózes, Dávid, Illés", "István, László, Imre, Gellért"], correct: 1 },
+    { q: "Miről szól az Újszövetség?", a: ["A világ teremtéséről", "A zsidó királyokról", "Jézus Krisztus életéről, tanításáról és az ősegyházról", "A világ végéről szóló jóslatokról"], correct: 2 },
+    { q: "Mi az Egyház hagyománya (Szent Hagyomány)?", a: ["A régi népszokások", "A hit igazságainak szóbeli átadása a Szentlélek vezetése mellett", "A templomi öltözködési szabályok", "A karácsonyi menü"], correct: 1 },
+    { q: "Ki a ti egyházmegyétek (püspökségetek) jelenlegi főpásztora?", a: ["A plébános", "A mindenkori megyéspüspök", "A pápa", "A köztársasági elnök"], correct: 1 },
+
+    // V. A Szentségek (61-80)
+    { q: "Mik a szentségek?", a: ["Szent tárgyak a templomban", "Jézus Krisztus által alapított látható jelek, amelyek láthatatlan kegyelmet közvetítenek", "Imádságok a mise végén", "A papok ruhái"], correct: 1 },
+    { q: "Hány szentség van a Katolikus Egyházban?", a: ["3", "5", "7", "10"], correct: 2 },
+    { q: "Melyik a szentségek kapuja, az elsőként felveendő szentség?", a: ["Bérmálás", "Keresztség", "Eucharisztia", "Bűnbánat"], correct: 1 },
+
+    // I. Isten, a Teremtés és a Szentháromság (1-15)
+    { q: "Ki a Világmindenség teremtője?", a: ["A szentek", "Isten", "Az angyalok", "Az evolúció magától"], correct: 1 },
+    { q: "Hány személy van az egyetlen Istenben?", a: ["Egy", "Kettő", "Három", "Négy"], correct: 2 },
+    { q: "Kik a Szentháromság személyei?", a: ["Ábrahám, Izsák és Jákob", "Péter, Pál és János", "Atya, Fiú és Szentlélek", "Jézus, Mária és József"], correct: 2 },
+    { q: "Mit jelent az, hogy Isten örökkévaló?", a: ["Hogy nagyon öreg", "Hogy nincs kezdete és nincs vége", "Hogy a világ végén született", "Hogy csak a jövőben létezik"], correct: 1 },
+    { q: "Milyennek teremtette Isten az embert?", a: ["Saját képmására", "Tökéletlen állatnak", "Angyalnak", "Halhatatlan testűnek"], correct: 0 },
+    { q: "Mi az ember két fő alkotórésze?", a: ["Hús és vér", "Test és lélek", "Ész és akarat", "Szív és tüdő"], correct: 1 },
+    { q: "Mivel ajándékozta meg Isten az embert, amivel dönthet jó és rossz között?", a: ["Ösztönnel", "Szabad akarattal", "Gazdagsággal", "Szerencsével"], correct: 1 },
+    { q: "Hogyan nevezzük az első emberpár engedetlenségét?", a: ["Könnyű bűn", "Eredeti (áteredő) bűn", "Személyes bűn", "Megbocsáthatatlan bűn"], correct: 1 },
+    { q: "Kik voltak az első emberek a Biblia szerint?", a: ["Káin és Ábel", "Ábrahám és Sára", "Ádám és Éva", "Péter és Pál"], correct: 2 },
+    { q: "Kik az angyalok?", a: ["Elhunyt emberek lelkei", "Isten test nélküli, szellemi lényei, követei", "Képzeletbeli lények", "Szent életű királyok"], correct: 1 },
+    { q: "Ki a lázadó angyal, a kísértő?", a: ["Gábriel", "Mihály", "A sátán (ördög)", "Rafael"], correct: 2 },
+    { q: "Mit jelent az, hogy Isten gondviselő?", a: ["Hogy mindent előre lát, de nem törődik velünk", "Hogy szeretettel irányítja és fenntartja a világot", "Hogy csak a jókat segíti", "Hogy megbünteti a világot"], correct: 1 },
+    { q: "Megismerheti-e az ember Istent a józanész segítségével?", a: ["Nem, egyáltalán nem", "Igen, a teremtett világból következtethet rá", "Csak ha látomást kap", "Csak ha tudós"], correct: 1 },
+    { q: "Hogyan nyilatkoztatta ki magát Isten legteljesebben?", a: ["A próféták által", "A természet törvényein keresztül", "Jézus Krisztus által", "Az álmokon keresztül"], correct: 2 },
+    { q: "Mi Isten legfőbb tulajdonsága János apostol szerint?", a: ["A harag", "A szeretet", "A távolságtartás", "A szigor"], correct: 1 },
+
+    // II. Jézus Krisztus és a Megváltás (16-30)
+    { q: "Ki Jézus Krisztus?", a: ["Egy jövőbeli próféta", "Isten Fia, aki emberré lett", "Egy egyszerű tanító", "Keresztelő János tanítványa"], correct: 1 },
+    { q: "Mit jelent a Jézus név?", a: ["Isten velünk", "A Felkent", "Isten megszabadít (Megváltó)", "Békesség"], correct: 2 },
+    { q: "Mit jelent a Krisztus név?", a: ["Király", "Felkent", "Szent", "Isten Fia"], correct: 1 },
+    { q: "Ki Jézus földi édesanyja?", a: ["Szent Erzsébet", "Mária Magdolna", "Szűz Mária", "Sára"], correct: 2 },
+    { q: "Ki volt Jézus nevelőapja?", a: ["Szent József", "Keresztelő János", "Zakariás", "Szent Péter"], correct: 0 },
+    { q: "Hol született Jézus?", a: ["Názáretben", "Jeruzsálemben", "Betlehemben", "Rómában"], correct: 2 },
+    { q: "Melyik városban nevelkedett Jézus?", a: ["Betlehemben", "Názáretben", "Kafarnaumban", "Egyiptomban"], correct: 1 },
+    { q: "Ki keresztelte meg Jézust a Jordán folyóban?", a: ["Szent Péter", "Keresztelő Szent János", "Mózes", "Az Atya Isten"], correct: 1 },
+    { q: "Hány apostolt választott Jézus?", a: ["7", "10", "12", "72"], correct: 2 },
+    { q: "Ki árulta el Jézust 30 ezüstpénzért?", a: ["Péter apostol", "Iskarióti Júdás", "Tamás apostol", "Pilátus"], correct: 1 },
+    { q: "Ki volt a római helytartó, aki halálra ítélte Jézust?", a: ["Heródes", "Néró", "Poncius Pilátus", "Cajafás"], correct: 2 },
+    { q: "Milyen halállal halt meg Jézus?", a: ["Kard által", "Kereszthalállal", "Öregségben", "Megkövezéssel"], correct: 1 },
+    { q: "Mit tett Jézus a halála utáni harmadik napon?", a: ["Megjelent a templomban", "Feltámadt a halálból", "Mennybe ment azonnal", "Újra meghalt"], correct: 1 },
+    { q: "Hány napig maradt a földön Jézus a feltámadása után?", a: ["3 napig", "7 napig", "40 napig", "50 napig"], correct: 2 },
+    { q: "Mi történt a 40. napon Jézus feltámadása után?", a: ["Pünkösd", "Mennybemenetel (Áldozócsütörtök)", "A templom lerombolása", "Az utolsó vacsora"], correct: 1 },
+
+    // III. A Szentlélek és a Pünkösd (31-45)
+    { q: "Ki a Szentlélek?", a: ["Egy jó érzés az emberben", "A Szentháromság harmadik személye, valóságos Isten", "Egy angyal", "Jézus emberi lelke"], correct: 1 },
+    { q: "Mikor áradt ki a Szentlélek az apostolokra?", a: ["Húsvétkor", "Karácsonykor", "Pünkösdkor", "Gyümölcsoltó Boldogasszonykor"], correct: 2 },
+    { q: "Hány nappal Húsvét után ünnepeljük a Pünkösdöt?", a: ["3", "10", "40", "50"], correct: 3 },
+    { q: "Milyen jelek kísérték a Szentlélek eljövetelét pünkösdkor?", a: ["Földrengés és sötétség", "Heves szélvész és tüzes nyelvek", "Eső és szivárvány", "Angyali énekszó"], correct: 1 },
+    { q: "Hány ajándéka van a Szentléleknek?", a: ["3", "7", "10", "12"], correct: 1 },
+    { q: "Melyik NEM a Szentlélek ajándéka?", a: ["Bölcsesség", "Értelem", "Gazdagság", "Jámborság"], correct: 2 },
+    { q: "Melyik Szentlélek-ajándék segít Isten akaratának felismerésében a nehéz helyzetekben?", a: ["A jótanács ajándéka", "A tudomány ajándéka", "Az erősség ajándéka", "A félelem ajándéka"], correct: 0 },
+    { q: "Mit ad a Szentlélek az erősség ajándékával?", a: ["Nagy fizikai erőt", "Bátorságot a hit megvallásához és a jó cselekvéséhez", "Vezetői képességet", "Gazdag életet"], correct: 1 },
+    { q: "Mit jelent az Istenfélelem ajándéka?", a: ["Hogy rettegünk Isten büntetésétől", "Gyermeki szeretetet, amellyel félünk megbántani Istent", "Hogy nem merünk imádkozni", "Hogy félünk a templomtól"], correct: 1 },
+    { q: "Melyik állat a Szentlélek leggyakoribb bibliai jelképe?", a: ["Oroszlán", "Bárány", "Galamb", "Sas"], correct: 2 },
+    { q: "Mit művel a Szentlélek az Egyházban?", a: ["Megosztja a hívőket", "Élteti, megszenteli és vezeti az Egyházat", "Csak a papokat segíti", "Semmit, már nincs jelen"], correct: 1 },
+    { q: "Kiket ihletett meg a Szentlélek a Szentírás megírásakor?", a: ["A szentírókat (hagiográfusokat)", "A római császárokat", "Az ókori filozófusokat", "A nyomdászokat"], correct: 0 },
+    { q: "Ki kapja meg a Szentlélek ajándékainak teljességét?", a: ["Csak a pápa", "A megkeresztelt és megbérmált ember", "Aki sokat tanul", "Minden ember a születésekor"], correct: 1 },
+    { q: "Melyik szentségben kapjuk meg a 'Szentlélek pecsétjét'?", a: ["Keresztség", "Bérmálás", "Eucharisztia", "Házasság"], correct: 1 },
+    { q: "Milyen gyümölcsei vannak a Szentlélek jelenlétének az életünkben?", a: ["Szeretet, öröm, békesség, türelem", "Pénz, hírnév, hatalom", "Bánat, félelem, aggodalom", "Tudás, büszkeség, erő"], correct: 0 },
+
+    // IV. Az Egyház és a Szentírás (46-60)
+    { q: "Mi az Egyház?", a: ["Egy régi épület", "Isten népe, a Krisztusban hívők közössége", "A püspökök magántulajdona", "Egy politikai párt"], correct: 1 },
+    { q: "Ki az Egyház láthatatlan feje?", a: ["A pápa", "A püspök", "Jézus Krisztus", "A Szentlélek"], correct: 2 },
+    { q: "Ki az Egyház látható feje, Krisztus földi helytartója?", a: ["A mindenkori pápa", "A helyi plébános", "A köztársasági elnök", "Szent István király"], correct: 0 },
+    { q: "Ki volt az első pápa?", a: ["Szent Pál", "Szent Péter", "Szent János", "Szent István"], correct: 1 },
+    { q: "Hogyan nevezzük a pápa és a püspökök tanítói feladatát?", a: ["Egyházi törvénykezés", "Magisztérium (Tanítóhivatal)", "Zsinat", "Prédikáció"], correct: 1 },
+    { q: "Melyek az Egyház ismertetőjegyei?", a: ["Régi, nagy, gazdag, európai", "Egy, szent, katolikus és apostoli", "Szigorú, zárt, titkos, szent", "Magyar, római, modern, szabad"], correct: 1 },
+    { q: "Mit jelent a 'katolikus' szó?", a: ["Keresztény", "Egyetemes, mindenkire kiterjedő", "Római", "Szent"], correct: 1 },
+    { q: "Kik a püspökök?", a: ["A plébánosok segédei", "Az apostolok utódai", "Az egyházi énekkar vezetői", "Idős szerzetesek"], correct: 1 },
+    { q: "Mi a Szentírás (Biblia)?", a: ["Emberi mesék gyűjteménye", "Isten sugalmazott szava, könyvek gyűjteménye", "A zsidó nép történelemkönyve", "Egy ókori törvénykönyv"], correct: 1 },
+    { q: "Két fő része van a Bibliának. Melyek azok?", a: ["Ószövetség és Újszövetség", "Törvény és Próféták", "Evangéliumok és Levelek", "Genezis és Jelenések"], correct: 0 },
+    { q: "Hány evangélista írta le Jézus életét?", a: ["2", "3", "4", "12"], correct: 2 },
+    { q: "Kik az evangélisták?", a: ["Péter, Pál, Jakab, János", "Máté, Márk, Lukács, János", "Ábrahám, Mózes, Dávid, Illés", "István, László, Imre, Gellért"], correct: 1 },
+    { q: "Miről szól az Újszövetség?", a: ["A világ teremtéséről", "A zsidó királyokról", "Jézus Krisztus életéről, tanításáról és az ősegyházról", "A világ végéről szóló jóslatokról"], correct: 2 },
+    { q: "Mi az Egyház hagyománya (Szent Hagyomány)?", a: ["A régi népszokások", "A hit igazságainak szóbeli átadása a Szentlélek vezetése mellett", "A templomi öltözködési szabályok", "A karácsonyi menü"], correct: 1 },
+    { q: "Ki a ti egyházmegyétek (püspökségetek) jelenlegi főpásztora?", a: ["A plébános", "A mindenkori megyéspüspök", "A pápa", "A köztársasági elnök"], correct: 1 },
+
+    // V. A Szentségek (61-80)
+    { q: "Mik a szentségek?", a: ["Szent tárgyak a templomban", "Jézus Krisztus által alapított látható jelek, amelyek láthatatlan kegyelmet közvetítenek", "Imádságok a mise végén", "A papok ruhái"], correct: 1 },
+    { q: "Hány szentség van a Katolikus Egyházban?", a: ["3", "5", "7", "10"], correct: 2 },
+    { q: "Melyik a szentségek kapuja, az elsőként felveendő szentség?", a: ["Bérmálás", "Keresztség", "Eucharisztia", "Bűnbánat"], correct: 1 },
+
+    // I. Isten, a Teremtés és a Szentháromság (1-15)
+    { q: "Ki a Világmindenség teremtője?", a: ["A szentek", "Isten", "Az angyalok", "Az evolúció magától"], correct: 1 },
+    { q: "Hány személy van az egyetlen Istenben?", a: ["Egy", "Kettő", "Három", "Négy"], correct: 2 },
+    { q: "Kik a Szentháromság személyei?", a: ["Ábrahám, Izsák és Jákob", "Péter, Pál és János", "Atya, Fiú és Szentlélek", "Jézus, Mária és József"], correct: 2 },
+    { q: "Mit jelent az, hogy Isten örökkévaló?", a: ["Hogy nagyon öreg", "Hogy nincs kezdete és nincs vége", "Hogy a világ végén született", "Hogy csak a jövőben létezik"], correct: 1 },
+    { q: "Milyennek teremtette Isten az embert?", a: ["Saját képmására", "Tökéletlen állatnak", "Angyalnak", "Halhatatlan testűnek"], correct: 0 },
+    { q: "Mi az ember két fő alkotórésze?", a: ["Hús és vér", "Test és lélek", "Ész és akarat", "Szív és tüdő"], correct: 1 },
+    { q: "Mivel ajándékozta meg Isten az embert, amivel dönthet jó és rossz között?", a: ["Ösztönnel", "Szabad akarattal", "Gazdagsággal", "Szerencsével"], correct: 1 },
+    { q: "Hogyan nevezzük az első emberpár engedetlenségét?", a: ["Könnyű bűn", "Eredeti (áteredő) bűn", "Személyes bűn", "Megbocsáthatatlan bűn"], correct: 1 },
+    { q: "Kik voltak az első emberek a Biblia szerint?", a: ["Káin és Ábel", "Ábrahám és Sára", "Ádám és Éva", "Péter és Pál"], correct: 2 },
+    { q: "Kik az angyalok?", a: ["Elhunyt emberek lelkei", "Isten test nélküli, szellemi lényei, követei", "Képzeletbeli lények", "Szent életű királyok"], correct: 1 },
+    { q: "Ki a lázadó angyal, a kísértő?", a: ["Gábriel", "Mihály", "A sátán (ördög)", "Rafael"], correct: 2 },
+    { q: "Mit jelent az, hogy Isten gondviselő?", a: ["Hogy mindent előre lát, de nem törődik velünk", "Hogy szeretettel irányítja és fenntartja a világot", "Hogy csak a jókat segíti", "Hogy megbünteti a világot"], correct: 1 },
+    { q: "Megismerheti-e az ember Istent a józanész segítségével?", a: ["Nem, egyáltalán nem", "Igen, a teremtett világból következtethet rá", "Csak ha látomást kap", "Csak ha tudós"], correct: 1 },
+    { q: "Hogyan nyilatkoztatta ki magát Isten legteljesebben?", a: ["A próféták által", "A természet törvényein keresztül", "Jézus Krisztus által", "Az álmokon keresztül"], correct: 2 },
+    { q: "Mi Isten legfőbb tulajdonsága János apostol szerint?", a: ["A harag", "A szeretet", "A távolságtartás", "A szigor"], correct: 1 },
+
+    // II. Jézus Krisztus és a Megváltás (16-30)
+    { q: "Ki Jézus Krisztus?", a: ["Egy jövőbeli próféta", "Isten Fia, aki emberré lett", "Egy egyszerű tanító", "Keresztelő János tanítványa"], correct: 1 },
+    { q: "Mit jelent a Jézus név?", a: ["Isten velünk", "A Felkent", "Isten megszabadít (Megváltó)", "Békesség"], correct: 2 },
+    { q: "Mit jelent a Krisztus név?", a: ["Király", "Felkent", "Szent", "Isten Fia"], correct: 1 },
+    { q: "Ki Jézus földi édesanyja?", a: ["Szent Erzsébet", "Mária Magdolna", "Szűz Mária", "Sára"], correct: 2 },
+    { q: "Ki volt Jézus nevelőapja?", a: ["Szent József", "Keresztelő János", "Zakariás", "Szent Péter"], correct: 0 },
+    { q: "Hol született Jézus?", a: ["Názáretben", "Jeruzsálemben", "Betlehemben", "Rómában"], correct: 2 },
+    { q: "Melyik városban nevelkedett Jézus?", a: ["Betlehemben", "Názáretben", "Kafarnaumban", "Egyiptomban"], correct: 1 },
+    { q: "Ki keresztelte meg Jézust a Jordán folyóban?", a: ["Szent Péter", "Keresztelő Szent János", "Mózes", "Az Atya Isten"], correct: 1 },
+    { q: "Hány apostolt választott Jézus?", a: ["7", "10", "12", "72"], correct: 2 },
+    { q: "Ki árulta el Jézust 30 ezüstpénzért?", a: ["Péter apostol", "Iskarióti Júdás", "Tamás apostol", "Pilátus"], correct: 1 },
+    { q: "Ki volt a római helytartó, aki halálra ítélte Jézust?", a: ["Heródes", "Néró", "Poncius Pilátus", "Cajafás"], correct: 2 },
+    { q: "Milyen halállal halt meg Jézus?", a: ["Kard által", "Kereszthalállal", "Öregségben", "Megkövezéssel"], correct: 1 },
+    { q: "Mit tett Jézus a halála utáni harmadik napon?", a: ["Megjelent a templomban", "Feltámadt a halálból", "Mennybe ment azonnal", "Újra meghalt"], correct: 1 },
+    { q: "Hány napig maradt a földön Jézus a feltámadása után?", a: ["3 napig", "7 napig", "40 napig", "50 napig"], correct: 2 },
+    { q: "Mi történt a 40. napon Jézus feltámadása után?", a: ["Pünkösd", "Mennybemenetel (Áldozócsütörtök)", "A templom lerombolása", "Az utolsó vacsora"], correct: 1 },
+
+    // III. A Szentlélek és a Pünkösd (31-45)
+    { q: "Ki a Szentlélek?", a: ["Egy jó érzés az emberben", "A Szentháromság harmadik személye, valóságos Isten", "Egy angyal", "Jézus emberi lelke"], correct: 1 },
+    { q: "Mikor áradt ki a Szentlélek az apostolokra?", a: ["Húsvétkor", "Karácsonykor", "Pünkösdkor", "Gyümölcsoltó Boldogasszonykor"], correct: 2 },
+    { q: "Hány nappal Húsvét után ünnepeljük a Pünkösdöt?", a: ["3", "10", "40", "50"], correct: 3 },
+    { q: "Milyen jelek kísérték a Szentlélek eljövetelét pünkösdkor?", a: ["Földrengés és sötétség", "Heves szélvész és tüzes nyelvek", "Eső és szivárvány", "Angyali énekszó"], correct: 1 },
+    { q: "Hány ajándéka van a Szentléleknek?", a: ["3", "7", "10", "12"], correct: 1 },
+    { q: "Melyik NEM a Szentlélek ajándéka?", a: ["Bölcsesség", "Értelem", "Gazdagság", "Jámborság"], correct: 2 },
+    { q: "Melyik Szentlélek-ajándék segít Isten akaratának felismerésében a nehéz helyzetekben?", a: ["A jótanács ajándéka", "A tudomány ajándéka", "Az erősség ajándéka", "A félelem ajándéka"], correct: 0 },
+    { q: "Mit ad a Szentlélek az erősség ajándékával?", a: ["Nagy fizikai erőt", "Bátorságot a hit megvallásához és a jó cselekvéséhez", "Vezetői képességet", "Gazdag életet"], correct: 1 },
+    { q: "Mit jelent az Istenfélelem ajándéka?", a: ["Hogy rettegünk Isten büntetésétől", "Gyermeki szeretetet, amellyel félünk megbántani Istent", "Hogy nem merünk imádkozni", "Hogy félünk a templomtól"], correct: 1 },
+    { q: "Melyik állat a Szentlélek leggyakoribb bibliai jelképe?", a: ["Oroszlán", "Bárány", "Galamb", "Sas"], correct: 2 },
+    { q: "Mit művel a Szentlélek az Egyházban?", a: ["Megosztja a hívőket", "Élteti, megszenteli és vezeti az Egyházat", "Csak a papokat segíti", "Semmit, már nincs jelen"], correct: 1 },
+    { q: "Kiket ihletett meg a Szentlélek a Szentírás megírásakor?", a: ["A szentírókat (hagiográfusokat)", "A római császárokat", "Az ókori filozófusokat", "A nyomdászokat"], correct: 0 },
+    { q: "Ki kapja meg a Szentlélek ajándékainak teljességét?", a: ["Csak a pápa", "A megkeresztelt és megbérmált ember", "Aki sokat tanul", "Minden ember a születésekor"], correct: 1 },
+    { q: "Melyik szentségben kapjuk meg a 'Szentlélek pecsétjét'?", a: ["Keresztség", "Bérmálás", "Eucharisztia", "Házasság"], correct: 1 },
+    { q: "Milyen gyümölcsei vannak a Szentlélek jelenlétének az életünkben?", a: ["Szeretet, öröm, békesség, türelem", "Pénz, hírnév, hatalom", "Bánat, félelem, aggodalom", "Tudás, büszkeség, erő"], correct: 0 },
+
+    // IV. Az Egyház és a Szentírás (46-60)
+    { q: "Mi az Egyház?", a: ["Egy régi épület", "Isten népe, a Krisztusban hívők közössége", "A püspökök magántulajdona", "Egy politikai párt"], correct: 1 },
+    { q: "Ki az Egyház láthatatlan feje?", a: ["A pápa", "A püspök", "Jézus Krisztus", "A Szentlélek"], correct: 2 },
+    { q: "Ki az Egyház látható feje, Krisztus földi helytartója?", a: ["A mindenkori pápa", "A helyi plébános", "A köztársasági elnök", "Szent István király"], correct: 0 },
+    { q: "Ki volt az első pápa?", a: ["Szent Pál", "Szent Péter", "Szent János", "Szent István"], correct: 1 },
+    { q: "Hogyan nevezzük a pápa és a püspökök tanítói feladatát?", a: ["Egyházi törvénykezés", "Magisztérium (Tanítóhivatal)", "Zsinat", "Prédikáció"], correct: 1 },
+    { q: "Melyek az Egyház ismertetőjegyei?", a: ["Régi, nagy, gazdag, európai", "Egy, szent, katolikus és apostoli", "Szigorú, zárt, titkos, szent", "Magyar, római, modern, szabad"], correct: 1 },
+    { q: "Mit jelent a 'katolikus' szó?", a: ["Keresztény", "Egyetemes, mindenkire kiterjedő", "Római", "Szent"], correct: 1 },
+    { q: "Kik a püspökök?", a: ["A plébánosok segédei", "Az apostolok utódai", "Az egyházi énekkar vezetői", "Idős szerzetesek"], correct: 1 },
+    { q: "Mi a Szentírás (Biblia)?", a: ["Emberi mesék gyűjteménye", "Isten sugalmazott szava, könyvek gyűjteménye", "A zsidó nép történelemkönyve", "Egy ókori törvénykönyv"], correct: 1 },
+    { q: "Két fő része van a Bibliának. Melyek azok?", a: ["Ószövetség és Újszövetség", "Törvény és Próféták", "Evangéliumok és Levelek", "Genezis és Jelenések"], correct: 0 },
+    { q: "Hány evangélista írta le Jézus életét?", a: ["2", "3", "4", "12"], correct: 2 },
+    { q: "Kik az evangélisták?", a: ["Péter, Pál, Jakab, János", "Máté, Márk, Lukács, János", "Ábrahám, Mózes, Dávid, Illés", "István, László, Imre, Gellért"], correct: 1 },
+    { q: "Miről szól az Újszövetség?", a: ["A világ teremtéséről", "A zsidó királyokról", "Jézus Krisztus életéről, tanításáról és az ősegyházról", "A világ végéről szóló jóslatokról"], correct: 2 },
+    { q: "Mi az Egyház hagyománya (Szent Hagyomány)?", a: ["A régi népszokások", "A hit igazságainak szóbeli átadása a Szentlélek vezetése mellett", "A templomi öltözködési szabályok", "A karácsonyi menü"], correct: 1 },
+    { q: "Ki a ti egyházmegyétek (püspökségetek) jelenlegi főpásztora?", a: ["A plébános", "A mindenkori megyéspüspök", "A pápa", "A köztársasági elnök"], correct: 1 },
+
+    // V. A Szentségek (61-80)
+    { q: "Mik a szentségek?", a: ["Szent tárgyak a templomban", "Jézus Krisztus által alapított látható jelek, amelyek láthatatlan kegyelmet közvetítenek", "Imádságok a mise végén", "A papok ruhái"], correct: 1 },
+    { q: "Hány szentség van a Katolikus Egyházban?", a: ["3", "5", "7", "10"], correct: 2 },
+    { q: "Melyik a szentségek kapuja, az elsőként felveendő szentség?", a: ["Bérmálás", "Keresztség", "Eucharisztia", "Bűnbánat"], correct: 1 },
+    { q: "Mit töröl el a keresztség szentsége?", a: ["Minden bűnt, köztük az eredeti bűnt is", "Csak a könnyű bűnöket", "Semmit, csak jelkép", "A jövőbeli bűnöket"], correct: 0 },
+{ q: "Mi a bérmálás szentsége?", a: ["A keresztelkedés megismétlése", "A keresztény nagykorúság szentsége, amelyben megkapjuk a Szentlelket megerősítésül", "A házasság előfeltétele", "A bűnök bocsánata"], correct: 1 },
+{ q: "Ki a bérmálás rendes kiszolgáltatója?", a: ["A plébános", "A püspök", "A bérmaszülő", "Bármelyik hívő"], correct: 1 },
+{ q: "Hogyan szolgáltatja ki a püspök a bérmálást?", a: ["Kézrátétellel és krizmával való megkenéssel a homlokon", "Szenteltvíz öntésével a fejre", "Egy nagy öleléssel", "Kenyér és bor átadásával"], correct: 0 },
+{ q: "Mi a krizma?", a: ["Szenteltvíz és só keveréke", "Olívaolaj és balzsam illatos keveréke, amelyet a püspök szentel meg", "Egy különleges ostyafajta", "A bérmálási emléklap"], correct: 1 },
+{ q: "Milyen szavakat mond a püspök a bérmálás kiszolgáltatásakor?", a: ["'Megkeresztellek téged az Atya, a Fiú és a Szentlélek nevében.'", "'Vedd a Szentlélek ajándékának pecsétjét.'", "'Isten megbocsátja bűneidet.'", "'Legyetek jók, ha tudtok.'"], correct: 1 },
+{ q: "Mi a feladata a bérmaszülőnek?", a: ["Hogy drága ajándékot vegyen", "Hogy segítse a megbérmáltat a keresztény életben és a hit megélésében", "Hogy ott legyen a vasárnapi ebéden", "Nincs semmi feladata"], correct: 1 },
+{ q: "Melyik szentségben van jelen Jézus valóságosan a kenyér és bor színe alatt?", a: ["Keresztség", "Oltáriszentség (Eucharisztia)", "Egyházi rend", "Bérmálás"], correct: 1 },
+{ q: "Mi a szentmise lényege?", a: ["Egy közösségi beszélgetés", "Krisztus keresztáldozatának szentségi megújítása és az Úr vacsorája", "A pap előadása", "A hittanosok vizsgája"], correct: 1 },
+{ q: "Hogyan nevezzük a bűnök bocsánatának szentségét?", a: ["Bérmálás", "Bűnbánat szentsége (gyónás)", "Betegek kenete", "Házasság"], correct: 1 },
+{ q: "Milyen gyakran kötelező gyónni és áldozni a Katolikus Egyház parancsa szerint?", a: ["Hetente", "Évente legalább egyszer, a húsvéti időben", "Csak a halál előtt", "Ötévente"], correct: 1 },
+{ q: "Hány feltétele van a jó szentgyónásnak?", a: ["3", "5", "7", "1"], correct: 1 },
+{ q: "Melyik NEM a jó gyónás feltétele?", a: ["Lelkiismeret-vizsgálat", "Bánat és erős fogadás", "Drága ajándék a papnak", "Elégtétel (kárpótlás) elvégzése"], correct: 2 },
+{ q: "Mi a betegek kenete szentségének célja?", a: ["Azonnali fizikai gyógyulás minden esetben", "Lelki és testi megerősítés, a bűnök bocsánata súlyos betegségben", "A temetés előkészítése", "A beteg elkábítása"], correct: 1 },
+{ q: "Kik vehetik fel az egyházi rend szentségét?", a: ["Bárki, aki szeretne", "Meghívott férfiak, akiket a püspök felszentel (diakónus, pap, püspök)", "Minden megbérmált fiatal", "Csak a szerzetesek"], correct: 1 },
+{ q: "Ki köti a házasság szentségét?", a: ["A pap és a tanúk", "A menyasszony és a vőlegény egymással, Isten előtt", "A szülők a fiatalok helyett", "Az állami anyakönyvvezető"], correct: 1 },
+{ q: "Melyik három szentséget lehet csak EGYSZER felvenni az életben (mert eltörölhetetlen karaktert/pecsétet adnak)?", a: ["Keresztség, Bérmálás, Egyházi Rend", "Keresztség, Gyónás, Áldozás", "Házasság, Betegek Kenete, Bérmálás", "Áldozás, Gyónás, Házasság"], correct: 0 },
+// VI. Parancsolatok és Keresztény Élet (81-100)
+{ q: "Hány parancsolata van Istennek (Tízparancsolat)?", a: ["5", "7", "10", "12"], correct: 2 },
+{ q: "Mi az első parancsolat?", a: ["Uradat, Istenedet imádd, és csak neki szolgálj!", "Ne ölj!", "Atyádat és anyádat tiszteld!", "Ne lopj!"], correct: 0 },
+{ q: "Mit parancsol a harmadik parancsolat ('Az Úr napját szenteld meg!')?", a: ["Hogy vasárnap is dolgozzunk", "A vasárnapi és ünnepnapi szentmisén való részvételt és a pihenést", "Hogy minden nap járjunk templomba", "Hogy szombaton böjtöljünk"], correct: 1 },
+{ q: "Mit kér a negyedik parancsolat ('Atyádat és anyádat tiszteld!')?", a: ["Hogy a szüleink engedelmeskedjenek nekünk", "A szülők és elöljárók iránti tiszteletet, szeretetet és engedelmességet", "Hogy csak a szüleinkkel beszéljünk", "Hogy felnőttként is velük lakjunk"], correct: 1 },
+{ q: "Melyik parancsolat tiltja az emberi élet kioltását és az egészség károsítását?", a: ["Az ötödik ('Ne ölj!')", "A hetedik ('Ne lopj!')", "A nyolcadik ('Ne hazudj!')", "A negyedik"], correct: 0 },
+{ q: "Melyik parancsolat védi a tulajdont és tiltja a lopást, csalást?", a: ["Ötödik", "Hatodik", "Hetedik ('Ne lopj!')", "Nyolcadik"], correct: 2 },
+{ q: "Mit tilt a nyolcadik parancsolat ('Hamis tanúságot ne szólj felebarátod ellen!')?", a: ["A hangos beszédet", "A hazugságot, a rágalmazást és a pletykát", "Az imádkozást", "A titoktartást"], correct: 1 },
+{ q: "Mi Jézus főparancsa (a kettős szeretetparancs)?", a: ["Szeresd Uradat, Istenedet teljes szívedből, és felebarátodat, mint önmagadat!", "Tiszteld a törvényeket és fizess adót!", "Gyónjál és áldozzál minden héten!", "Büntesd meg az ellenségeidet!"], correct: 0 },
+{ q: "Hány egyházi parancsolat van?", a: ["3", "5", "10", "7"], correct: 1 },
+{ q: "Melyik az öt egyházi parancsolat közül az egyik?", a: ["Ne ölj!", "A hívők kötelessége az Egyház anyagi szükségleteit támogatni.", "Imádd Istent!", "Olvass mindennap újságot!"], correct: 1 },
+{ q: "Mi a bűn?", a: ["Isten törvényének szándékos és tudatos megszegése", "Egy véletlen hiba", "Amikor valami nem sikerül az iskolában", "Az, ha valaki nem okos"], correct: 0 },
+{ q: "Mi a különbség a halálos és a könnyű bűn között?", a: ["Nincs különbség", "A halálos bűn súlyos dologban, tudva és akarva elkövetett bűn, ami elválaszt Istentől; a könnyű bűn kisebb dologban való hiba", "A halálos bűnért börtön jár, a könnyűért nem", "A halálos bűnt csak felnőttek követhetik el"], correct: 1 },
+{ q: "Hány főbűnt tart számon az Egyház?", a: ["3", "7", "10", "5"], correct: 1 },
+{ q: "Melyik NEM tartozik a 7 főbűn közé?", a: ["Kevélység", "Fösvénység", "Irigység", "Szegénység"], correct: 3 },
+{ q: "Mi az ima?", a: ["Versmondás a templomban", "Lelkünk felemelése Istenhez, beszélgetés Istennel", "A papok magánbeszéde", "Gondolkozás a jövőn"], correct: 1 },
+{ q: "Melyik imádságra tanította Jézus az apostolokat (az Úr imádsága)?", a: ["Üdvözlégy Mária", "Dicsőség az Atyának", "Miatyánk", "Hiszekegy"], correct: 2 },
+{ q: "Hogyan nevezzük a keresztény hitvallást, amely összefoglalja legfőbb tanításainkat?", a: ["Miatyánk", "Hiszekegy (Kredó)", "Zsoltár", "Angyali üdvözlet"], correct: 1 },
+{ q: "Melyik imádságban kérjük a Szűz Mária közbenjárását?", a: ["Miatyánk", "Üdvözlégy Mária", "Hiszekegy", "Asztali áldás"], correct: 1 },
+{ q: "Mit jelent a hittan végén mondott 'Ámen' szó?", a: ["Vége van", "Úgy van, úgy legyen!", "Köszönöm", "Segíts meg!"], correct: 1 },
+{ q: "Mi a végső célja a keresztény ember életének?", a: ["A földi gazdagság", "Az örök élet és a boldogság Istennel a Mennyországban", "A hírnév", "Hogy ne történjen vele semmi rossz"], correct: 1 }   
+];
+
+let currentQuestions = [];
+let currentIndex = 0;
+let correctAnswersCount = 0;
+let timeLeft = 35;
+let timerInterval = null;
+
+// Segédfunkció tömbök véletlenszerű megkeverésére (Fisher-Yates)
+function shuffle(array) {
+    let newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+}
+
+function calculateGrade(correctCount, totalCount) {
+    const percentage = Math.round((correctCount / totalCount) * 100);
+    let gradeName = "";
+    let gradeNum = 1;
+
+    if (percentage <= 40) {
+        gradeName = "Elégtelen";
+        gradeNum = 1;
+    } else if (percentage <= 55) {
+        gradeName = "Elégséges";
+        gradeNum = 2;
+    } else if (percentage <= 70) {
+        gradeName = "Közepes";
+        gradeNum = 3;
+    } else if (percentage <= 85) {
+        gradeName = "Jó";
+        gradeNum = 4;
+    } else {
+        gradeName = "Jeles";
+        gradeNum = 5;
+    }
+
+    return { percentage, gradeName, gradeNum };
+}
+
+function initGame() {
+    // 1. Kérdésbank véletlenszerű megkeverése
+    let shuffledBank = shuffle(questionBank);
+    
+    // 2. Első 15 kérdés kiválasztása
+    currentQuestions = shuffledBank.slice(0, 15);
+    
+    currentIndex = 0;
+    correctAnswersCount = 0;
+    
+    showScreen('game-screen');
+    loadQuestion();
+}
+
+function loadQuestion() {
+    if (currentIndex >= currentQuestions.length) {
+        endGame(false);
+        return;
+    }
+    
+    clearInterval(timerInterval);
+    timeLeft = 35;
+    updateTimerDisplay();
+    
+    const qData = currentQuestions[currentIndex];
+    
+    // Felület frissítése
+    document.getElementById('question-counter').innerText = `Kérdés: ${currentIndex + 1}/${currentQuestions.length}`;
+    document.getElementById('score-counter').innerText = `Helyes válaszok: ${correctAnswersCount}`;
+    document.getElementById('question-text').innerText = qData.q;
+    
+    // Gombok beállítása
+    for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById(`btn-${i}`);
+        btn.innerText = qData.a[i];
+        btn.className = "btn";
+        btn.disabled = false;
+    }
+    
+    showScreen('game-screen');
+    
+    // Időzítő indítása
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timeOut();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    document.getElementById('timer-text').innerText = `Idő: ${timeLeft} mp`;
+    const percentage = (timeLeft / 35) * 100;
+    const bar = document.getElementById('timer-bar');
+    bar.style.width = `${percentage}%`;
+    
+    if (timeLeft <= 5) {
+        bar.style.background = '#ff3838';
+    } else if (timeLeft <= 8) {
+        bar.style.background = '#ff9f43';
+    } else {
+        bar.style.background = 'linear-gradient(90deg, #00d2ff, #00ff87)';
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    clearInterval(timerInterval);
+    const qData = currentQuestions[currentIndex];
+    
+    for (let i = 0; i < 4; i++) {
+        document.getElementById(`btn-${i}`).disabled = true;
+    }
+    
+    if (selectedIndex === qData.correct) {
+        document.getElementById(`btn-${selectedIndex}`).classList.add('correct');
+        correctAnswersCount++;
+        
+        setTimeout(() => {
+            const currentEval = calculateGrade(correctAnswersCount, currentQuestions.length);
+            document.getElementById('correct-msg').innerText = `Jelenlegi eredményed: ${correctAnswersCount}/${currentQuestions.length} pont (${currentEval.percentage}%) - Várható érdemjegy: ${currentEval.gradeName} (${currentEval.gradeNum})`;
+            showScreen('correct-screen');
+        }, 1000);
+    } else {
+        document.getElementById(`btn-${selectedIndex}`).classList.add('wrong');
+        document.getElementById(`btn-${qData.correct}`).classList.add('correct');
+        
+        setTimeout(() => {
+            handleLoss();
+        }, 1500);
+    }
+}
+
+function timeOut() {
+    for (let i = 0; i < 4; i++) {
+        document.getElementById(`btn-${i}`).disabled = true;
+    }
+    const qData = currentQuestions[currentIndex];
+    document.getElementById(`btn-${qData.correct}`).classList.add('correct');
+    
+    alert("Lejárt az időd!");
+    setTimeout(() => {
+        handleLoss();
+    }, 1500);
+}
+
+function handleLoss() {
+    const total = currentQuestions.length;
+    const evalData = calculateGrade(correctAnswersCount, total);
+    
+    document.getElementById('grade-container').innerText = `Érdemjegy: ${evalData.gradeName} (${evalData.gradeNum})`;
+    document.getElementById('result-text').innerText = `Sajnos hibáztál vagy lejárt az időd! Elért eredményed: ${correctAnswersCount}/${total} helyes válasz (${evalData.percentage}%).`;
+    showScreen('result-screen');
+}
+
+function nextQuestion() {
+    currentIndex++;
+    loadQuestion();
+}
+
+function endGame(stoppedByUser) {
+    clearInterval(timerInterval);
+    const total = currentQuestions.length;
+    const evalData = calculateGrade(correctAnswersCount, total);
+    
+    document.getElementById('grade-container').innerText = `Érdemjegy: ${evalData.gradeName} (${evalData.gradeNum})`;
+    
+    if (stoppedByUser) {
+        document.getElementById('result-text').innerText = `Időben megálltál. Elért eredményed: ${correctAnswersCount}/${total} helyes válasz (${evalData.percentage}%).`;
+    } else {
+        document.getElementById('result-text').innerText = `Gratulálunk, befejezted a tesztet! Elért eredményed: ${correctAnswersCount}/${total} helyes válasz (${evalData.percentage}%).`;
+    }
+    showScreen('result-screen');
+}
+
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+}
+
+window.onload = initGame;
+</script>
+
+</body>
+</html>
