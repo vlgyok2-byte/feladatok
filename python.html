@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="hu" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Interaktív Tananyag (01 - 06)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        editorBg: '#1e1e1e',
+                        editorHeader: '#252526',
+                        pyKeyword: '#569cd6',
+                        pyString: '#ce9178',
+                        pyNumber: '#b5cea8',
+                        pyComment: '#6a9955',
+                        pyVar: '#9cdcfe'
+                    },
+                    fontFamily: {
+                        mono: ['Consolas', 'Monaco', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome ikonok -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .code-input {
+            background-color: #2d2d2d;
+            color: #d4d4d4;
+            border: 1px solid #454545;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .code-input:focus {
+            border-color: #007acc;
+            box-shadow: 0 0 5px rgba(0, 122, 204, 0.5);
+        }
+        .code-input.correct {
+            background-color: #1e3a1e !important;
+            color: #4ec9b0 !important;
+            border-color: #2e8b57 !important;
+            box-shadow: 0 0 8px rgba(46, 139, 87, 0.6) !important;
+        }
+        .code-input.incorrect {
+            background-color: #3a1e1e !important;
+            color: #f48771 !important;
+            border-color: #cd3131 !important;
+            box-shadow: 0 0 8px rgba(205, 49, 49, 0.6) !important;
+        }
+        .terminal-screen {
+            background-color: #0c0c0c;
+            color: #cccccc;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e1e1e; }
+        ::-webkit-scrollbar-thumb { background: #424242; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col font-sans">
+
+<!-- Fejléc -->
+    <header class="bg-gray-800 border-b border-gray-700 py-4 px-6 shadow-md">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <i class="fa-brands fa-python text-3xl text-yellow-400"></i>
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-wide">Python Interaktív Kódkiegészítő</h1>
+                    <!-- Itt módosult text-xl-ről text-sm-re és font-bold-ról font-semibold-ra -->
+                    <h2 class="text-sm font-semibold text-gray-300 tracking-wide">NAGYBOLDOGASSZONY RÓMAI KATOLIKUS GIMNÁZIUM, ÁLTALÁNOS ISKOLA ÉS ALAPFOKÚ MŰVÉSZETI ISKOLA - 11/B</h2>
+                    <p class="text-xs text-gray-400">Teljes Tananyag: Python 01 - 06</p>
+                </div>
+            </div>
+
+            <!-- Pontszám kijelző -->
+            <div class="flex items-center bg-gray-900 px-4 py-2 rounded-lg border border-gray-700 shadow-inner">
+                <i class="fa-solid fa-trophy text-amber-400 mr-2 text-lg"></i>
+                <span class="text-sm font-medium mr-2">Eredmény:</span>
+                <span id="score-counter" class="text-lg font-bold text-green-400">0 / 0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Fő tartalom -->
+    <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+
+        <!-- Feladatválasztó fülek (Tabs) -->
+        <div class="flex flex-wrap gap-2 border-b border-gray-700 pb-2">
+            <button class="tab-btn px-4 py-2 bg-blue-600 text-white rounded-t-lg font-medium transition" data-target="task1">Python01.py</button>
+            <button class="tab-btn px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-t-lg font-medium transition" data-target="task2">Python02.py</button>
+            <button class="tab-btn px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-t-lg font-medium transition" data-target="task3">Python03.py</button>
+            <button class="tab-btn px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-t-lg font-medium transition" data-target="task4">Python04.py</button>
+            <button class="tab-btn px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-t-lg font-medium transition" data-target="task5">Python05.py</button>
+            <button class="tab-btn px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-t-lg font-medium transition" data-target="task6">Python06.py</button>
+        </div>
+
+        <!-- FELADAT 1 -->
+        <div id="task1" class="task-content flex flex-col gap-4">
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <h2 class="text-md font-semibold text-blue-400 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-400"></i> Feladat: Python01.py - Kiíratás és f-string
+                </h2>
+                <p class="text-sm text-gray-300">Egészítsd ki a hiányzó `print`, `str` és `f` kifejezéseket[cite: 8]!</p>
+            </div>
+
+            <div class="bg-editorBg rounded-xl overflow-hidden border border-gray-700 shadow-2xl font-mono text-xs md:text-sm p-4 overflow-x-auto">
+                <div class="space-y-2 whitespace-nowrap">
+                    <div class="text-pyVar">hazszam = <span class="text-pyNumber">46</span></div>
+                    <div class="flex items-center gap-1">
+                        <input type="text" data-answer="print" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">(</span>
+                        <span class="text-pyString">"A címem: " + "Teréz körút " +</span>
+                        <input type="text" data-answer="str" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">(hazszam) + ".")</span>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="text-pyVar">hazszam = <span class="text-pyNumber">146</span></div>
+                    <div class="flex items-center gap-1">
+                        <input type="text" data-answer="print" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">(</span>
+                        <input type="text" data-answer="f" class="code-input w-8 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-pyString">"A címem: Teréz körút {hazszam}."</span>
+                        <span class="text-white">)</span>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="text-pyComment"># Elmentjük a nevedet és az életkorodat egy-egy változóba</div>
+                    <div class="text-pyVar">nev = <span class="text-pyString">"Péter"</span></div>
+                    <div class="text-pyVar">kor = <span class="text-pyNumber">25</span></div>
+                    <div class="flex items-center gap-1">
+                        <input type="text" data-answer="print" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">(f</span>
+                        <span class="text-pyString">"Szia {nev}! Úgy látom, {kor} éves vagy."</span>
+                        <span class="text-white">)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FELADAT 2 -->
+        <div id="task2" class="task-content hidden flex flex-col gap-4">
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <h2 class="text-md font-semibold text-blue-400 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-400"></i> Feladat: Python02.py - Input és Típuskonverzió
+                </h2>
+                <p class="text-sm text-gray-300">Pótold az `input` és `int` függvényeket[cite: 4]!</p>
+            </div>
+
+            <div class="bg-editorBg rounded-xl overflow-hidden border border-gray-700 shadow-2xl font-mono text-xs md:text-sm p-4 overflow-x-auto">
+                <div class="space-y-2 whitespace-nowrap">
+                    <div class="flex items-center gap-1">
+                        <span class="text-pyVar">felhasznalo =</span>
+                        <input type="text" data-answer="input" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-pyString">("Hogy hívnak? ")</span>
+                    </div>
+                    <div class="text-white">print(f<span class="text-pyString">"Örvendek a szerencsének, {felhasznalo}!"</span>)</div>
+                    <div>&nbsp;</div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-pyVar">szuletes_eve_szoveg =</span>
+                        <input type="text" data-answer="input" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-pyString">("Melyik évben születtél? ")</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-pyVar">szuletes_eve_szam =</span>
+                        <input type="text" data-answer="int" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">(szuletes_eve_szoveg)</span>
+                    </div>
+                    <div class="text-pyVar">kora = <span class="text-pyNumber">2026</span> - szuletes_eve_szam</div>
+                    <div class="text-white">print(f<span class="text-pyString">"Akkor te idén {kora} éves vagy vagy leszel!"</span>)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FELADAT 3 -->
+        <div id="task3" class="task-content hidden flex flex-col gap-4">
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <h2 class="text-md font-semibold text-blue-400 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-400"></i> Feladat: Python03.py - Elágazások (if - elif - else)
+                </h2>
+                <p class="text-sm text-gray-300">Töltsd ki a feltételes szerkezet kulcsszavait[cite: 5]!</p>
+            </div>
+
+            <div class="bg-editorBg rounded-xl overflow-hidden border border-gray-700 shadow-2xl font-mono text-xs md:text-sm p-4 overflow-x-auto">
+                <div class="space-y-2 whitespace-nowrap">
+                    <div class="flex items-center gap-1">
+                        <span class="text-pyVar">kor =</span>
+                        <input type="text" data-answer="int" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">(</span>
+                        <input type="text" data-answer="input" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-pyString">("Hány éves vagy? ")</span>
+                        <span class="text-white">)</span>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="flex items-center gap-1">
+                        <input type="text" data-answer="if" class="code-input w-12 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">kor &lt; 18:</span>
+                    </div>
+                    <div class="pl-6 text-white">print(<span class="text-pyString">"Még nem vagy nagykorú."</span>)</div>
+                    <div>&nbsp;</div>
+                    <div class="flex items-center gap-1">
+                        <input type="text" data-answer="elif" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">kor == 18:</span>
+                    </div>
+                    <div class="pl-6 text-white">print(<span class="text-pyString">"Most lettél nagykorú!"</span>)</div>
+                    <div>&nbsp;</div>
+                    <div class="flex items-center gap-1">
+                        <input type="text" data-answer="else" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">:</span>
+                    </div>
+                    <div class="pl-6 text-white">print(<span class="text-pyString">"Nagykorú vagy."</span>)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FELADAT 4 -->
+        <div id="task4" class="task-content hidden flex flex-col gap-4">
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <h2 class="text-md font-semibold text-blue-400 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-400"></i> Feladat: Python04.py - Hibakezelés (Try - Except)
+                </h2>
+                <p class="text-sm text-gray-300">Egészítsd ki a `try`, `except` és `ValueError` részeket[cite: 6]!</p>
+            </div>
+
+            <div class="bg-editorBg rounded-xl overflow-hidden border border-gray-700 shadow-2xl font-mono text-xs md:text-sm p-4 overflow-x-auto">
+                <div class="space-y-2 whitespace-nowrap">
+                    <div class="text-white">print(<span class="text-pyString">"--- Jegyáradat-bekérő (Hibakezeléssel) ---"</span>)</div>
+                    <div class="text-pyVar">user_input = input(<span class="text-pyString">"Kérlek, add meg az életkorodat: "</span>)</div>
+                    <div>&nbsp;</div>
+                    <div class="flex items-center gap-1">
+                        <input type="text" data-answer="try" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">:</span>
+                    </div>
+                    <div class="pl-6 text-white">eletkor = int(user_input)</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <input type="text" data-answer="if" class="code-input w-12 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">eletkor &lt; 18:</span>
+                    </div>
+                    <div class="pl-12 text-white">print(<span class="text-pyString">"A diákjegy ára: 1500 Ft."</span>)</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <input type="text" data-answer="else" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">:</span>
+                    </div>
+                    <div class="pl-12 text-white">print(<span class="text-pyString">"A felnőtt jegy ára: 2500 Ft."</span>)</div>
+                    <div>&nbsp;</div>
+                    <div class="flex items-center gap-1">
+                        <input type="text" data-answer="except" class="code-input w-24 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <input type="text" data-answer="ValueError" class="code-input w-32 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">:</span>
+                    </div>
+                    <div class="pl-6 text-white">print(<span class="text-pyString">"Hiba! Nem számot adtál meg. Kérlek, legközelebb számjegyeket használj!"</span>)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FELADAT 5 -->
+        <div id="task5" class="task-content hidden flex flex-col gap-4">
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <h2 class="text-md font-semibold text-blue-400 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-400"></i> Feladat: Python05.py - While Ciklus és Logika
+                </h2>
+                <p class="text-sm text-gray-300">Pótold a `while`, `and`, `False` és `True` kifejezéseket[cite: 7]!</p>
+            </div>
+
+            <div class="bg-editorBg rounded-xl overflow-hidden border border-gray-700 shadow-2xl font-mono text-xs md:text-sm p-4 overflow-x-auto">
+                <div class="space-y-2 whitespace-nowrap">
+                    <div class="text-pyVar">titkos_kod = <span class="text-pyString">"1234"</span></div>
+                    <div class="text-pyVar">probalkozasok = <span class="text-pyNumber">0</span></div>
+                    <div class="text-pyVar">max_proba = <span class="text-pyNumber">3</span></div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-pyVar">belepes_engedelyezve =</span>
+                        <input type="text" data-answer="False" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="flex items-center gap-1">
+                        <input type="text" data-answer="while" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">probalkozasok &lt; max_proba</span>
+                        <input type="text" data-answer="and" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">belepes_engedelyezve == False:</span>
+                    </div>
+                    <div class="pl-6 text-pyVar">tipp = input(<span class="text-pyString">"Add meg a 4 jegyű PIN-kódot: "</span>)</div>
+                    <div class="pl-6 text-pyVar">probalkozasok = probalkozasok + 1</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <span class="text-pyKeyword">if</span>
+                        <span class="text-white">tipp == titkos_kod:</span>
+                    </div>
+                    <div class="pl-12 text-white">print(<span class="text-pyString">"Sikeres belépés! Üdvözöllek a rendszerben."</span>)</div>
+                    <div class="pl-12 flex items-center gap-1">
+                        <span class="text-pyVar">belepes_engedelyezve =</span>
+                        <input type="text" data-answer="True" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                    </div>
+                    <div class="pl-6 text-pyKeyword">else:</div>
+                    <div class="pl-12 text-white">print(f<span class="text-pyString">"Hibás kód! Hátralévő próbálkozások száma: {max_proba - probalkozasok}"</span>)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FELADAT 6 -->
+        <div id="task6" class="task-content hidden flex flex-col gap-4">
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <h2 class="text-md font-semibold text-blue-400 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-400"></i> Feladat: Python06.py - FOR Ciklus és Mozi Statisztika
+                </h2>
+                <p class="text-sm text-gray-300">Töltsd ki a hiányzó ciklusokat, inputokat és hibakezelést[cite: 9]!</p>
+            </div>
+
+            <div class="bg-editorBg rounded-xl overflow-hidden border border-gray-700 shadow-2xl font-mono text-xs md:text-sm p-4 overflow-x-auto">
+                <div class="space-y-2 whitespace-nowrap">
+                    <div class="text-white">print(<span class="text-pyString">"--- Mozi Jegypénztár (Napi statisztika) ---"</span>)</div>
+                    <div class="text-pyVar">napi_vendegek_szama = <span class="text-pyNumber">3</span></div>
+                    <div class="text-pyVar">osszes_bevetel = <span class="text-pyNumber">0</span></div>
+                    <div>&nbsp;</div>
+                    <div class="flex items-center gap-1">
+                        <input type="text" data-answer="for" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">i in</span>
+                        <input type="text" data-answer="range" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">(1, napi_vendegek_szama + 1):</span>
+                    </div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <span class="text-pyVar">nev =</span>
+                        <input type="text" data-answer="input" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-pyString">("Kérlek, add meg a neved: ")</span>
+                    </div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <input type="text" data-answer="while" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">True:</span>
+                    </div>
+                    <div class="pl-12 flex items-center gap-1">
+                        <span class="text-pyVar">user_input =</span>
+                        <input type="text" data-answer="input" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-pyString">("Hány éves vagy? ")</span>
+                    </div>
+                    <div class="pl-12 flex items-center gap-1">
+                        <input type="text" data-answer="try" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">:</span>
+                    </div>
+                    <div class="pl-16 text-white">eletkor = int(user_input)</div>
+                    <div class="pl-16 flex items-center gap-1">
+                        <input type="text" data-answer="break" class="code-input w-20 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                    </div>
+                    <div class="pl-12 flex items-center gap-1">
+                        <input type="text" data-answer="except" class="code-input w-24 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-pyKeyword">ValueError:</span>
+                    </div>
+                    <div class="pl-16 text-white">print(<span class="text-pyString">"Hiba! Kérlek, számjeggyel add meg az életkorodat."</span>)</div>
+                    <div>&nbsp;</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <input type="text" data-answer="if" class="code-input w-12 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">eletkor &lt; 6:</span>
+                    </div>
+                    <div class="pl-12 text-white">ar = 0</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <input type="text" data-answer="elif" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">eletkor &lt; 18:</span>
+                    </div>
+                    <div class="pl-12 text-white">ar = 1500</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <input type="text" data-answer="elif" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">eletkor == 18:</span>
+                    </div>
+                    <div class="pl-12 text-white">ar = 1000</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <input type="text" data-answer="else" class="code-input w-16 py-0.5 px-1 text-pyKeyword" placeholder="..." autocomplete="off">
+                        <span class="text-white">:</span>
+                    </div>
+                    <div class="pl-12 text-white">ar = 2500</div>
+                    <div class="pl-6 text-pyVar">osszes_bevetel = osszes_bevetel + ar</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vezérlő gombok -->
+        <div class="flex flex-wrap items-center gap-3">
+            <button id="btn-run" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-play"></i> ▶ Kód Futtatása
+            </button>
+            <button id="btn-check" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-check-double"></i> Ellenőrzés
+            </button>
+            <button id="btn-hint" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-lg shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Megoldás
+            </button>
+            <button id="btn-reset" class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i> Újraindítás
+            </button>
+        </div>
+
+        <!-- Terminál -->
+        <div class="bg-gray-950 rounded-xl overflow-hidden border border-gray-800 shadow-xl flex flex-col font-mono">
+            <div class="bg-gray-900 px-4 py-2 border-b border-gray-800 flex items-center justify-between">
+                <span id="terminal-title" class="text-xs text-gray-400 flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-green-400"></i> Python Terminál Szimulátor
+                </span>
+            </div>
+            <div id="terminal" class="terminal-screen p-4 min-h-[160px] max-h-[260px] overflow-y-auto text-sm leading-relaxed">
+                <div class="text-gray-500 italic">$ python Python01.py</div>
+                <div class="text-gray-400">Töltsd ki a mezőket és kattints a "▶ Kód Futtatása" gombra!</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JS Logika -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let activeTab = 'task1';
+            const scoreCounter = document.getElementById('score-counter');
+            const terminal = document.getElementById('terminal');
+
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const taskContents = document.querySelectorAll('.task-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.className = "tab-btn px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-t-lg font-medium transition");
+                    btn.className = "tab-btn px-4 py-2 bg-blue-600 text-white rounded-t-lg font-medium transition";
+
+                    activeTab = btn.getAttribute('data-target');
+                    taskContents.forEach(c => c.classList.add('hidden'));
+                    document.getElementById(activeTab).classList.remove('hidden');
+
+                    terminal.innerHTML = `<div class="text-gray-500 italic">$ python ${getFileName(activeTab)}</div><div class="text-gray-400">Töltsd ki a mezőket és kattints a "▶ Kód Futtatása" gombra!</div>`;
+                    updateScore();
+                });
+            });
+
+            function getFileName(tabId) {
+                switch(tabId) {
+                    case 'task1': return 'Python01.py';
+                    case 'task2': return 'Python02.py';
+                    case 'task3': return 'Python03.py';
+                    case 'task4': return 'Python04.py';
+                    case 'task5': return 'Python05.py';
+                    case 'task6': return 'Python06.py';
+                }
+            }
+
+            function getActiveInputs() {
+                return document.querySelectorAll(`#${activeTab} .code-input`);
+            }
+
+            function updateScore() {
+                const inputs = getActiveInputs();
+                let correctCount = 0;
+                inputs.forEach(input => {
+                    const userVal = input.value.trim();
+                    const expectedVal = input.getAttribute('data-answer');
+                    if (userVal === expectedVal) {
+                        input.classList.add('correct');
+                        input.classList.remove('incorrect');
+                        correctCount++;
+                    } else if (userVal !== "") {
+                        input.classList.add('incorrect');
+                        input.classList.remove('correct');
+                    } else {
+                        input.classList.remove('correct', 'incorrect');
+                    }
+                });
+                scoreCounter.textContent = `${correctCount} / ${inputs.length}`;
+                return correctCount === inputs.length;
+            }
+
+            document.querySelectorAll('.code-input').forEach(input => {
+                input.addEventListener('input', updateScore);
+            });
+
+            document.getElementById('btn-check').addEventListener('click', updateScore);
+
+            document.getElementById('btn-hint').addEventListener('click', () => {
+                getActiveInputs().forEach(input => {
+                    input.value = input.getAttribute('data-answer');
+                });
+                updateScore();
+            });
+
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                getActiveInputs().forEach(input => {
+                    input.value = '';
+                    input.classList.remove('correct', 'incorrect');
+                });
+                updateScore();
+                terminal.innerHTML = `<div class="text-gray-500 italic">$ python ${getFileName(activeTab)}</div>`;
+            });
+
+            // Futtatás logika
+            document.getElementById('btn-run').addEventListener('click', () => {
+                if (!updateScore()) {
+                    terminal.innerHTML = `
+                        <div class="text-red-400">SyntaxError: Hiányzó vagy hibás Python kulcsszavak!</div>
+                        <div class="text-gray-400">Kérlek javítsd a pirossal jelölt mezőket a futtatáshoz.</div>
+                    `;
+                    return;
+                }
+
+                const fileName = getFileName(activeTab);
+                terminal.innerHTML = `<div class="text-gray-500 italic">$ python ${fileName}</div>`;
+
+                setTimeout(() => {
+                    if (activeTab === 'task1') {
+                        terminal.innerHTML += `
+                            <div class="text-green-400">A címem: Teréz körút 46.</div>
+                            <div class="text-green-400">A címem: Teréz körút 146.</div>
+                            <div class="text-green-400">Szia Péter! Úgy látom, 25 éves vagy.</div>
+                        `;
+                    } else if (activeTab === 'task2') {
+                        let nev = prompt("Hogy hívnak?", "Péter");
+                        if (!nev) nev = "Péter";
+                        let evStr = prompt("Melyik évben születtél?", "2001");
+                        if (!evStr) evStr = "2001";
+                        let ev = parseInt(evStr);
+                        let kor = 2026 - ev;
+
+                        terminal.innerHTML += `
+                            <div class="text-gray-300">Hogy hívnak? ${nev}</div>
+                            <div class="text-green-400">Örvendek a szerencsének, ${nev}!</div>
+                            <div class="text-gray-300">Melyik évben születtél? ${ev}</div>
+                            <div class="text-green-400 font-bold">Akkor te idén ${kor} éves vagy vagy leszel!</div>
+                        `;
+                    } else if (activeTab === 'task3') {
+                        let korStr = prompt("Hány éves vagy?", "18");
+                        let kor = parseInt(korStr || "18");
+                        let valasz = kor < 18 ? "Még nem vagy nagykorú." : (kor === 18 ? "Most lettél nagykorú!" : "Nagykorú vagy.");
+
+                        terminal.innerHTML += `
+                            <div class="text-gray-300">Hány éves vagy? ${kor}</div>
+                            <div class="text-green-400 font-bold">${valasz}</div>
+                        `;
+                    } else if (activeTab === 'task4') {
+                        let val = prompt("Kérlek, add meg az életkorodat:", "25");
+                        let num = parseInt(val);
+
+                        terminal.innerHTML += `<div class="text-green-400">--- Jegyáradat-bekérő (Hibakezeléssel) ---</div>`;
+                        terminal.innerHTML += `<div class="text-gray-300">Kérlek, add meg az életkorodat: ${val}</div>`;
+
+                        if (isNaN(num)) {
+                            terminal.innerHTML += `<div class="text-red-400">Hiba! Nem számot adtál meg. Kérlek, legközelebb számjegyeket használj!</div>`;
+                        } else {
+                            let ar = num < 18 ? "A diákjegy ára: 1500 Ft." : "A felnőtt jegy ára: 2500 Ft.";
+                            terminal.innerHTML += `<div class="text-green-400">${ar}</div>`;
+                        }
+                        terminal.innerHTML += `<div class="text-gray-400">A program futása biztonságosan befejeződött.</div>`;
+                    } else if (activeTab === 'task5') {
+                        terminal.innerHTML += `<div class="text-green-400">--- BIZTONSÁGI RENDSZER ---</div>`;
+                        let probalkozasok = 0;
+                        let maxProba = 3;
+                        let belepes = false;
+
+                        for (let i = 0; i < maxProba && !belepes; i++) {
+                            let tipp = prompt(`[Próbálkozás ${i+1}/${maxProba}] Add meg a 4 jegyű PIN-kódot:`, i === 0 ? "1111" : "1234");
+                            probalkozasok++;
+                            terminal.innerHTML += `<div class="text-gray-300">Add meg a 4 jegyű PIN-kódot: ${tipp}</div>`;
+
+                            if (tipp === "1234") {
+                                terminal.innerHTML += `<div class="text-green-400 font-bold">Sikeres belépés! Üdvözöllek a rendszerben.</div>`;
+                                belepes = true;
+                            } else {
+                                let hatralevo = maxProba - probalkozasok;
+                                terminal.innerHTML += `<div class="text-red-400">Hibás kód! Hátralévő próbálkozások száma: ${hatralevo}</div>`;
+                            }
+                        }
+
+                        if (!belepes) {
+                            terminal.innerHTML += `<div class="text-red-500 font-bold"><br>A rendszer zárolva lett a túl sok hibás próbálkozás miatt!</div>`;
+                        }
+                    } else if (activeTab === 'task6') {
+                        terminal.innerHTML += `<div class="text-green-400">--- Mozi Jegypénztár (Napi statisztika) ---</div>`;
+                        let vendégek = [
+                            { defaultName: "Anna", defaultAge: "45" },
+                            { defaultName: "Béla", defaultAge: "15" },
+                            { defaultName: "Géza", defaultAge: "5" }
+                        ];
+                        let osszesBevetel = 0;
+
+                        for (let i = 1; i <= 3; i++) {
+                            let v = vendégek[i - 1];
+                            let nev = prompt(`[${i}. vendég] Kérlek, add meg a neved:`, v.defaultName) || v.defaultName;
+                            let eletkorStr = prompt(`[${i}. vendég] Hány éves vagy?`, v.defaultAge) || v.defaultAge;
+                            let eletkor = parseInt(eletkorStr);
+
+                            let ar = 0;
+                            let arSzoveg = "";
+                            if (eletkor < 6) {
+                                ar = 0;
+                                arSzoveg = "A belépés számodra ingyenes (0 Ft).";
+                            } else if (eletkor < 18) {
+                                ar = 1500;
+                                arSzoveg = "A diákjegy ára: 1500 Ft.";
+                            } else if (eletkor === 18) {
+                                ar = 1000;
+                                arSzoveg = "Boldog születésnapot! Mivel ma vagy 18 éves, a jegyed 1000 Ft.";
+                            } else {
+                                ar = 2500;
+                                arSzoveg = "A teljes árú jegy ára: 2500 Ft.";
+                            }
+                            osszesBevetel += ar;
+
+                            terminal.innerHTML += `
+                                <div class="text-blue-400"><br>--- ${i}. vendég kiszolgálása ---</div>
+                                <div class="text-gray-300">Kérlek, add meg a neved: ${nev}</div>
+                                <div class="text-gray-300">Szia ${nev}! Üdv a moziban!</div>
+                                <div class="text-gray-300">Hány éves vagy? ${eletkor}</div>
+                                <div class="text-green-400">${arSzoveg}</div>
+                            `;
+                        }
+
+                        terminal.innerHTML += `
+                            <div class="text-yellow-400"><br>==========================================</div>
+                            <div class="text-green-400">A mozi bezárt mára. Napi statisztika:</div>
+                            <div class="text-green-400 font-bold">Összes bevétel: ${osszesBevetel} Ft</div>
+                            <div class="text-gray-400">A program futása sikeresen befejeződött.</div>
+                        `;
+                    }
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, 100);
+            });
+
+            updateScore();
+        });
+    </script>
+</body>
+</html>
