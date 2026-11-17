@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="hu" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Interaktív Tananyag (01 - 03)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        editorBg: '#1e1e1e',
+                        editorHeader: '#252526',
+                        htmlTag: '#569cd6',
+                        htmlAttr: '#9cdcfe',
+                        htmlString: '#ce9178',
+                        htmlComment: '#6a9955',
+                        htmlBracket: '#808080'
+                    },
+                    fontFamily: {
+                        mono: ['Consolas', 'Monaco', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome ikonok -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .code-input {
+            background-color: #2d2d2d;
+            color: #d4d4d4;
+            border: 1px solid #454545;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .code-input:focus {
+            border-color: #e34c26;
+            box-shadow: 0 0 5px rgba(227, 76, 38, 0.5);
+        }
+        .code-input.correct {
+            background-color: #1e3a1e !important;
+            color: #4ec9b0 !important;
+            border-color: #2e8b57 !important;
+            box-shadow: 0 0 8px rgba(46, 139, 87, 0.6) !important;
+        }
+        .code-input.incorrect {
+            background-color: #3a1e1e !important;
+            color: #f48771 !important;
+            border-color: #cd3131 !important;
+            box-shadow: 0 0 8px rgba(205, 49, 49, 0.6) !important;
+        }
+        .browser-preview {
+            background-color: #ffffff;
+            color: #111827;
+            font-family: 'Times New Roman', Times, serif;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.15);
+        }
+        .browser-preview h1 {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 0.67em 0;
+            line-height: 1.2;
+        }
+        .browser-preview h2 {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0.75em 0;
+            line-height: 1.25;
+        }
+        .browser-preview p {
+            margin: 1em 0;
+            line-height: 1.5;
+        }
+        .browser-preview a {
+            color: #0000ee;
+            text-decoration: underline;
+        }
+        .browser-preview a:hover {
+            color: #551a8b;
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e1e1e; }
+        ::-webkit-scrollbar-thumb { background: #424242; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col font-sans">
+
+    <!-- Fejléc -->
+    <header class="bg-gray-800 border-b border-gray-700 py-4 px-6 shadow-md">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <i class="fa-brands fa-html5 text-3xl text-orange-500"></i>
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-wide">HTML Interaktív Kódkiegészítő</h1>
+                    <h2 class="text-sm font-semibold text-gray-300 tracking-wide">NAGYBOLDOGASSZONY RÓMAI KATOLIKUS GIMNÁZIUM, ÁLTALÁNOS ISKOLA ÉS ALAPFOKÚ MŰVÉSZETI ISKOLA - 11/B</h2>
+                    <p class="text-xs text-gray-400">Teljes Tananyag: HTML 01 - 03</p>
+                </div>
+            </div>
+
+            <!-- Pontszám kijelző -->
+            <div class="flex items-center bg-gray-900 px-4 py-2 rounded-lg border border-gray-700 shadow-inner">
+                <i class="fa-solid fa-trophy text-amber-400 mr-2 text-lg"></i>
+                <span class="text-sm font-medium mr-2">Eredmény:</span>
+                <span id="score-counter" class="text-lg font-bold text-green-400">0 / 0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Fő tartalom -->
+    <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+
+        <!-- Feladatválasztó fülek (Tabs) -->
+        <div class="flex flex-wrap gap-2 border-b border-gray-700 pb-2">
+            <button class="tab-btn px-4 py-2 bg-orange-600 text-white rounded-t-lg font-medium transition" data-target="task1">01.html</button>
+            <button class="tab-btn px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-t-lg font-medium transition" data-target="task2">02.html</button>
+            <button class="tab-btn px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-t-lg font-medium transition" data-target="task3">03.html</button>
+        </div>
+
+        <!-- FELADAT 1: 01.html -->
+        <div id="task1" class="task-content flex flex-col gap-4">
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <h2 class="text-md font-semibold text-orange-400 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-400"></i> Feladat: 01.html - A weboldal alapváza
+                </h2>
+                <p class="text-sm text-gray-300">Egészítsd ki a HTML alapstruktúra hiányzó elemeit (`html`, `head`, `title`, `body`, `h1`, `p`)!</p>
+            </div>
+
+            <div class="bg-editorBg rounded-xl overflow-hidden border border-gray-700 shadow-2xl font-mono text-xs md:text-sm p-4 overflow-x-auto">
+                <div class="space-y-2 whitespace-nowrap">
+                    <div><span class="text-htmlBracket">&lt;!DOCTYPE </span><span class="text-htmlTag">html</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="html" class="code-input w-16 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlAttr"> lang=</span><span class="text-htmlString">"hu"</span><span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="head" class="code-input w-16 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div class="pl-6">
+                        <span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">meta</span> <span class="text-htmlAttr">charset=</span><span class="text-htmlString">"UTF-8"</span><span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="title" class="code-input w-16 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">Az első weboldalam</span>
+                        <span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">title</span><span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">head</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="body" class="code-input w-16 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="h1" class="code-input w-12 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">Üdvözlöm a látogatókat!</span>
+                        <span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">h1</span><span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="p" class="code-input w-10 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">Ez az első bekezdésem a weboldalon.</span>
+                        <span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">body</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">html</span><span class="text-htmlBracket">&gt;</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FELADAT 2: 02.html -->
+        <div id="task2" class="task-content hidden flex flex-col gap-4">
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <h2 class="text-md font-semibold text-orange-400 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-400"></i> Feladat: 02.html - Címsorok és szövegkiemelés
+                </h2>
+                <p class="text-sm text-gray-300">Pótold a főcím (`h1`), alcím (`h2`), félkövér (`strong`) és dőlt (`em`) tageket!</p>
+            </div>
+
+            <div class="bg-editorBg rounded-xl overflow-hidden border border-gray-700 shadow-2xl font-mono text-xs md:text-sm p-4 overflow-x-auto">
+                <div class="space-y-2 whitespace-nowrap">
+                    <div><span class="text-htmlBracket">&lt;!DOCTYPE </span><span class="text-htmlTag">html</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">html</span> <span class="text-htmlAttr">lang=</span><span class="text-htmlString">"hu"</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">head</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">meta</span> <span class="text-htmlAttr">charset=</span><span class="text-htmlString">"UTF-8"</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">title</span><span class="text-htmlBracket">&gt;</span><span class="text-white">Az első weboldalam</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">title</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">head</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">body</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">h1</span><span class="text-htmlBracket">&gt;</span><span class="text-white">Üdvözlöm a látogatókat!</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">h1</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span><span class="text-white">Ez az első bekezdésem a weboldalon.</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div>&nbsp;</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="h1" class="code-input w-12 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">Ez egy nagy főcím</span>
+                        <span class="text-htmlBracket">&lt;/</span>
+                        <input type="text" data-answer="h1" class="code-input w-12 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="h2" class="code-input w-12 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">Ez egy alcím</span>
+                        <span class="text-htmlBracket">&lt;/</span>
+                        <input type="text" data-answer="h2" class="code-input w-12 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">Ez egy normál bekezdés, amiben van egy </span>
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="strong" class="code-input w-20 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">fontos, félkövér</span>
+                        <span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">strong</span><span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white"> szó, valamint egy </span>
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="em" class="code-input w-12 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">enyhén dőlt</span>
+                        <span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">em</span><span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white"> kifejezés is.</span>
+                        <span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">body</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">html</span><span class="text-htmlBracket">&gt;</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FELADAT 3: 03.html -->
+        <div id="task3" class="task-content hidden flex flex-col gap-4">
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <h2 class="text-md font-semibold text-orange-400 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-400"></i> Feladat: 03.html - Linkek és Képek beszúrása
+                </h2>
+                <p class="text-sm text-gray-300">Töltsd ki a hivatkozás (`a`, `href`, `target`) és a kép (`img`, `src`, `alt`) hiányzó elemeit!</p>
+            </div>
+
+            <div class="bg-editorBg rounded-xl overflow-hidden border border-gray-700 shadow-2xl font-mono text-xs md:text-sm p-4 overflow-x-auto">
+                <div class="space-y-2 whitespace-nowrap">
+                    <div><span class="text-htmlBracket">&lt;!DOCTYPE </span><span class="text-htmlTag">html</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">html</span> <span class="text-htmlAttr">lang=</span><span class="text-htmlString">"hu"</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">head</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">meta</span> <span class="text-htmlAttr">charset=</span><span class="text-htmlString">"UTF-8"</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">title</span><span class="text-htmlBracket">&gt;</span><span class="text-white">Az első weboldalam</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">title</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">head</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">body</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">h1</span><span class="text-htmlBracket">&gt;</span><span class="text-white">Üdvözlöm a látogatókat!</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">h1</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span><span class="text-white">Ez az első bekezdésem a weboldalon.</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div>&nbsp;</div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">h1</span><span class="text-htmlBracket">&gt;</span><span class="text-white">Ez egy nagy főcím</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">h1</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">h2</span><span class="text-htmlBracket">&gt;</span><span class="text-white">Ez egy alcím</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">h2</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div>&nbsp;</div>
+                    <div class="pl-6"><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span><span class="text-white">Ez egy normál bekezdés, amiben van egy </span><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">strong</span><span class="text-htmlBracket">&gt;</span><span class="text-white">fontos, félkövér</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">strong</span><span class="text-htmlBracket">&gt;</span><span class="text-white"> szó, valamint egy </span><span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">em</span><span class="text-htmlBracket">&gt;</span><span class="text-white">enyhén dőlt</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">em</span><span class="text-htmlBracket">&gt;</span><span class="text-white"> kifejezés is.</span><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div>&nbsp;</div>
+                    <div class="pl-6 text-htmlComment">&lt;!-- Egy hivatkozás egy másik weboldalra --&gt;</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">Kattints ide, ha el szeretnél látogatni a </span>
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="a" class="code-input w-10 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <input type="text" data-answer="href" class="code-input w-16 py-0.5 px-1 text-htmlAttr" placeholder="..." autocomplete="off">
+                        <span class="text-white">=</span><span class="text-htmlString">"https://www.google.com"</span>
+                        <input type="text" data-answer="target" class="code-input w-20 py-0.5 px-1 text-htmlAttr" placeholder="..." autocomplete="off">
+                        <span class="text-white">=</span><span class="text-htmlString">"_blank"</span><span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">Google-re</span>
+                        <span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">a</span><span class="text-htmlBracket">&gt;</span>
+                        <span class="text-white">!</span>
+                        <span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">p</span><span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="pl-6 text-htmlComment">&lt;!-- Egy kép beszúrása --&gt;</div>
+                    <div class="pl-6 flex items-center gap-1">
+                        <span class="text-htmlBracket">&lt;</span>
+                        <input type="text" data-answer="img" class="code-input w-14 py-0.5 px-1 text-htmlTag" placeholder="..." autocomplete="off">
+                        <input type="text" data-answer="src" class="code-input w-14 py-0.5 px-1 text-htmlAttr" placeholder="..." autocomplete="off">
+                        <span class="text-white">=</span><span class="text-htmlString">"macska.jpg"</span>
+                        <input type="text" data-answer="alt" class="code-input w-14 py-0.5 px-1 text-htmlAttr" placeholder="..." autocomplete="off">
+                        <span class="text-white">=</span><span class="text-htmlString">"Egy cuki alvó kismacska"</span>
+                        <span class="text-htmlBracket">&gt;</span>
+                    </div>
+                    <div><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">body</span><span class="text-htmlBracket">&gt;</span></div>
+                    <div><span class="text-htmlBracket">&lt;/</span><span class="text-htmlTag">html</span><span class="text-htmlBracket">&gt;</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vezérlő gombok -->
+        <div class="flex flex-wrap items-center gap-3">
+            <button id="btn-run" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-play"></i> ▶ Oldal Megjelenítése
+            </button>
+            <button id="btn-check" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-check-double"></i> Ellenőrzés
+            </button>
+            <button id="btn-hint" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-lg shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Megoldás
+            </button>
+            <button id="btn-reset" class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i> Újraindítás
+            </button>
+        </div>
+
+        <!-- Böngésző Előnézet Ablak -->
+        <div class="bg-gray-950 rounded-xl overflow-hidden border border-gray-800 shadow-xl flex flex-col">
+            <div class="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                    <span id="browser-tab-title" class="ml-3 px-3 py-0.5 bg-gray-900 rounded text-xs text-gray-300 font-mono flex items-center gap-2">
+                        <i class="fa-solid fa-globe text-orange-400"></i> <span id="browser-filename">01.html</span> — Az első weboldalam
+                    </span>
+                </div>
+                <span class="text-xs text-gray-400">Böngésző Előnézet</span>
+            </div>
+            <div id="browser-screen" class="browser-preview p-6 min-h-[200px] max-h-[420px] overflow-y-auto">
+                <div class="text-gray-500 font-sans text-sm italic">Töltsd ki a HTML tageket, majd kattints a "▶ Oldal Megjelenítése" gombra a weboldal megtekintéséhez!</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JS Logika -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let activeTab = 'task1';
+            const scoreCounter = document.getElementById('score-counter');
+            const browserScreen = document.getElementById('browser-screen');
+            const browserFilename = document.getElementById('browser-filename');
+
+            const macskaImgSrc = "data:image/png;base64,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";
+
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const taskContents = document.querySelectorAll('.task-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.className = "tab-btn px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-t-lg font-medium transition");
+                    btn.className = "tab-btn px-4 py-2 bg-orange-600 text-white rounded-t-lg font-medium transition";
+
+                    activeTab = btn.getAttribute('data-target');
+                    taskContents.forEach(c => c.classList.add('hidden'));
+                    document.getElementById(activeTab).classList.remove('hidden');
+
+                    const fname = getFileName(activeTab);
+                    browserFilename.textContent = fname;
+                    browserScreen.innerHTML = `<div class="text-gray-500 font-sans text-sm italic">Töltsd ki a HTML tageket (${fname}), majd kattints a "▶ Oldal Megjelenítése" gombra!</div>`;
+                    updateScore();
+                });
+            });
+
+            function getFileName(tabId) {
+                switch(tabId) {
+                    case 'task1': return '01.html';
+                    case 'task2': return '02.html';
+                    case 'task3': return '03.html';
+                }
+            }
+
+            function getActiveInputs() {
+                return document.querySelectorAll(`#${activeTab} .code-input`);
+            }
+
+            function updateScore() {
+                const inputs = getActiveInputs();
+                let correctCount = 0;
+                inputs.forEach(input => {
+                    const userVal = input.value.trim().toLowerCase();
+                    const expectedVal = input.getAttribute('data-answer').toLowerCase();
+                    if (userVal === expectedVal) {
+                        input.classList.add('correct');
+                        input.classList.remove('incorrect');
+                        correctCount++;
+                    } else if (userVal !== "") {
+                        input.classList.add('incorrect');
+                        input.classList.remove('correct');
+                    } else {
+                        input.classList.remove('correct', 'incorrect');
+                    }
+                });
+                scoreCounter.textContent = `${correctCount} / ${inputs.length}`;
+                return correctCount === inputs.length;
+            }
+
+            document.querySelectorAll('.code-input').forEach(input => {
+                input.addEventListener('input', updateScore);
+            });
+
+            document.getElementById('btn-check').addEventListener('click', updateScore);
+
+            document.getElementById('btn-hint').addEventListener('click', () => {
+                getActiveInputs().forEach(input => {
+                    input.value = input.getAttribute('data-answer');
+                });
+                updateScore();
+            });
+
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                getActiveInputs().forEach(input => {
+                    input.value = '';
+                    input.classList.remove('correct', 'incorrect');
+                });
+                updateScore();
+                const fname = getFileName(activeTab);
+                browserScreen.innerHTML = `<div class="text-gray-500 font-sans text-sm italic">A mezők törölve lettek (${fname}). Töltsd ki újra a megjelenítéshez!</div>`;
+            });
+
+            // Oldal megjelenítése logika
+            document.getElementById('btn-run').addEventListener('click', () => {
+                if (!updateScore()) {
+                    browserScreen.innerHTML = `
+                        <div class="font-sans p-3 bg-red-50 border border-red-300 rounded text-red-700">
+                            <strong>HTML Szintaktikai Hiba:</strong> Hiányzó vagy hibás HTML tagek / attribútumok!<br>
+                            <span class="text-sm text-red-600">Kérlek javítsd a pirossal jelölt mezőket a weboldal megjelenítéséhez.</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (activeTab === 'task1') {
+                    browserScreen.innerHTML = `
+                        <h1>Üdvözlöm a látogatókat!</h1>
+                        <p>Ez az első bekezdésem a weboldalon.</p>
+                    `;
+                } else if (activeTab === 'task2') {
+                    browserScreen.innerHTML = `
+                        <h1>Üdvözlöm a látogatókat!</h1>
+                        <p>Ez az első bekezdésem a weboldalon.</p>
+                        <h1>Ez egy nagy főcím</h1>
+                        <h2>Ez egy alcím</h2>
+                        <p>Ez egy normál bekezdés, amiben van egy <strong>fontos, félkövér</strong> szó, valamint egy <em>enyhén dőlt</em> kifejezés is.</p>
+                    `;
+                } else if (activeTab === 'task3') {
+                    browserScreen.innerHTML = `
+                        <h1>Üdvözlöm a látogatókat!</h1>
+                        <p>Ez az első bekezdésem a weboldalon.</p>
+                        <h1>Ez egy nagy főcím</h1>
+                        <h2>Ez egy alcím</h2>
+                        <p>Ez egy normál bekezdés, amiben van egy <strong>fontos, félkövér</strong> szó, valamint egy <em>enyhén dőlt</em> kifejezés is.</p>
+                        <p>Kattints ide, ha el szeretnél látogatni a <a href="https://www.google.com" target="_blank" rel="noopener noreferrer">Google-re</a>!</p>
+                        <img src="${macskaImgSrc}" alt="Egy cuki alvó kismacska" class="max-w-xs border border-gray-300 rounded shadow-sm mt-2">
+                    `;
+                }
+            });
+
+            updateScore();
+        });
+    </script>
+</body>
+</html>
