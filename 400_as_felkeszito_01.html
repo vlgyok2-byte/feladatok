@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>400 Angol Névmás – Alapfokú Nyelvvizsga Felkészítő</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Egyedi görgetősáv és kártyafordítási animációk */
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        .card-transition {
+            transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+        .speaking-active {
+            animation: pulse-ring 1.5s infinite;
+            background-color: #2563eb !important;
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased">
+
+    <!-- Felső navigációs és hangbeállítási sáv -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                <!-- Cím és haladás -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 to-indigo-700 text-white flex items-center justify-center font-extrabold text-lg shadow-sm">
+                            400
+                        </div>
+                        <div>
+                            <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Angol Névmások Mesterfokon</h1>
+                            <p class="text-xs text-slate-500">Alapfokú (A2–B1) nyelvvizsga felkészítő • Hangos tananyag</p>
+                        </div>
+                    </div>
+
+                    <!-- Mobil haladás jelvény -->
+                    <div class="lg:hidden flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span id="mobileProgressBadge" class="text-xs font-bold text-emerald-800">0/400</span>
+                    </div>
+                </div>
+
+                <!-- Hangbeállítások és Haladás -->
+                <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                    <!-- Akcentus választó -->
+                    <div class="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200">
+                        <button onclick="setAccent('en-GB')" id="btn-en-GB" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-white text-brand-700 shadow-sm">
+                            🇬🇧 Brit (UK)
+                        </button>
+                        <button onclick="setAccent('en-US')" id="btn-en-US" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900">
+                            🇺🇸 Amerikai (US)
+                        </button>
+                    </div>
+
+                    <!-- Sebesség választó -->
+                    <div class="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200">
+                        <button onclick="setRate(1.0)" id="btn-rate-1" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-white text-brand-700 shadow-sm">
+                            1.0x Normál
+                        </button>
+                        <button onclick="setRate(0.72)" id="btn-rate-slow" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900">
+                            🐢 0.75x Lassú
+                        </button>
+                    </div>
+
+                    <!-- Asztali haladásjelző -->
+                    <div class="hidden lg:flex items-center gap-3 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
+                        <div>
+                            <div class="flex items-center justify-between text-xs gap-4 mb-1">
+                                <span class="font-medium text-slate-600">Elsajátítva:</span>
+                                <span id="desktopProgressText" class="font-bold text-emerald-700">0 / 400 (0%)</span>
+                            </div>
+                            <div class="w-36 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                <div id="desktopProgressBar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fő menüfülek -->
+            <nav class="flex items-center gap-1.5 sm:gap-2 mt-3 pt-2.5 border-t border-slate-100 overflow-x-auto pb-1">
+                <button onclick="switchTab('flashcards')" id="tab-flashcards" class="nav-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap bg-brand-600 text-white shadow-sm transition">
+                    <span>🗂️</span> Tanulókártyák
+                </button>
+                <button onclick="switchTab('list')" id="tab-list" class="nav-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                    <span>📋</span> Teljes Lista (1–400)
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="nav-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                    <span>🎯</span> Kvíz & Hallásértés
+                </button>
+                <button onclick="switchTab('grammar')" id="tab-grammar" class="nav-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                    <span>📘</span> Nyelvtani Kisokos
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Globális Szűrő Sáv (Tanulókártyákhoz és Listához) -->
+    <section id="globalFilterBar" class="bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Vizsga fókusz kapcsoló -->
+                <button onclick="toggleCoreFilter()" id="btnCoreFilter" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition bg-amber-50 border-amber-300 text-amber-900 shadow-sm">
+                    <span id="coreCheckIcon">⭐</span>
+                    <span>Alapfokú vizsga törzsanyag (A2–B1)</span>
+                </button>
+
+                <!-- Kategória választó -->
+                <select id="categorySelect" onchange="applyFilters()" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-50 border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <option value="ALL">Összes kategória</option>
+                    <option value="Személyes névmások">1. Személyes névmások (alany- és tárgyeset)</option>
+                    <option value="Visszaható és nyomatékosító">2. Visszaható és nyomatékosító (-self)</option>
+                    <option value="Birtokos névmások">3. Birtokos névmások és szerkezetek</option>
+                    <option value="Kérdő és vonatkozó névmások">4. Kérdő és vonatkozó névmások (Wh-)</option>
+                    <option value="Mutató névmások">5. Mutató névmások (This/That/Such...)</option>
+                    <option value="Határozatlan névmások">6. Határozatlan névmások (Some/Any/No/Every)</option>
+                    <option value="Mennyiségjelző és elosztó">7. Mennyiségjelző és elosztó (Each/Both/Few...)</option>
+                    <option value="Kölcsönös és összetett">8. Kölcsönös és speciális szerkezetek</option>
+                    <option value="Összevont és birtokos alakok">9. Összevont (-'s) és választékos alakok</option>
+                </select>
+
+                <!-- Státusz szűrő -->
+                <select id="statusSelect" onchange="applyFilters()" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-50 border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <option value="ALL">Minden állapot</option>
+                    <option value="UNLEARNED">Még gyakorlandó</option>
+                    <option value="LEARNED">Már megtanultam ✓</option>
+                </select>
+            </div>
+
+            <!-- Találatok száma + Hangoskönyv mód -->
+            <div class="flex items-center justify-between md:justify-end gap-3">
+                <span id="filteredCountLabel" class="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">
+                    Szűrt tételek: 400 db
+                </span>
+                <button onclick="toggleAutoPlay()" id="btnAutoPlay" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition">
+                    <span id="autoPlayIcon">▶️</span>
+                    <span id="autoPlayText">Hangoskönyv mód</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FŐ TARTALMI TERÜLET -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-6">
+
+        <!-- 1. NÉZET: TANULÓKÁRTYÁK (FLASHCARDS) -->
+        <div id="view-flashcards" class="space-y-6">
+            <!-- Kártya vezérlő fejléc -->
+            <div class="max-w-2xl mx-auto flex items-center justify-between text-sm text-slate-600">
+                <span id="fcPosition" class="font-bold text-slate-800 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                    1 / 400. kártya
+                </span>
+                <div class="flex items-center gap-2">
+                    <button onclick="shuffleFlashcards()" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-sm transition">
+                        🔀 Keverés
+                    </button>
+                    <button onclick="resetOrderFlashcards()" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-sm transition">
+                        🔢 Sorrendben
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3D Megfordítható Kártya -->
+            <div id="flashcardContainer" class="max-w-2xl mx-auto perspective-1000">
+                <div id="flashcardInner" onclick="flipCard()" class="relative w-full min-h-[370px] sm:min-h-[400px] cursor-pointer transform-style-3d card-transition">
+                    
+                    <!-- ELŐLAP (ANGOL) -->
+                    <div class="absolute inset-0 backface-hidden bg-white rounded-3xl border-2 border-slate-200 shadow-lg p-6 sm:p-8 flex flex-col justify-between">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span id="fcNumber" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs">#1</span>
+                                <span id="fcCategory" class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs">Személyes névmások</span>
+                                <span id="fcCoreBadge" class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 font-semibold text-xs">⭐ Alapfok</span>
+                            </div>
+                            <span id="fcLearnedBadge" class="hidden px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs">✓ Megtanulva</span>
+                        </div>
+
+                        <div class="my-auto text-center space-y-5 py-4">
+                            <div>
+                                <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-1">Angol névmás / kifejezés</p>
+                                <h2 id="fcPronounEn" class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">I</h2>
+                            </div>
+
+                            <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-100">
+                                <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-1.5">Példamondat</p>
+                                <p id="fcSentenceEn" class="text-lg sm:text-2xl font-medium text-slate-800 leading-relaxed">I am a student.</p>
+                            </div>
+                        </div>
+
+                        <!-- Hang gombok az előlapon (stopPropagation-nel, hogy ne fordítsa meg a kártyát) -->
+                        <div class="flex flex-wrap items-center justify-center gap-2 pt-2" onclick="event.stopPropagation()">
+                            <button onclick="speakCurrentPronoun(this)" class="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 font-semibold text-xs sm:text-sm transition">
+                                <span>🔊</span> Névmás
+                            </button>
+                            <button onclick="speakCurrentSentence(this)" class="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 font-semibold text-xs sm:text-sm transition">
+                                <span>🗣️</span> Mondat
+                            </button>
+                            <button onclick="speakCurrentBoth(this)" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition">
+                                <span>🎧</span> Mindkettő
+                            </button>
+                        </div>
+
+                        <p class="text-center text-xs text-slate-400 mt-3">Kattints a kártyára a magyar fordításhoz ↻</p>
+                    </div>
+
+                    <!-- HÁTLAP (MAGYAR FORDÍTÁS & MAGYARÁZAT) -->
+                    <div class="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl border-2 border-slate-700 shadow-xl p-6 sm:p-8 flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span id="fcBackNumber" class="px-2.5 py-1 rounded-lg bg-white/10 text-slate-200 font-bold text-xs">#1 • Magyar jelentés</span>
+                            <span class="text-xs text-slate-400">Kattints a visszafordításhoz ↺</span>
+                        </div>
+
+                        <div class="my-auto text-center space-y-5 py-4">
+                            <div>
+                                <p class="text-xs uppercase tracking-wider text-brand-200 font-semibold mb-1">Magyar megfelelője</p>
+                                <h2 id="fcPronounHu" class="text-2xl sm:text-4xl font-extrabold text-amber-300">én</h2>
+                            </div>
+
+                            <div class="bg-white/10 rounded-2xl p-4 sm:p-5 border border-white/10">
+                                <p class="text-xs uppercase tracking-wider text-slate-300 font-semibold mb-1">Mondat fordítása</p>
+                                <p id="fcSentenceHu" class="text-lg sm:text-xl font-medium text-white leading-relaxed">Diák vagyok. / Én egy diák vagyok.</p>
+                                <p id="fcSentenceEnSmall" class="text-xs text-slate-300 mt-2 italic">„I am a student.”</p>
+                            </div>
+
+                            <div class="bg-brand-900/50 rounded-xl px-4 py-2.5 border border-brand-500/30 text-left">
+                                <p class="text-xs text-brand-200"><strong class="text-white">💡 Vizsgatipp:</strong> <span id="fcTipHu">Alanyesetű személyes névmás, mindig nagybetűvel írjuk.</span></p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-center gap-3 pt-2" onclick="event.stopPropagation()">
+                            <button onclick="speakCurrentBoth(this)" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold text-xs sm:text-sm transition">
+                                <span>🔊</span> Angol kiejtés meghallgatása
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Kártya léptető és állapotjelölő gombok -->
+            <div class="max-w-2xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                <button onclick="prevCard()" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-sm shadow-sm transition flex items-center justify-center gap-2">
+                    <span>⬅️</span> Előző
+                </button>
+
+                <button onclick="markCurrentCard(false)" class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-900 font-bold text-sm shadow-sm transition flex items-center justify-center gap-1.5">
+                    <span>🔄</span> Még gyakorlom
+                </button>
+
+                <button onclick="markCurrentCard(true)" class="p-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition flex items-center justify-center gap-1.5">
+                    <span>✅</span> Tudom!
+                </button>
+
+                <button onclick="nextCard()" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-sm shadow-sm transition flex items-center justify-center gap-2">
+                    Következő <span>➡️</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. NÉZET: TELJES LISTA & KERESŐ -->
+        <div id="view-list" class="hidden space-y-4">
+            <!-- Kereső mező -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Keresés angol vagy magyar szóra, sorszámra (pl. 'myself', 'bármi', '25')..." class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <button onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</button>
+                </div>
+                <button onclick="resetAllProgress()" class="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition whitespace-nowrap">
+                    🗑️ Haladás nullázása
+                </button>
+            </div>
+
+            <!-- Lista kártyák / sorok -->
+            <div id="listContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <!-- JavaScript tölti fel -->
+            </div>
+        </div>
+
+        <!-- 3. NÉZET: INTERAKTÍV KVÍZ & HALLÁSÉRTÉS -->
+        <div id="view-quiz" class="hidden max-w-2xl mx-auto space-y-6">
+            <!-- Kvíz mód választó -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="setQuizMode('meaning')" id="qmode-meaning" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-brand-600 text-white transition">
+                        🇭🇺 Jelentés & Mondat kvíz
+                    </button>
+                    <button onclick="setQuizMode('fill')" id="qmode-fill" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                        ✍️ Mondatkiegészítés
+                    </button>
+                    <button onclick="setQuizMode('listening')" id="qmode-listening" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                        🎧 Hallás utáni értés
+                    </button>
+                </div>
+
+                <div class="text-xs font-bold bg-slate-100 px-3 py-1.5 rounded-xl text-slate-700">
+                    Pontszám: <span id="quizScore" class="text-emerald-600">0</span> / <span id="quizTotal">0</span>
+                </div>
+            </div>
+
+            <!-- Kvíz Kártya -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-md p-6 sm:p-8 space-y-6">
+                <div class="flex items-center justify-between">
+                    <span id="quizQuestionTypeBadge" class="px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-bold">
+                        Válaszd ki a helyes magyar jelentést!
+                    </span>
+                    <button onclick="speakQuizPrompt()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition">
+                        <span>🔊</span> Meghallgatás
+                    </button>
+                </div>
+
+                <!-- Kérdés szövege -->
+                <div id="quizPromptBox" class="bg-slate-50 rounded-2xl p-5 border border-slate-200 text-center space-y-2">
+                    <h3 id="quizMainPrompt" class="text-2xl sm:text-3xl font-extrabold text-slate-900">They themselves</h3>
+                    <p id="quizSubPrompt" class="text-sm sm:text-base text-slate-600">They themselves admitted the mistake.</p>
+                </div>
+
+                <!-- 4 Válaszlehetőség -->
+                <div id="quizOptions" class="grid grid-cols-1 gap-3">
+                    <!-- JS tölti fel -->
+                </div>
+
+                <!-- Visszajelzés és Következő gomb -->
+                <div id="quizFeedback" class="hidden rounded-2xl p-4 text-sm font-medium"></div>
+
+                <div class="flex justify-end">
+                    <button onclick="generateQuizQuestion()" class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-sm transition">
+                        Következő kérdés ➡️
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. NÉZET: NYELVTANI KISOKOS (MAGYARUL) -->
+        <div id="view-grammar" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-brand-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-md">
+                <h2 class="text-xl sm:text-2xl font-extrabold mb-2">📘 Alapfokú (A2–B1) Angol Névmás Kisokos</h2>
+                <p class="text-sm sm:text-base text-brand-100 max-w-3xl">
+                    A 400-as lista minden létező angol névmási szerkezetet lefed. Az alapfokú nyelvvizsgán az alábbi fő csoportok magabiztos használata elengedhetetlen. Kattints bármelyik kártyára a kategória gyakorlásához!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="grammarCardsGrid">
+                <!-- JS tölti fel -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Lábléc -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            400 Pronouns with Sentences • Alapfokú nyelvvizsga felkészítő webalkalmazás • Web Speech API hangszintézissel
+        </div>
+    </footer>
+
+    <!-- Megerősítő üzenetablak (alert/confirm helyett) -->
+    <div id="customModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-200 space-y-4">
+            <h3 id="modalTitle" class="text-lg font-bold text-slate-900">Megerősítés</h3>
+            <p id="modalText" class="text-sm text-slate-600">Biztosan törölni szeretnéd az eddigi tanulási haladásodat?</p>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold">Mégse</button>
+                <button id="modalConfirmBtn" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold">Igen, törlés</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // TELJES 400 TÉTELES ADATBÁZIS (A 8 KÉP PONTOS TARTALMA + MAGYAR FORDÍTÁSOK)
+        // Formátum: [id, angol_nevmas, angol_mondat, magyar_nevmas, magyar_mondat, kategoria_kod, alapfok_e]
+        // Kategória kódok:
+        // 1: Személyes névmások
+        // 2: Visszaható és nyomatékosító
+        // 3: Birtokos névmások
+        // 4: Kérdő és vonatkozó névmások
+        // 5: Mutató névmások
+        // 6: Határozatlan névmások
+        // 7: Mennyiségjelző és elosztó
+        // 8: Kölcsönös és összetett
+        // 9: Összevont és birtokos alakok
+        // ============================================================================
+        const RAW_DATA = [
+            // --- 1. KÉP (1 - 50) ---
+            [1, "I", "I am a student.", "én", "Diák vagyok.", 1, true],
+            [2, "You", "You are very kind.", "te / ti / ön / önök", "Nagyon kedves vagy.", 1, true],
+            [3, "He", "He plays football.", "ő (hímnem)", "Ő focizik.", 1, true],
+            [4, "She", "She sings beautifully.", "ő (nőnem)", "Gyönyörűen énekel.", 1, true],
+            [5, "It", "It is raining.", "az / ő (semlegesnem)", "Esik az eső.", 1, true],
+            [6, "We", "We study together.", "mi", "Együtt tanulunk.", 1, true],
+            [7, "They", "They are my friends.", "ők / azok", "Ők a barátaim.", 1, true],
+            [8, "Me", "Please help me.", "engem / nekem", "Kérlek, segíts nekem!", 1, true],
+            [9, "Him", "I know him.", "őt / neki (hímnem)", "Ismerem őt.", 1, true],
+            [10, "Her", "I called her yesterday.", "őt / neki (nőnem)", "Tegnap felhívtam őt.", 1, true],
+            [11, "Us", "The teacher praised us.", "minket / nekünk", "A tanár megdicsért minket.", 1, true],
+            [12, "Them", "I invited them.", "őket / nekik", "Meghívtam őket.", 1, true],
+            [13, "Myself", "I did it myself.", "magam / saját magam", "Magam csináltam meg.", 2, true],
+            [14, "Yourself", "Believe in yourself.", "magad / önmaga", "Higgy magadban!", 2, true],
+            [15, "Himself", "He hurt himself.", "magát (hímnem)", "Megütötte magát.", 2, true],
+            [16, "Herself", "She introduced herself.", "magát (nőnem)", "Bemutatkozott (bemutatta magát).", 2, true],
+            [17, "Itself", "The door closed itself.", "magát (semlegesnem)", "Az ajtó magától becsukódott.", 2, true],
+            [18, "Ourselves", "We enjoyed ourselves.", "magunkat", "Jól éreztük magunkat.", 2, true],
+            [19, "Yourselves", "Please prepare yourselves.", "magatokat", "Kérlek, készüljetek fel!", 2, true],
+            [20, "Themselves", "They helped themselves.", "magukat", "Kiszolgálták magukat.", 2, true],
+            [21, "Mine", "This book is mine.", "az enyém", "Ez a könyv az enyém.", 3, true],
+            [22, "Yours", "This pen is yours.", "a tiéd / a tiétek / az öné", "Ez a toll a tiéd.", 3, true],
+            [23, "His", "That bicycle is his.", "az övé (hímnem)", "Az a kerékpár az övé.", 3, true],
+            [24, "Hers", "This bag is hers.", "az övé (nőnem)", "Ez a táska az övé.", 3, true],
+            [25, "Ours", "This house is ours.", "a miénk", "Ez a ház a miénk.", 3, true],
+            [26, "Theirs", "Those shoes are theirs.", "az övék", "Azok a cipők az övék.", 3, true],
+            [27, "Who", "Who is knocking?", "ki / aki", "Ki kopog?", 4, true],
+            [28, "Whom", "Whom did you meet?", "kit / akit (választékos tárgyeset)", "Kivel találkoztál? / Kit ismertél meg?", 4, false],
+            [29, "Whose", "Whose is this?", "kié / akinek a...", "Kié ez?", 4, true],
+            [30, "What", "What happened here?", "mi / mit / ami", "Mi történt itt?", 4, true],
+            [31, "Which", "Which do you prefer?", "melyik / amelyik", "Melyiket részesíted előnyben?", 4, true],
+            [32, "This", "This is my favourite.", "ez", "Ez a kedvencem.", 5, true],
+            [33, "That", "That is beautiful.", "az", "Az gyönyörű.", 5, true],
+            [34, "These", "These are fresh.", "ezek", "Ezek frissek.", 5, true],
+            [35, "Those", "Those belong to me.", "azok", "Azok hozzám tartoznak (az enyémek).", 5, true],
+            [36, "One", "One should respect others.", "az ember / egy", "Az embernek tisztelnie kell másokat.", 6, true],
+            [37, "Ones", "The red ones are mine.", "a ...-k (többes számú helyettesítő)", "A pirosak az enyémek.", 6, true],
+            [38, "Another", "Another is waiting outside.", "egy másik", "Egy másik kint várakozik.", 6, true],
+            [39, "Others", "Others are playing outside.", "mások", "Mások kint játszanak.", 6, true],
+            [40, "The other", "The other is missing.", "a másik (meghatározott)", "A másik hiányzik.", 6, true],
+            [41, "Somebody", "Somebody is calling you.", "valaki", "Valaki hív téged.", 6, true],
+            [42, "Someone", "Someone left a message.", "valaki", "Valaki üzenetet hagyott.", 6, true],
+            [43, "Something", "Something smells delicious.", "valami", "Valaminek finom illata van.", 6, true],
+            [44, "Anybody", "Anybody can join us.", "bárki / valaki (kérdésben)", "Bárki csatlakozhat hozzánk.", 6, true],
+            [45, "Anyone", "Anyone can learn English.", "bárki / valaki (kérdésben)", "Bárki megtanulhat angolul.", 6, true],
+            [46, "Anything", "You can ask me anything.", "bármi / valami (kérdésben)", "Bármit kérdezhetsz tőlem.", 6, true],
+            [47, "Nobody", "Nobody was there.", "senki", "Senki nem volt ott.", 6, true],
+            [48, "No one", "No one knows the answer.", "senki", "Senki sem tudja a választ.", 6, true],
+            [49, "Nothing", "Nothing is impossible.", "semmi", "Semmi sem lehetetlen.", 6, true],
+            [50, "Everybody", "Everybody likes music.", "mindenki", "Mindenki szereti a zenét.", 6, true],
+
+            // --- 2. KÉP (51 - 100) ---
+            [51, "Everyone", "Everyone is welcome.", "mindenki", "Mindenkit szívesen látunk.", 6, true],
+            [52, "Everything", "Everything is ready.", "minden", "Minden készen áll.", 6, true],
+            [53, "Somebody else", "Somebody else took my seat.", "valaki más", "Valaki más elfoglalta a helyemet.", 6, true],
+            [54, "Someone else", "Someone else answered.", "valaki más", "Valaki más válaszolt.", 6, true],
+            [55, "Something else", "I want something else.", "valami mást", "Valami mást szeretnék.", 6, true],
+            [56, "Anybody else", "Is anybody else coming?", "valaki más / bárki más", "Jön még valaki más?", 6, true],
+            [57, "Anyone else", "Anyone else can help.", "bárki más", "Bárki más segíthet.", 6, true],
+            [58, "Anything else", "Do you need anything else?", "valami mást / bármi mást", "Szükséged van még valami másra?", 6, true],
+            [59, "Nobody else", "Nobody else understood.", "senki más", "Senki más nem értette.", 6, true],
+            [60, "No one else", "No one else was invited.", "senki más", "Senki más nem volt meghívva.", 6, true],
+            [61, "Nothing else", "Nothing else matters.", "semmi más", "Semmi más nem számít.", 6, true],
+            [62, "Everybody else", "Everybody else agreed.", "mindenki más", "Mindenki más egyetértett.", 6, true],
+            [63, "Everyone else", "Everyone else went home.", "mindenki más", "Mindenki más hazament.", 6, true],
+            [64, "Everything else", "Everything else is fine.", "minden más", "Minden más rendben van.", 6, true],
+            [65, "Someone new", "Someone new joined.", "valaki új", "Valaki új csatlakozott.", 6, true],
+            [66, "Somebody new", "Somebody new is here.", "valaki új", "Valaki új van itt.", 6, false],
+            [67, "Something new", "Something new happened.", "valami új", "Valami új történt.", 6, true],
+            [68, "Anyone available", "Anyone available may help.", "bárki, aki ráér / elérhető", "Bárki, aki elérhető, segíthet.", 6, false],
+            [69, "Anybody available", "Anybody available can volunteer.", "bárki, aki elérhető", "Bárki, aki ráér, jelentkezhet önkéntesnek.", 6, false],
+            [70, "Everyone present", "Everyone present listened.", "minden jelenlévő", "Minden jelenlévő figyelt.", 6, false],
+            [71, "Each", "Each received a gift.", "mindegyik (egyenként)", "Mindegyik kapott egy ajándékot.", 7, true],
+            [72, "Either", "Either will work.", "bármelyik (kettő közül)", "Bármelyik jó lesz (működni fog).", 7, true],
+            [73, "Neither", "Neither is correct.", "egyik sem (kettő közül)", "Egyik sem helyes.", 7, true],
+            [74, "Both", "Both are beautiful.", "mindkettő", "Mindkettő gyönyörű.", 7, true],
+            [75, "Few", "Few understood the lesson.", "kevesen (megszámlálható)", "Kevesen értették meg a leckét.", 7, true],
+            [76, "A few", "A few came early.", "néhányan (megszámlálható)", "Néhányan korán jöttek.", 7, true],
+            [77, "Many", "Many were absent.", "sokan (megszámlálható)", "Sokan hiányoztak.", 7, true],
+            [78, "Several", "Several have applied.", "többen / számos", "Többen jelentkeztek.", 7, true],
+            [79, "Some", "Some are missing.", "néhány / valamennyi", "Néhány hiányzik.", 7, true],
+            [80, "Any", "Any will be acceptable.", "bármelyik / bármennyi", "Bármelyik elfogadható lesz.", 7, true],
+            [81, "None", "None were selected.", "egyik sem / senki", "Egyiket sem választották ki.", 7, true],
+            [82, "All", "All are welcome.", "mind / mindenki", "Mindenkit szívesen látunk.", 7, true],
+            [83, "Most", "Most have finished.", "a legtöbben / a legtöbb", "A legtöbben már befejezték.", 7, true],
+            [84, "More", "More are needed.", "több / többre", "Többre van szükség.", 7, true],
+            [85, "Less", "Less is sometimes better.", "kevesebb (megszámlálhatatlan)", "A kevesebb néha több (jobb).", 7, true],
+            [86, "Little", "Little is known.", "kevés (megszámlálhatatlan)", "Keveset tudunk róla.", 7, true],
+            [87, "A little", "A little remains.", "egy kevés (megszámlálhatatlan)", "Egy kevés maradt.", 7, true],
+            [88, "Much", "Much has changed.", "sok (megszámlálhatatlan)", "Sok minden megváltozott.", 7, true],
+            [89, "Enough", "Enough has been done.", "elég / elegendő", "Eleget tettünk már.", 7, true],
+            [90, "Such", "Such is life.", "ilyen", "Ilyen az élet.", 5, true],
+            [91, "Whatever", "Whatever happens, stay calm.", "bármi (is)", "Bármi történjék is, maradj nyugodt!", 4, true],
+            [92, "Whoever", "Whoever wins will get a prize.", "bárki (aki)", "Bárki nyer is, díjat kap.", 4, true],
+            [93, "Whomever", "Give it to whomever you choose.", "bárkinek (akit)", "Add annak, akit választasz.", 4, false],
+            [94, "Whichever", "Whichever is cheaper.", "bármelyik (amelyik)", "Bármelyik olcsóbb.", 4, true],
+            [95, "Whatsoever", "I have no doubt whatsoever.", "egyáltalán semmi / bármi", "Egyáltalán semmi kétségem nincs.", 8, false],
+            [96, "Whoever else", "Whoever else may join.", "bárki más (aki)", "Bárki más csatlakozhat.", 4, false],
+            [97, "Whatever else", "Whatever else happens.", "bármi más (is)", "Bármi más történik is.", 4, false],
+            [98, "Whichever one", "Whichever one you choose.", "bármelyiket (is)", "Bármelyiket is választod.", 4, false],
+            [99, "Someone important", "Someone important called you.", "valaki fontos (személy)", "Valaki fontos személy hívott téged.", 6, true],
+            [100, "Something special", "Something special happened.", "valami különleges", "Valami különleges történt.", 6, true],
+
+            // --- 3. KÉP (101 - 150) ---
+            [101, "Myself", "I taught myself English.", "magamat (visszaható)", "Magamtól tanultam meg angolul.", 2, true],
+            [102, "Yourself", "You should trust yourself.", "magadban (visszaható)", "Bíznod kell magadban.", 2, true],
+            [103, "Himself", "He introduced himself.", "magát (visszaható)", "Bemutatkozott.", 2, true],
+            [104, "Herself", "She dressed herself.", "magát (visszaható)", "Felöltöztette magát (felöltözött).", 2, true],
+            [105, "Itself", "The cat cleaned itself.", "magát (visszaható)", "A macska megmosdatta magát.", 2, true],
+            [106, "Ourselves", "We prepared ourselves.", "magunkat (visszaható)", "Felkészítettük magunkat.", 2, true],
+            [107, "Yourselves", "You should protect yourselves.", "magatokat (visszaható)", "Meg kell védenetek magatokat.", 2, true],
+            [108, "Themselves", "They enjoyed themselves.", "magukat (visszaható)", "Jól érezték magukat.", 2, true],
+            [109, "My own self", "I want to improve my own self.", "saját magamat", "Saját magamat akarom fejleszteni.", 2, false],
+            [110, "Your own self", "Be true to your own self.", "saját magadhoz", "Légy hű saját magadhoz!", 2, false],
+            [111, "His own self", "He revealed his own self.", "saját magát (hímnem)", "Megmutatta valódi önmagát.", 2, false],
+            [112, "Her own self", "She expressed her own self.", "saját magát (nőnem)", "Kifejezte saját önmagát.", 2, false],
+            [113, "Our own selves", "We should examine our own selves.", "saját magunkat", "Meg kell vizsgálnunk saját magunkat.", 2, false],
+            [114, "Their own selves", "They should be their own selves.", "saját maguk", "Önmaguknak kell lenniük.", 2, false],
+            [115, "Myself alone", "I completed the task myself alone.", "egyedül magam", "Egyedül magam fejeztem be a feladatot.", 2, false],
+            [116, "Yourself alone", "You cannot do everything yourself alone.", "egyedül magad", "Nem csinálhatsz mindent egyedül.", 2, false],
+            [117, "Himself alone", "He travelled by himself alone.", "teljesen egyedül (ő)", "Teljesen egyedül utazott.", 2, false],
+            [118, "Herself alone", "She stayed by herself alone.", "teljesen egyedül (ő)", "Teljesen egyedül maradt.", 2, false],
+            [119, "Itself alone", "The machine cannot operate by itself alone.", "önmagában egyedül", "A gép nem tud önmagában működni.", 2, false],
+            [120, "Themselves alone", "They completed the project by themselves alone.", "teljesen egyedül (ők)", "Teljesen egyedül fejezték be a projektet.", 2, false],
+            [121, "I myself", "I myself saw the accident.", "én magam (nyomatékosító)", "Én magam láttam a balesetet.", 2, true],
+            [122, "You yourself", "You yourself made the decision.", "te magad (nyomatékosító)", "Te magad hoztad meg a döntést.", 2, true],
+            [123, "He himself", "He himself opened the door.", "ő maga (nyomatékosító)", "Ő maga nyitotta ki az ajtót.", 2, true],
+            [124, "She herself", "She herself cooked dinner.", "ő maga (nyomatékosító)", "Ő maga főzte a vacsorát.", 2, true],
+            [125, "It itself", "The device itself stopped working.", "maga az eszköz", "Maga az eszköz állt le.", 2, false],
+            [126, "We ourselves", "We ourselves cleaned the room.", "mi magunk (nyomatékosító)", "Mi magunk takarítottuk ki a szobát.", 2, true],
+            [127, "They themselves", "They themselves admitted the mistake.", "ők maguk (nyomatékosító)", "Ők maguk ismerték el a hibát.", 2, true],
+            [128, "You yourselves", "You yourselves know the truth.", "ti magatok (nyomatékosító)", "Ti magatok tudjátok az igazságot.", 2, false],
+            [129, "By myself", "I live by myself.", "egyedül / magamban", "Egyedül élek.", 2, true],
+            [130, "By yourself", "You can finish it by yourself.", "egyedül / segítség nélkül", "Egyedül is be tudod fejezni.", 2, true],
+            [131, "By himself", "He travelled by himself.", "egyedül (ő - hímnem)", "Egyedül utazott.", 2, true],
+            [132, "By herself", "She solved it by herself.", "egyedül (ő - nőnem)", "Egyedül oldotta meg.", 2, true],
+            [133, "By itself", "The light switched on by itself.", "magától", "A lámpa magától felkapcsolódott.", 2, true],
+            [134, "By ourselves", "We completed the work by ourselves.", "egyedül / saját erőből", "Saját erőből végeztük el a munkát.", 2, true],
+            [135, "By yourselves", "You can do it by yourselves.", "egyedül (ti)", "Egyedül is meg tudjátok csinálni.", 2, true],
+            [136, "By themselves", "They built the house by themselves.", "egyedül / saját maguk (ők)", "Saját maguk építették a házat.", 2, true],
+            [137, "For myself", "I bought a gift for myself.", "magamnak", "Vettem magamnak egy ajándékot.", 2, true],
+            [138, "For yourself", "Keep some money for yourself.", "magadnak", "Tarts meg egy kis pénzt magadnak!", 2, true],
+            [139, "For himself", "He saved a seat for himself.", "magának (hímnem)", "Félretett magának egy helyet.", 2, true],
+            [140, "For herself", "She bought flowers for herself.", "magának (nőnem)", "Virágot vett magának.", 2, true],
+            [141, "Mine", "The blue shirt is mine.", "az enyém", "A kék ing az enyém.", 3, true],
+            [142, "Yours", "The decision is yours.", "a tiéd / az öné", "A döntés a tiéd.", 3, true],
+            [143, "His", "The victory is his.", "az övé (hímnem)", "A győzelem az övé.", 3, true],
+            [144, "Hers", "The responsibility is hers.", "az övé (nőnem)", "A felelősség az övé.", 3, true],
+            [145, "Ours", "The garden is ours.", "a miénk", "A kert a miénk.", 3, true],
+            [146, "Theirs", "The final choice is theirs.", "az övék", "A végső választás az övék.", 3, true],
+            [147, "Mine alone", "This achievement is mine alone.", "egyedül az enyém", "Ez az eredmény egyedül az enyém.", 3, false],
+            [148, "Yours alone", "The responsibility is yours alone.", "egyedül a tiéd", "A felelősség egyedül a tiéd.", 3, false],
+            [149, "His alone", "The success was his alone.", "egyedül az övé (hímnem)", "A siker egyedül az övé volt.", 3, false],
+            [150, "Hers alone", "The decision was hers alone.", "egyedül az övé (nőnem)", "A döntés egyedül az övé volt.", 3, false],
+
+            // --- 4. KÉP (151 - 200) ---
+            [151, "Mine", "The blue shirt is mine.", "az enyém", "A kék ing az enyém.", 3, false],
+            [152, "Yours", "The decision is yours.", "a tiéd", "A döntés a tiéd.", 3, false],
+            [153, "His", "The victory is his.", "az övé (hímnem)", "A győzelem az övé.", 3, false],
+            [154, "Hers", "The responsibility is hers.", "az övé (nőnem)", "A felelősség az övé.", 3, false],
+            [155, "Ours", "The garden is ours.", "a miénk", "A kert a miénk.", 3, false],
+            [156, "Theirs", "The final choice is theirs.", "az övék", "A végső választás az övék.", 3, false],
+            [157, "Mine alone", "This achievement is mine alone.", "egyedül az enyém", "Ez a teljesítmény egyedül az enyém.", 3, false],
+            [158, "Yours alone", "The responsibility is yours alone.", "egyedül a tiéd", "A felelősség egyedül a tiéd.", 3, false],
+            [159, "His alone", "The success was his alone.", "egyedül az övé", "A siker egyedül az övé volt.", 3, false],
+            [160, "Hers alone", "The decision was hers alone.", "egyedül az övé", "A döntés egyedül az övé volt.", 3, false],
+            [161, "Ours alone", "The victory is ours alone.", "egyedül a miénk", "A győzelem egyedül a miénk.", 3, false],
+            [162, "Theirs alone", "The property is theirs alone.", "egyedül az övék", "Az ingatlan egyedül az övék.", 3, false],
+            [163, "One's own", "One's own is always valuable.", "az ember sajátja", "Az ember sajátja mindig értékes.", 3, false],
+            [164, "My own", "I want my own.", "a sajátom", "A sajátomat akarom.", 3, true],
+            [165, "Your own", "You should have your own.", "a sajátod", "Kellene, hogy legyen sajátod.", 3, true],
+            [166, "His own", "He has his own.", "a sajátja (hímnem)", "Neki van sajátja.", 3, true],
+            [167, "Her own", "She wants her own.", "a sajátja (nőnem)", "A sajátját akarja.", 3, true],
+            [168, "Our own", "We built our own.", "a sajátunk", "Megépítettük a sajátunkat.", 3, true],
+            [169, "Their own", "They have their own.", "a sajátjuk", "Nekik van sajátjuk.", 3, true],
+            [170, "Someone's", "Someone's is lying on the table.", "valakié", "Valakié ott fekszik az asztalon.", 9, true],
+            [171, "Somebody's", "Somebody's waiting outside.", "valaki (van) / valakié", "Valaki kint várakozik.", 9, true],
+            [172, "Anyone's", "Anyone's answer may be correct.", "bárkié", "Bárki válasza helyes lehet.", 9, true],
+            [173, "Everybody's", "Everybody's ready to leave.", "mindenki (készen áll)", "Mindenki indulásra kész.", 9, true],
+            [174, "Everyone's", "Everyone's excited about the trip.", "mindenki (izgatott)", "Mindenki izgatott az utazás miatt.", 9, true],
+            [175, "Something's", "Something's wrong with the car.", "valami (baj van)", "Valami baj van az autóval.", 9, true],
+            [176, "Anything's", "Anything's possible.", "bármi (lehetséges)", "Bármi lehetséges.", 9, true],
+            [177, "Everything's", "Everything's going well.", "minden (jól megy)", "Minden jól megy.", 9, true],
+            [178, "Nothing's", "Nothing's changed.", "semmi (nem változott)", "Semmi sem változott.", 9, true],
+            [179, "Each one", "Each one deserves respect.", "mindegyik / minden egyes", "Mindegyik megérdemli a tiszteletet.", 7, true],
+            [180, "Every one", "Every one was counted.", "minden egyes", "Minden egyes darabot megszámoltak.", 7, true],
+            [181, "Any one", "Any one may answer.", "bármelyik", "Bármelyik válaszolhat.", 7, true],
+            [182, "No one", "No one was injured.", "senki", "Senki sem sérült meg.", 6, true],
+            [183, "Some one", "Some one must help.", "valaki (különírva: valamelyik)", "Valakinek segítenie kell.", 6, false],
+            [184, "The one", "The one I selected is missing.", "az (amelyik)", "Az, amelyiket kiválasztottam, hiányzik.", 5, true],
+            [185, "The ones", "The ones I bought are expensive.", "azok (amelyek)", "Azok, amelyeket vettem, drágák.", 5, true],
+            [186, "One of us", "One of us must go.", "egyikünk", "Egyikünknek mennie kell.", 7, true],
+            [187, "One of them", "One of them is my cousin.", "egyikük", "Egyikük az unokatestvérem.", 7, true],
+            [188, "One of you", "One of you has the answer.", "egyikőtök", "Egyikőtök tudja a választ.", 7, true],
+            [189, "One of these", "One of these is broken.", "egyik ezek közül", "Az egyik ezek közül törött.", 7, true],
+            [190, "One of those", "One of those belongs to me.", "egyik azok közül", "Az egyik azok közül az enyém.", 7, true],
+            [191, "Two of us", "Two of us went shopping.", "ketten közülünk", "Ketten közülünk elmentünk vásárolni.", 7, true],
+            [192, "Two of them", "Two of them are missing.", "ketten közülük", "Ketten közülük hiányoznak.", 7, true],
+            [193, "Three of us", "Three of us joined the team.", "hárman közülünk", "Hárman közülünk csatlakoztunk a csapathoz.", 7, true],
+            [194, "Three of them", "Three of them won prizes.", "hárman közülük", "Hárman közülük díjat nyertek.", 7, true],
+            [195, "Half of us", "Half of us stayed home.", "a felünk", "A felünk otthon maradt.", 7, true],
+            [196, "Half of them", "Half of them were ready.", "a felük", "A felük készen állt.", 7, true],
+            [197, "Most of these", "Most of these are useful.", "ezek többsége", "Ezek többsége hasznos.", 7, true],
+            [198, "Most of those", "Most of those were expensive.", "azok többsége", "Azok többsége drága volt.", 7, true],
+            [199, "Few of us", "Few of us knew the answer.", "kevesen közülünk", "Kevesen közülünk tudtuk a választ.", 7, true],
+            [200, "Few of them", "Few of them attended the meeting.", "kevesen közülük", "Kevesen közülük vettek részt a megbeszélésen.", 7, true],
+
+            // --- 5. KÉP (201 - 250) ---
+            [201, "Who", "Who are you?", "ki", "Ki vagy te?", 4, true],
+            [202, "Whom", "Whom should I call?", "kit", "Kit hívjak fel?", 4, false],
+            [203, "Whose", "Whose book is this?", "kié", "Kié ez a könyv?", 4, true],
+            [204, "What", "What is your name?", "mi", "Mi a neved?", 4, true],
+            [205, "Which", "Which is your favourite?", "melyik", "Melyik a kedvenced?", 4, true],
+            [206, "Whoever", "Whoever did this?", "ki a csuda / bárki", "Ki tette ezt?", 4, true],
+            [207, "Whatever", "Whatever do you mean?", "mit is / bármit", "Mégis mire gondolsz?", 4, true],
+            [208, "Whichever", "Whichever should I choose?", "melyiket is / bármelyiket", "Melyiket válasszam?", 4, false],
+            [209, "Who else", "Who else is coming?", "ki más", "Ki más jön még?", 4, true],
+            [210, "Whom else", "Whom else did you invite?", "kit mást", "Kit mást hívtál még meg?", 4, false],
+            [211, "Whose else", "Whose else could it be?", "ki másé", "Ki másé lehetne?", 4, false],
+            [212, "What else", "What else do you want?", "mi mást", "Mi mást szeretnél?", 4, true],
+            [213, "Which else", "Which else would you recommend?", "melyik másikat", "Melyik másikat ajánlanád?", 4, false],
+            [214, "Who among them", "Who among them is your friend?", "ki közülük", "Ki közülük a barátod?", 4, false],
+            [215, "Which of these", "Which of these is yours?", "melyik ezek közül", "Melyik ezek közül a tiéd?", 4, true],
+            [216, "Which of those", "Which of those do you like?", "melyik azok közül", "Melyik tetszik azok közül?", 4, true],
+            [217, "Which one", "Which one is correct?", "melyik", "Melyik a helyes?", 4, true],
+            [218, "Which ones", "Which ones are yours?", "melyek", "Melyek a tieid?", 4, true],
+            [219, "What one", "What one would you select?", "melyiket", "Melyiket választanád ki?", 4, false],
+            [220, "Who all", "Who all are attending?", "kik mindannyian", "Kik vesznek részt mindannyian?", 4, false],
+            [221, "Whose one", "Whose one is this?", "kié ez", "Kié ez a darab?", 4, false],
+            [222, "Who among us", "Who among us is ready?", "ki közülünk", "Ki áll készen közülünk?", 4, false],
+            [223, "Which among these", "Which among these is better?", "melyik jobb ezek közül", "Melyik jobb ezek közül?", 4, false],
+            [224, "Which among those", "Which among those is suitable?", "melyik megfelelő azok közül", "Melyik megfelelő azok közül?", 4, false],
+            [225, "Who in particular", "Who in particular do you mean?", "kire gondolsz pontosan", "Kire gondolsz konkrétan?", 4, false],
+            [226, "What in particular", "What in particular do you need?", "mire van szükséged pontosan", "Mire van szükséged konkrétan?", 4, false],
+            [227, "Whichever one", "Whichever one is available?", "bármelyik is elérhető", "Melyik érhető el?", 4, false],
+            [228, "Whatever one", "Whatever one do you prefer?", "melyiket részesíted előnyben", "Melyiket szereted jobban?", 4, false],
+            [229, "Who exactly", "Who exactly called you?", "ki hívott pontosan", "Pontosabban ki hívott téged?", 4, true],
+            [230, "What exactly", "What exactly happened?", "mi történt pontosan", "Pontosabban mi történt?", 4, true],
+            [231, "This", "This is my house.", "ez", "Ez az én házam.", 5, true],
+            [232, "That", "That is your chair.", "az", "Az a te széked.", 5, true],
+            [233, "These", "These are my books.", "ezek", "Ezek az én könyveim.", 5, true],
+            [234, "Those", "Those are beautiful flowers.", "azok", "Azok gyönyörű virágok.", 5, true],
+            [235, "This one", "This one is better.", "ez (a darab)", "Ez jobb.", 5, true],
+            [236, "That one", "That one belongs to me.", "az (a darab)", "Az hozzám tartozik.", 5, true],
+            [237, "These ones", "These ones are expensive.", "ezek (a darabok)", "Ezek drágák.", 5, true],
+            [238, "Those ones", "Those ones are cheaper.", "azok (a darabok)", "Azok olcsóbbak.", 5, true],
+            [239, "Such", "Such is my opinion.", "ilyen", "Ilyen a véleményem.", 5, false],
+            [240, "The same", "I would choose the same.", "ugyanaz", "Ugyanazt választanám.", 5, true],
+            [241, "The former", "The former was more interesting.", "az előbbi", "Az előbbi érdekesebb volt.", 5, true],
+            [242, "The latter", "The latter was more useful.", "az utóbbi", "Az utóbbi hasznosabb volt.", 5, true],
+            [243, "The first", "The first was correct.", "az első", "Az első helyes volt.", 5, true],
+            [244, "The second", "The second was incorrect.", "a második", "A második helytelen volt.", 5, true],
+            [245, "The last", "The last was my favourite.", "az utolsó", "Az utolsó volt a kedvencem.", 5, true],
+            [246, "The next", "The next will be better.", "a következő", "A következő jobb lesz.", 5, true],
+            [247, "The other one", "The other one is missing.", "a másik (darab)", "A másik hiányzik.", 5, true],
+            [248, "The remaining ones", "The remaining ones are here.", "a megmaradtak", "A többi (a megmaradtak) itt van.", 5, false],
+            [249, "The very same", "The very same was used yesterday.", "pontosan ugyanaz", "Pontosan ugyanazt használták tegnap.", 5, false],
+            [250, "This very one", "This very one is mine.", "pontosan ez", "Pontosan ez az enyém.", 5, false],
+
+            // --- 6. KÉP (251 - 300) ---
+            [251, "Each other", "They love each other.", "egymást (két fél)", "Szeretik egymást.", 8, true],
+            [252, "One another", "We should respect one another.", "egymást (több fél)", "Tisztelnünk kell egymást.", 8, true],
+            [253, "Each of us", "Each of us received a prize.", "mindegyikünk", "Mindegyikünk kapott díjat.", 7, true],
+            [254, "Each of them", "Each of them has a book.", "mindegyikük", "Mindegyiküknek van könyve.", 7, true],
+            [255, "Each of you", "Each of you is important.", "mindegyikőtök", "Mindegyikőtök fontos.", 7, true],
+            [256, "Each of these", "Each of these is useful.", "mindegyik ezek közül", "Mindegyik hasznos ezek közül.", 7, true],
+            [257, "Each of those", "Each of those is expensive.", "mindegyik azok közül", "Mindegyik drága azok közül.", 7, true],
+            [258, "Either of us", "Either of us can help.", "bármelyikünk (kettő közül)", "Bármelyikünk tud segíteni.", 7, true],
+            [259, "Either of them", "Either of them can win.", "bármelyikük (kettő közül)", "Bármelyikük nyerhet.", 7, true],
+            [260, "Either of you", "Either of you may answer.", "bármelyikőtök (kettő közül)", "Bármelyikőtök válaszolhat.", 7, true],
+            [261, "Neither of us", "Neither of us was late.", "egyikünk sem (kettő közül)", "Egyikünk sem késett.", 7, true],
+            [262, "Neither of them", "Neither of them agreed.", "egyikük sem (kettő közül)", "Egyikük sem értett egyet.", 7, true],
+            [263, "Neither of you", "Neither of you is wrong.", "egyikőtök sem (kettő közül)", "Egyikőtök sem téved.", 7, true],
+            [264, "Both of us", "Both of us are ready.", "mindketten (mi)", "Mindketten készen állunk.", 7, true],
+            [265, "Both of them", "Both of them are doctors.", "mindketten (ők)", "Mindketten orvosok.", 7, true],
+            [266, "Both of you", "Both of you did well.", "mindketten (ti)", "Mindketten jól teljesítettetek.", 7, true],
+            [267, "All of us", "All of us are happy.", "mindannyian (mi)", "Mindannyian boldogok vagyunk.", 7, true],
+            [268, "All of them", "All of them passed.", "mindannyian (ők)", "Mindannyian átmentek (a vizsgán).", 7, true],
+            [269, "All of you", "All of you are invited.", "mindannyian (ti)", "Mindannyian meg vagytok híva.", 7, true],
+            [270, "Some of us", "Some of us prefer tea.", "néhányunk", "Néhányunk jobban szereti a teát.", 7, true],
+            [271, "Some of them", "Some of them are sleeping.", "néhányuk", "Néhányuk alszik.", 7, true],
+            [272, "Some of you", "Some of you need practice.", "néhányotok", "Néhányotoknak gyakorlásra van szüksége.", 7, true],
+            [273, "Most of us", "Most of us enjoy reading.", "legtöbbünk", "Legtöbbünk szeret olvasni.", 7, true],
+            [274, "Most of them", "Most of them agreed.", "legtöbbjük", "Legtöbbjük egyetértett.", 7, true],
+            [275, "Most of you", "Most of you know him.", "legtöbbetek", "Legtöbbetek ismeri őt.", 7, true],
+            [276, "None of us", "None of us complained.", "egyikünk sem", "Egyikünk sem panaszkodott.", 7, true],
+            [277, "None of them", "None of them came.", "egyikük sem", "Egyikük sem jött el.", 7, true],
+            [278, "None of you", "None of you answered.", "egyikőtök sem", "Egyikőtök sem válaszolt.", 7, true],
+            [279, "Many of us", "Many of us like travelling.", "sokan közülünk", "Sokan közülünk szeretünk utazni.", 7, true],
+            [280, "Many of them", "Many of them were absent.", "sokan közülük", "Sokan közülük hiányoztak.", 7, true],
+            [281, "Anyone at all", "Anyone at all can participate.", "bárki (egyáltalán)", "Bárki részt vehet.", 8, false],
+            [282, "Anybody at all", "Anybody at all may apply.", "bárki (egyáltalán)", "Bárki jelentkezhet.", 8, false],
+            [283, "Anything at all", "You can choose anything at all.", "bármit (egyáltalán)", "Bármit választhatsz.", 8, false],
+            [284, "Someone or other", "Someone or other will help us.", "valaki (csak)", "Valaki csak segít majd nekünk.", 8, false],
+            [285, "Somebody or other", "Somebody or other took the key.", "valaki (csak)", "Valaki elvitte a kulcsot.", 8, false],
+            [286, "Something or other", "Something or other is missing.", "valami (csak)", "Valami hiányzik.", 8, false],
+            [287, "Anyone or other", "Anyone or other may volunteer.", "bárki (valaki)", "Bárki jelentkezhet önkéntesnek.", 8, false],
+            [288, "Anybody or other", "Anybody or other can try.", "bárki (valaki)", "Bárki megpróbálhatja.", 8, false],
+            [289, "Anything or other", "Anything or other might work.", "bármi (valami)", "Bármi beválhat.", 8, false],
+            [290, "No one whatsoever", "No one whatsoever complained.", "egyáltalán senki", "Egyáltalán senki nem panaszkodott.", 8, false],
+            [291, "Nobody whatsoever", "Nobody whatsoever was present.", "egyáltalán senki", "Egyáltalán senki nem volt jelen.", 8, false],
+            [292, "Nothing whatsoever", "Nothing whatsoever was damaged.", "egyáltalán semmi", "Egyáltalán semmi nem sérült meg.", 8, false],
+            [293, "Everyone involved", "Everyone involved received mail.", "minden érintett", "Minden érintett kapott levelet.", 6, false],
+            [294, "Everybody involved", "Everybody involved was informed.", "minden érintett", "Minden érintettet tájékoztattak.", 6, false],
+            [295, "Everything involved", "Everything involved was checked.", "minden kapcsolódó dolog", "Minden kapcsolódó dolgot ellenőriztek.", 6, false],
+            [296, "Someone involved", "Someone involved knows the truth.", "valaki az érintettek közül", "Valaki az érintettek közül tudja az igazságot.", 6, false],
+            [297, "Somebody involved", "Somebody involved made a mistake.", "valaki az érintettek közül", "Valaki az érintettek közül hibázott.", 6, false],
+            [298, "Something involved", "Something involved caused the delay.", "valami közrejátszó dolog", "Valami közrejátszó tényező okozta a késést.", 6, false],
+            [299, "Anyone involved", "Anyone involved can explain it.", "bárki az érintettek közül", "Bárki az érintettek közül el tudja magyarázni.", 6, false],
+            [300, "Anybody involved", "Anybody involved should attend.", "bárki az érintettek közül", "Bárkinek, aki érintett, részt kell vennie.", 6, false],
+
+            // --- 7. KÉP (301 - 350) ---
+            [301, "Anyone at all", "Anyone at all can participate.", "bárki (egyáltalán)", "Bárki részt vehet.", 8, false],
+            [302, "Anybody at all", "Anybody at all may apply.", "bárki (egyáltalán)", "Bárki jelentkezhet.", 8, false],
+            [303, "Anything at all", "You can choose anything at all.", "bármit (egyáltalán)", "Bármit választhatsz.", 8, false],
+            [304, "Someone or other", "Someone or other will help us.", "valaki (csak)", "Valaki csak segít nekünk.", 8, false],
+            [305, "Somebody or other", "Somebody or other took the key.", "valaki (csak)", "Valaki elvitte a kulcsot.", 8, false],
+            [306, "Something or other", "Something or other is missing.", "valami (csak)", "Valami hiányzik.", 8, false],
+            [307, "Anyone or other", "Anyone or other may volunteer.", "bárki", "Bárki jelentkezhet önkéntesnek.", 8, false],
+            [308, "Anybody or other", "Anybody or other can try.", "bárki", "Bárki megpróbálhatja.", 8, false],
+            [309, "Anything or other", "Anything or other might work.", "bármi", "Bármi működhet.", 8, false],
+            [310, "No one whatsoever", "No one whatsoever complained.", "egyáltalán senki", "Egyáltalán senki nem panaszkodott.", 8, false],
+            [311, "Nobody whatsoever", "Nobody whatsoever was present.", "egyáltalán senki", "Egyáltalán senki nem volt jelen.", 8, false],
+            [312, "Nothing whatsoever", "Nothing whatsoever was damaged.", "egyáltalán semmi", "Egyáltalán semmi nem károsodott.", 8, false],
+            [313, "Everyone involved", "Everyone involved received mail.", "minden érintett", "Minden érintett kapott e-mailt.", 6, false],
+            [314, "Everybody involved", "Everybody involved was informed.", "minden érintett", "Minden érintett értesítve lett.", 6, false],
+            [315, "Everything involved", "Everything involved was checked.", "minden érintett dolog", "Minden érintett dolgot megvizsgáltak.", 6, false],
+            [316, "Someone involved", "Someone involved knows the truth.", "valaki érintett", "Valaki, aki érintett, tudja az igazságot.", 6, false],
+            [317, "Somebody involved", "Somebody involved made a mistake.", "valaki érintett", "Valaki érintett hibát követett el.", 6, false],
+            [318, "Something involved", "Something involved caused the delay.", "valami érintett dolog", "Valami közrejátszó dolog okozta a késést.", 6, false],
+            [319, "Anyone involved", "Anyone involved can explain it.", "bárki érintett", "Bárki érintett meg tudja magyarázni.", 6, false],
+            [320, "Anybody involved", "Anybody involved should attend.", "bárki érintett", "Bárki érintettnek jelen kell lennie.", 6, false],
+            [321, "Anyone concerned", "Anyone concerned should speak up.", "bárki érintett / érdekelt", "Bárkinek, akit érint, fel kell szólalnia.", 6, false],
+            [322, "Anybody concerned", "Anybody concerned can contact us.", "bárki érintett / érdekelt", "Bárki érintett kapcsolatba léphet velünk.", 6, false],
+            [323, "Everyone concerned", "Everyone concerned was informed.", "minden érintett", "Minden érintettet tájékoztattak.", 6, false],
+            [324, "Everybody concerned", "Everybody concerned agreed.", "minden érintett", "Minden érintett beleegyezett.", 6, false],
+            [325, "Someone responsible", "Someone responsible must answer.", "valaki felelős", "Valaki felelősnek válaszolnia kell.", 6, false],
+            [326, "Somebody responsible", "Somebody responsible will investigate.", "valaki felelős", "Valaki felelős ki fogja vizsgálni.", 6, false],
+            [327, "Anyone responsible", "Anyone responsible should apologise.", "bárki felelős", "Bárkinek, aki felelős, bocsánatot kell kérnie.", 6, false],
+            [328, "Everybody responsible", "Everybody responsible attended.", "minden felelős", "Minden felelős részt vett rajta.", 6, false],
+            [329, "Whoever else", "Whoever else wants to join is welcome.", "bárki más, aki", "Bárki más, aki csatlakozni akar, szívesen látjuk.", 4, false],
+            [330, "Whatever else", "Whatever else you need, ask me.", "bármi másra", "Bármi másra is van szükséged, kérdezz meg!", 4, false],
+            [331, "Whoever among us", "Whoever among us is ready can begin.", "bárki közülünk, aki", "Bárki közülünk, aki készen áll, elkezdheti.", 4, false],
+            [332, "Whichever of us", "Whichever of us wins will celebrate.", "bármelyikünk is", "Bármelyikünk nyer is, ünnepelni fog.", 4, false],
+            [333, "Either one", "Either one is acceptable.", "bármelyik (kettő közül)", "Bármelyik elfogadható.", 7, true],
+            [334, "Neither one", "Neither one is available.", "egyik sem (kettő közül)", "Egyik sem elérhető.", 7, true],
+            [335, "Both ones", "Both ones are available.", "mindkét darab", "Mindkettő elérhető.", 7, false],
+            [336, "Some other", "Some other was selected.", "valamelyik másik", "Valamelyik másikat választották ki.", 6, false],
+            [337, "Any other", "Any other can be chosen.", "bármelyik másik", "Bármelyik másik választható.", 6, true],
+            [338, "No other", "No other was found.", "egyetlen másik sem", "Egyetlen másikat sem találtak.", 6, true],
+            [339, "Every other", "Every other was checked.", "minden második / minden más", "Minden másikat ellenőriztek.", 7, true],
+            [340, "One another's", "They respect one another's opinions.", "egymásnak a...", "Tisztelik egymás véleményét.", 8, true],
+            [341, "Each one", "Each one deserves respect.", "mindegyik", "Mindegyik megérdemli a tiszteletet.", 7, false],
+            [342, "Every one", "Every one was counted.", "minden egyes", "Minden egyes darabot megszámoltak.", 7, false],
+            [343, "Any one", "Any one may answer.", "bármelyik", "Bármelyik válaszolhat.", 7, false],
+            [344, "No one", "No one was injured.", "senki", "Senki sem sérült meg.", 6, false],
+            [345, "Some one", "Some one must take responsibility.", "valaki", "Valakinek vállalnia kell a felelősséget.", 6, false],
+            [346, "The one", "The one I selected is missing.", "az (amelyik)", "Az, amelyiket kiválasztottam, hiányzik.", 5, false],
+            [347, "The ones", "The ones I bought are expensive.", "azok (amelyek)", "Azok, amelyeket vettem, drágák.", 5, false],
+            [348, "One of us", "One of us must go.", "egyikünk", "Egyikünknek mennie kell.", 7, false],
+            [349, "One of them", "One of them is my cousin.", "egyikük", "Egyikük az unokatestvérem.", 7, false],
+            [350, "One of you", "One of you has the answer.", "egyikőtök", "Egyikőtök tudja a választ.", 7, false],
+
+            // --- 8. KÉP (351 - 400) ---
+            [351, "One", "One must work hard.", "az ember (általános alany)", "Az embernek keményen kell dolgoznia.", 6, true],
+            [352, "Oneself", "One should believe in oneself.", "önmagában (általános visszaható)", "Az embernek hinnie kell önmagában.", 2, false],
+            [353, "One another", "The neighbours help one another.", "egymásnak", "A szomszédok segítenek egymásnak.", 8, true],
+            [354, "One another's", "They respect one another's choices.", "egymásnak a...", "Tisztelik egymás döntéseit.", 8, false],
+            [355, "Whosoever", "Whosoever breaks the rule will be punished.", "bárki is (irodalmi / jogi)", "Bárki szegi is meg a szabályt, megbüntetik.", 9, false],
+            [356, "Whomsoever", "Give it to whomsoever you trust.", "bárkinek is (irodalmi tárgyeset)", "Add annak, akiben megbízol.", 9, false],
+            [357, "Whatsoever", "I have no interest whatsoever.", "egyáltalán semmi", "Egyáltalán semmi érdeklődésem nincs iránta.", 9, false],
+            [358, "Whichsoever", "Whichsoever you select will be accepted.", "bármelyiket is (irodalmi)", "Bármelyiket is választod, elfogadják.", 9, false],
+            [359, "Whatsoever else", "Whatsoever else you require, tell me.", "bármi másra is (irodalmi)", "Bármi másra is van szükséged, szólj nekem!", 9, false],
+            [360, "Whoso", "Whoso seeks knowledge should read.", "aki (régies / irodalmi)", "Aki tudásra vágyik, annak olvasnia kell.", 9, false],
+            [361, "Whomso", "Whomso you choose will represent us.", "akit (régies / irodalmi)", "Akit választasz, az képvisel majd minket.", 9, false],
+            [362, "Whosever", "Whosever book this is should collect it.", "bárkié is (választékos)", "Bárkié is ez a könyv, vegye át!", 9, false],
+            [363, "Whoever's", "Whoever's responsible must explain.", "bárki (is a felelős)", "Bárki is a felelős, magyarázatot kell adnia.", 9, false],
+            [364, "Whatever's", "Whatever's left can be shared.", "bármi (is maradt)", "Bármi is maradt, megosztható.", 9, false],
+            [365, "Whichever's", "Whichever's available will be fine.", "bármelyik (is elérhető)", "Bármelyik is elérhető, jó lesz.", 9, false],
+            [366, "Whomever's", "Whomever's name appears first will be selected.", "bárkinek a (neve)", "Bárkinek a neve is jelenik meg elsőként, őt választják.", 9, false],
+            [367, "Somebody's", "Somebody's waiting outside.", "valaki (várakozik)", "Valaki kint várakozik.", 9, true],
+            [368, "Someone's", "Someone's calling from downstairs.", "valaki (szól)", "Valaki szól lentről.", 9, true],
+            [369, "Anybody's", "Anybody's opinion can be heard.", "bárkié (bárki véleménye)", "Bárki véleménye meghallgatható.", 9, true],
+            [370, "Anyone's", "Anyone's answer may be correct.", "bárkié (bárki válasza)", "Bárki válasza helyes lehet.", 9, true],
+            [371, "Nobody's", "Nobody's here today.", "senki (nincs itt)", "Senki nincs itt ma.", 9, true],
+            [372, "No one's", "No one's answering the phone.", "senki (nem veszi fel)", "Senki nem veszi fel a telefont.", 9, true],
+            [373, "Everybody's", "Everybody's ready to leave.", "mindenki (kész)", "Mindenki kész az indulásra.", 9, true],
+            [374, "Everyone's", "Everyone's excited about the trip.", "mindenki (izgatott)", "Mindenki izgatott az utazás miatt.", 9, true],
+            [375, "Something's", "Something's wrong with the car.", "valami (baj van)", "Valami baj van az autóval.", 9, true],
+            [376, "Anything's", "Anything's possible.", "bármi (lehetséges)", "Bármi lehetséges.", 9, true],
+            [377, "Everything's", "Everything's going well.", "minden (jól megy)", "Minden jól megy.", 9, true],
+            [378, "Nothing's", "Nothing's changed.", "semmi (nem változott)", "Semmi sem változott.", 9, true],
+            [379, "Each one", "Each one deserves respect.", "mindegyik", "Mindegyik megérdemli a tiszteletet.", 7, false],
+            [380, "Every one", "Every one was counted.", "minden egyes", "Minden egyes darabot megszámoltak.", 7, false],
+            [381, "Any one", "Any one may answer.", "bármelyik", "Bármelyik válaszolhat.", 7, false],
+            [382, "No one", "No one was injured.", "senki", "Senki sem sérült meg.", 6, false],
+            [383, "Some one", "Some one must help.", "valaki", "Valakinek segítenie kell.", 6, false],
+            [384, "The one", "The one I selected is missing.", "az (amelyik)", "Az, amelyiket kiválasztottam, hiányzik.", 5, false],
+            [385, "The ones", "The ones I bought are expensive.", "azok (amelyek)", "Azok, amelyeket vettem, drágák.", 5, false],
+            [386, "One of us", "One of us must go.", "egyikünk", "Egyikünknek mennie kell.", 7, false],
+            [387, "One of them", "One of them is my cousin.", "egyikük", "Egyikük az unokatestvérem.", 7, false],
+            [388, "One of you", "One of you has the answer.", "egyikőtök", "Egyikőtök tudja a választ.", 7, false],
+            [389, "One of these", "One of these is broken.", "egyik ezek közül", "Az egyik ezek közül törött.", 7, false],
+            [390, "One of those", "One of those belongs to me.", "egyik azok közül", "Az egyik azok közül az enyém.", 7, false],
+            [391, "Two of us", "Two of us went shopping.", "ketten közülünk", "Ketten közülünk elmentünk vásárolni.", 7, false],
+            [392, "Two of them", "Two of them are missing.", "ketten közülük", "Ketten közülük hiányoznak.", 7, false],
+            [393, "Three of us", "Three of us joined the team.", "hárman közülünk", "Hárman közülünk csatlakoztunk a csapathoz.", 7, false],
+            [394, "Three of them", "Three of them won prizes.", "hárman közülük", "Hárman közülük díjat nyertek.", 7, false],
+            [395, "Half of us", "Half of us stayed home.", "a felünk", "A felünk otthon maradt.", 7, false],
+            [396, "Half of them", "Half of them were ready.", "a felük", "A felük készen állt.", 7, false],
+            [397, "Most of these", "Most of these are useful.", "ezek többsége", "Ezek többsége hasznos.", 7, false],
+            [398, "Most of those", "Most of those were expensive.", "azok többsége", "Azok többsége drága volt.", 7, false],
+            [399, "Few of us", "Few of us knew the answer.", "kevesen közülünk", "Kevesen közülünk tudtuk a választ.", 7, false],
+            [400, "Few of them", "Few of them attended the meeting.", "kevesen közülük", "Kevesen közülük vettek részt a megbeszélésen.", 7, false]
+        ];
+
+        const CATEGORIES = {
+            1: { name: "Személyes névmások", tip: "Az alanyeset (I, he, she...) a cselekvő, a tárgyeset (me, him, her...) pedig az ige vagy elöljárószó után áll.", desc: "Alapvető alany- és tárgyesetű névmások (I/me, he/him, they/them). Minden mondat alapja!" },
+            2: { name: "Visszaható és nyomatékosító", tip: "Ha a cselekvés visszahat az alanyra (-self/-selves), vagy a 'by myself' (egyedül) szerkezetet használod.", desc: "A -self / -selves végű névmások (myself, herself, themselves) és a 'by myself' (egyedül) kifejezések." },
+            3: { name: "Birtokos névmások", tip: "Az önálló birtokos névmások (mine, yours, hers, ours, theirs) után SOHA nem áll főnév!", desc: "Önállóan álló birtokos alakok (pl. This book is mine) és a 'my own' (sajátom) szerkezetek." },
+            4: { name: "Kérdő és vonatkozó névmások", tip: "Személyre 'who', tárgyra/állatra 'which' vagy 'what', birtoklásra 'whose' vonatkozik.", desc: "Kérdőszavak (Who, What, Which, Whose) és az általánosító '-ever' alakok (Whoever, Whatever)." },
+            5: { name: "Mutató névmások", tip: "Közelre: this (egyes) / these (többes). Távolra: that (egyes) / those (többes).", desc: "Térbeli és időbeli mutatószavak (This, That, These, Those, The former, The latter, The same)." },
+            6: { name: "Határozatlan névmások", tip: "Állító mondatban: some-, kérdésben/tagadásban: any-, tagadó értelmű állításban: no- (angolban nincs kettős tagadás!).", desc: "A legfontosabb vizsgatéma: somebody, anyone, nothing, everybody és az 'else' (más) bővítmények." },
+            7: { name: "Mennyiségjelző és elosztó", tip: "Kettő közül: both (mindkettő), either (bármelyik), neither (egyik sem). Megszámlálható: few/many, megszámlálhatatlan: little/much.", desc: "Mennyiséget és csoportokat jelölő névmások (Each, Both, Either, Neither, Few, Little, One of us)." },
+            8: { name: "Kölcsönös és összetett", tip: "Két ember között 'each other', kettőnél több között általában 'one another' használatos.", desc: "Kölcsönösséget (each other, one another) és nyomatékosítást (whatsoever, at all) kifejező alakok." },
+            9: { name: "Összevont és birtokos alakok", tip: "Figyelj a kontextusra: a 'Someone's' jelenthet birtoklást (valakié) vagy összevonást (Someone is / Someone has).", desc: "Összevont alakok (Everything's = Everything is) és magasabb szintű/irodalmi névmások (Whosoever)." }
+        };
+
+        // Teljes objektumlista felépítése
+        const PRONOUNS_DB = RAW_DATA.map(item => ({
+            id: item[0],
+            en: item[1],
+            sentenceEn: item[2],
+            hu: item[3],
+            sentenceHu: item[4],
+            catId: item[5],
+            category: CATEGORIES[item[5]].name,
+            tip: CATEGORIES[item[5]].tip,
+            isCore: item[6]
+        }));
+
+        // ============================================================================
+        // ALKALMAZÁS ÁLLAPOT (STATE)
+        // ============================================================================
+        let state = {
+            activeTab: 'flashcards',
+            accent: 'en-GB',
+            rate: 1.0,
+            coreOnly: true, // Alapból az Alapfokú vizsga törzsanyagra fókuszál, de egy kattintással kikapcsolható
+            categoryFilter: 'ALL',
+            statusFilter: 'ALL',
+            searchQuery: '',
+            learnedIds: JSON.parse(localStorage.getItem('pronouns400_learned') || '[]'),
+            filteredItems: [],
+            fcIndex: 0,
+            isFlipped: false,
+            autoPlayActive: false,
+            autoPlayTimer: null,
+            quizMode: 'meaning',
+            quizScore: 0,
+            quizTotal: 0,
+            currentQuizItem: null,
+            quizAnswered: false
+        };
+
+        // ============================================================================
+        // HANGSZINTÉZIS (WEB SPEECH API)
+        // ============================================================================
+        let availableVoices = [];
+
+        function loadVoices() {
+            if ('speechSynthesis' in window) {
+                availableVoices = window.speechSynthesis.getVoices();
+            }
+        }
+        if ('speechSynthesis' in window) {
+            loadVoices();
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        function speakText(text, btnElement = null, onEndCallback = null) {
+            if (!('speechSynthesis' in window)) {
+                if (onEndCallback) onEndCallback();
+                return;
+            }
+            window.speechSynthesis.cancel();
+
+            // Aktív animáció levétele az előző gombokról
+            document.querySelectorAll('.speaking-active').forEach(el => el.classList.remove('speaking-active'));
+            if (btnElement) btnElement.classList.add('speaking-active');
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = state.accent;
+            utterance.rate = state.rate;
+
+            // Megfelelő hang kiválasztása
+            const preferredVoice = availableVoices.find(v => v.lang === state.accent && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Daniel') || v.name.includes('Samantha')))
+                || availableVoices.find(v => v.lang.startsWith(state.accent.substring(0, 5)))
+                || availableVoices.find(v => v.lang.startsWith('en'));
+
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+
+            utterance.onend = () => {
+                if (btnElement) btnElement.classList.remove('speaking-active');
+                if (onEndCallback) onEndCallback();
+            };
+            utterance.onerror = () => {
+                if (btnElement) btnElement.classList.remove('speaking-active');
+                if (onEndCallback) onEndCallback();
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakPair(pronounText, sentenceText, btnElement = null, onBothEnd = null) {
+            speakText(pronounText, btnElement, () => {
+                setTimeout(() => {
+                    speakText(sentenceText, btnElement, onBothEnd);
+                }, 400);
+            });
+        }
+
+        function setAccent(acc) {
+            state.accent = acc;
+            document.getElementById('btn-en-GB').className = acc === 'en-GB'
+                ? 'px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-white text-brand-700 shadow-sm'
+                : 'px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900';
+            document.getElementById('btn-en-US').className = acc === 'en-US'
+                ? 'px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-white text-brand-700 shadow-sm'
+                : 'px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900';
+        }
+
+        function setRate(r) {
+            state.rate = r;
+            document.getElementById('btn-rate-1').className = r === 1.0
+                ? 'px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-white text-brand-700 shadow-sm'
+                : 'px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900';
+            document.getElementById('btn-rate-slow').className = r < 1.0
+                ? 'px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-white text-brand-700 shadow-sm'
+                : 'px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900';
+        }
+
+        // Hangoskönyv mód (automatikus egymás utáni lejátszás)
+        function toggleAutoPlay() {
+            state.autoPlayActive = !state.autoPlayActive;
+            const btn = document.getElementById('btnAutoPlay');
+            const icon = document.getElementById('autoPlayIcon');
+            const text = document.getElementById('autoPlayText');
+
+            if (state.autoPlayActive) {
+                btn.className = 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-rose-600 text-white shadow-sm transition';
+                icon.textContent = '⏹️';
+                text.textContent = 'Leállítás';
+                if (state.activeTab !== 'flashcards') {
+                    switchTab('flashcards');
+                }
+                runAutoPlayStep();
+            } else {
+                stopAutoPlay();
+            }
+        }
+
+        function stopAutoPlay() {
+            state.autoPlayActive = false;
+            clearTimeout(state.autoPlayTimer);
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            const btn = document.getElementById('btnAutoPlay');
+            document.getElementById('autoPlayIcon').textContent = '▶️';
+            document.getElementById('autoPlayText').textContent = 'Hangoskönyv mód';
+            btn.className = 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition';
+        }
+
+        function runAutoPlayStep() {
+            if (!state.autoPlayActive || state.filteredItems.length === 0) return;
+            const item = state.filteredItems[state.fcIndex];
+            state.isFlipped = false;
+            updateFlashcardUI();
+
+            speakPair(item.en, item.sentenceEn, null, () => {
+                if (!state.autoPlayActive) return;
+                // Fordítsuk meg a kártyát a magyar jelentés megmutatásához
+                state.isFlipped = true;
+                updateFlashcardUI();
+
+                state.autoPlayTimer = setTimeout(() => {
+                    if (!state.autoPlayActive) return;
+                    state.fcIndex = (state.fcIndex + 1) % state.filteredItems.length;
+                    runAutoPlayStep();
+                }, 2200);
+            });
+        }
+
+        // ============================================================================
+        // SZŰRÉS ÉS HALADÁS KEZELÉSE
+        // ============================================================================
+        function saveProgress() {
+            localStorage.setItem('pronouns400_learned', JSON.stringify(state.learnedIds));
+            updateProgressUI();
+        }
+
+        function updateProgressUI() {
+            const total = PRONOUNS_DB.length;
+            const count = state.learnedIds.length;
+            const pct = Math.round((count / total) * 100);
+
+            document.getElementById('mobileProgressBadge').textContent = `${count}/${total}`;
+            document.getElementById('desktopProgressText').textContent = `${count} / ${total} (${pct}%)`;
+            document.getElementById('desktopProgressBar').style.width = `${pct}%`;
+        }
+
+        function toggleCoreFilter() {
+            state.coreOnly = !state.coreOnly;
+            const btn = document.getElementById('btnCoreFilter');
+            const icon = document.getElementById('coreCheckIcon');
+            if (state.coreOnly) {
+                btn.className = 'flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition bg-amber-50 border-amber-300 text-amber-900 shadow-sm';
+                icon.textContent = '⭐';
+            } else {
+                btn.className = 'flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-100';
+                icon.textContent = '🌐';
+            }
+            applyFilters();
+        }
+
+        function applyFilters() {
+            state.categoryFilter = document.getElementById('categorySelect').value;
+            state.statusFilter = document.getElementById('statusSelect').value;
+            state.searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            state.filteredItems = PRONOUNS_DB.filter(item => {
+                if (state.coreOnly && !item.isCore) return false;
+                if (state.categoryFilter !== 'ALL' && item.category !== state.categoryFilter) return false;
+                const isLearned = state.learnedIds.includes(item.id);
+                if (state.statusFilter === 'LEARNED' && !isLearned) return false;
+                if (state.statusFilter === 'UNLEARNED' && isLearned) return false;
+
+                if (state.searchQuery) {
+                    const matchId = String(item.id) === state.searchQuery;
+                    const matchEn = item.en.toLowerCase().includes(state.searchQuery) || item.sentenceEn.toLowerCase().includes(state.searchQuery);
+                    const matchHu = item.hu.toLowerCase().includes(state.searchQuery) || item.sentenceHu.toLowerCase().includes(state.searchQuery);
+                    if (!matchId && !matchEn && !matchHu) return false;
+                }
+                return true;
+            });
+
+            document.getElementById('filteredCountLabel').textContent = `Szűrt tételek: ${state.filteredItems.length} db`;
+            state.fcIndex = 0;
+            state.isFlipped = false;
+
+            updateFlashcardUI();
+            renderList();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
+
+        // ============================================================================
+        // FÜLEK (NÉZETEK) VÁLTÁSA
+        // ============================================================================
+        function switchTab(tabName) {
+            if (tabName !== 'flashcards' && state.autoPlayActive) {
+                stopAutoPlay();
+            }
+            state.activeTab = tabName;
+
+            ['flashcards', 'list', 'quiz', 'grammar'].forEach(t => {
+                const viewEl = document.getElementById(`view-${t}`);
+                const tabEl = document.getElementById(`tab-${t}`);
+                if (t === tabName) {
+                    viewEl.classList.remove('hidden');
+                    tabEl.className = 'nav-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap bg-brand-600 text-white shadow-sm transition';
+                } else {
+                    viewEl.classList.add('hidden');
+                    tabEl.className = 'nav-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+                }
+            });
+
+            // Globális szűrő csak a kártyáknál és a listánál látszódjon
+            const filterBar = document.getElementById('globalFilterBar');
+            if (tabName === 'flashcards' || tabName === 'list') {
+                filterBar.classList.remove('hidden');
+            } else {
+                filterBar.classList.add('hidden');
+            }
+
+            if (tabName === 'quiz' && !state.currentQuizItem) {
+                generateQuizQuestion();
+            }
+        }
+
+        // ============================================================================
+        // 1. TANULÓKÁRTYÁK LOGIKA
+        // ============================================================================
+        function updateFlashcardUI() {
+            const inner = document.getElementById('flashcardInner');
+            if (state.isFlipped) {
+                inner.classList.add('rotate-y-180');
+            } else {
+                inner.classList.remove('rotate-y-180');
+            }
+
+            if (state.filteredItems.length === 0) {
+                document.getElementById('fcPosition').textContent = '0 / 0 kártya';
+                document.getElementById('fcPronounEn').textContent = 'Nincs találat';
+                document.getElementById('fcSentenceEn').textContent = 'Módosítsd a szűrőket a felső sávban!';
+                document.getElementById('fcPronounHu').textContent = 'Nincs találat';
+                document.getElementById('fcSentenceHu').textContent = '';
+                return;
+            }
+
+            const item = state.filteredItems[state.fcIndex];
+            const isLearned = state.learnedIds.includes(item.id);
+
+            document.getElementById('fcPosition').textContent = `${state.fcIndex + 1} / ${state.filteredItems.length}. kártya`;
+            document.getElementById('fcNumber').textContent = `#${item.id}`;
+            document.getElementById('fcBackNumber').textContent = `#${item.id} • Magyar jelentés`;
+            document.getElementById('fcCategory').textContent = item.category;
+            document.getElementById('fcPronounEn').textContent = item.en;
+            document.getElementById('fcSentenceEn').textContent = item.sentenceEn;
+            document.getElementById('fcPronounHu').textContent = item.hu;
+            document.getElementById('fcSentenceHu').textContent = item.sentenceHu;
+            document.getElementById('fcSentenceEnSmall').textContent = `„${item.sentenceEn}”`;
+            document.getElementById('fcTipHu').textContent = item.tip;
+
+            const coreBadge = document.getElementById('fcCoreBadge');
+            if (item.isCore) {
+                coreBadge.classList.remove('hidden');
+            } else {
+                coreBadge.classList.add('hidden');
+            }
+
+            const learnedBadge = document.getElementById('fcLearnedBadge');
+            if (isLearned) {
+                learnedBadge.classList.remove('hidden');
+            } else {
+                learnedBadge.classList.add('hidden');
+            }
+        }
+
+        function flipCard() {
+            if (state.filteredItems.length === 0) return;
+            state.isFlipped = !state.isFlipped;
+            updateFlashcardUI();
+        }
+
+        function nextCard() {
+            if (state.filteredItems.length === 0) return;
+            state.isFlipped = false;
+            state.fcIndex = (state.fcIndex + 1) % state.filteredItems.length;
+            updateFlashcardUI();
+        }
+
+        function prevCard() {
+            if (state.filteredItems.length === 0) return;
+            state.isFlipped = false;
+            state.fcIndex = (state.fcIndex - 1 + state.filteredItems.length) % state.filteredItems.length;
+            updateFlashcardUI();
+        }
+
+        function markCurrentCard(learned) {
+            if (state.filteredItems.length === 0) return;
+            const item = state.filteredItems[state.fcIndex];
+            if (learned) {
+                if (!state.learnedIds.includes(item.id)) {
+                    state.learnedIds.push(item.id);
+                }
+            } else {
+                state.learnedIds = state.learnedIds.filter(id => id !== item.id);
+            }
+            saveProgress();
+            renderList();
+            nextCard();
+        }
+
+        function shuffleFlashcards() {
+            for (let i = state.filteredItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [state.filteredItems[i], state.filteredItems[j]] = [state.filteredItems[j], state.filteredItems[i]];
+            }
+            state.fcIndex = 0;
+            state.isFlipped = false;
+            updateFlashcardUI();
+        }
+
+        function resetOrderFlashcards() {
+            state.filteredItems.sort((a, b) => a.id - b.id);
+            state.fcIndex = 0;
+            state.isFlipped = false;
+            updateFlashcardUI();
+        }
+
+        function speakCurrentPronoun(btn) {
+            if (state.filteredItems.length === 0) return;
+            speakText(state.filteredItems[state.fcIndex].en, btn);
+        }
+
+        function speakCurrentSentence(btn) {
+            if (state.filteredItems.length === 0) return;
+            speakText(state.filteredItems[state.fcIndex].sentenceEn, btn);
+        }
+
+        function speakCurrentBoth(btn) {
+            if (state.filteredItems.length === 0) return;
+            const item = state.filteredItems[state.fcIndex];
+            speakPair(item.en, item.sentenceEn, btn);
+        }
+
+        // ============================================================================
+        // 2. TELJES LISTA RENDERELÉSE
+        // ============================================================================
+        function renderList() {
+            const container = document.getElementById('listContainer');
+            if (state.filteredItems.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white rounded-2xl p-8 text-center border border-slate-200">
+                        <p class="text-slate-500 font-medium">Nincs a szűrésnek megfelelő tétel.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = state.filteredItems.map(item => {
+                const isLearned = state.learnedIds.includes(item.id);
+                return `
+                <div class="bg-white rounded-2xl p-4 sm:p-5 border ${isLearned ? 'border-emerald-300 bg-emerald-50/20' : 'border-slate-200'} shadow-xs hover:shadow-md transition flex flex-col justify-between gap-3">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-xs">#${item.id}</span>
+                                <span class="px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 font-medium text-xs">${item.category}</span>
+                                ${item.isCore ? '<span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-semibold text-xs">⭐ Alapfok</span>' : ''}
+                            </div>
+                            <button onclick="toggleItemLearned(${item.id})" class="px-2.5 py-1 rounded-lg text-xs font-bold transition ${isLearned ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                                ${isLearned ? '✓ Tudom' : '○ Jelölés'}
+                            </button>
+                        </div>
+
+                        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1.5">
+                            <h3 class="text-lg font-extrabold text-slate-900">${item.en}</h3>
+                            <span class="text-sm font-bold text-brand-700">${item.hu}</span>
+                        </div>
+
+                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-1">
+                            <p class="text-sm font-medium text-slate-800">${item.sentenceEn}</p>
+                            <p class="text-xs text-slate-500">${item.sentenceHu}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 pt-1">
+                        <button onclick="speakText('${escapeQuotes(item.en)}', this)" class="flex-1 py-2 px-2.5 rounded-xl bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-700 text-xs font-semibold transition flex items-center justify-center gap-1">
+                            <span>🔊</span> Névmás
+                        </button>
+                        <button onclick="speakText('${escapeQuotes(item.sentenceEn)}', this)" class="flex-1 py-2 px-2.5 rounded-xl bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-700 text-xs font-semibold transition flex items-center justify-center gap-1">
+                            <span>🗣️</span> Mondat
+                        </button>
+                        <button onclick="speakPair('${escapeQuotes(item.en)}', '${escapeQuotes(item.sentenceEn)}', this)" class="py-2 px-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition flex items-center justify-center gap-1">
+                            <span>🎧</span> Együtt
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function escapeQuotes(str) {
+            return str.replace(/'/g, "\\'");
+        }
+
+        function toggleItemLearned(id) {
+            if (state.learnedIds.includes(id)) {
+                state.learnedIds = state.learnedIds.filter(x => x !== id);
+            } else {
+                state.learnedIds.push(id);
+            }
+            saveProgress();
+            renderList();
+            updateFlashcardUI();
+        }
+
+        // ============================================================================
+        // 3. INTERAKTÍV KVÍZ ÉS HALLÁSÉRTÉS
+        // ============================================================================
+        function setQuizMode(mode) {
+            state.quizMode = mode;
+            ['meaning', 'fill', 'listening'].forEach(m => {
+                const btn = document.getElementById(`qmode-${m}`);
+                btn.className = m === mode
+                    ? 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-brand-600 text-white transition'
+                    : 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+            });
+            generateQuizQuestion();
+        }
+
+        function generateQuizQuestion() {
+            state.quizAnswered = false;
+            document.getElementById('quizFeedback').classList.add('hidden');
+
+            // Alapfokú tételekből kérdezünk elsősorban, hogy vizsgareleváns legyen
+            const pool = PRONOUNS_DB.filter(x => x.isCore);
+            const target = pool[Math.floor(Math.random() * pool.length)];
+            state.currentQuizItem = target;
+
+            // 3 rossz válasz kiválasztása eltérő magyar jelentéssel
+            const distractors = [];
+            while (distractors.length < 3) {
+                const candidate = pool[Math.floor(Math.random() * pool.length)];
+                if (candidate.id !== target.id && candidate.hu !== target.hu && !distractors.some(d => d.hu === candidate.hu || d.en === candidate.en)) {
+                    distractors.push(candidate);
+                }
+            }
+
+            const options = [target, ...distractors].sort(() => Math.random() - 0.5);
+            const badge = document.getElementById('quizQuestionTypeBadge');
+            const mainPrompt = document.getElementById('quizMainPrompt');
+            const subPrompt = document.getElementById('quizSubPrompt');
+            const optionsContainer = document.getElementById('quizOptions');
+
+            if (state.quizMode === 'meaning') {
+                badge.textContent = '🇭🇺 Válaszd ki a kiemelt névmás magyar jelentését!';
+                mainPrompt.textContent = target.en;
+                subPrompt.textContent = `Példamondat: „${target.sentenceEn}”`;
+
+                optionsContainer.innerHTML = options.map(opt => `
+                    <button onclick="checkQuizAnswer(${opt.id}, this)" class="quiz-opt-btn w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-brand-400 hover:bg-brand-50/40 font-semibold text-slate-800 transition flex items-center justify-between">
+                        <span>${opt.hu}</span>
+                        <span class="text-xs text-slate-400 font-normal">(${opt.category})</span>
+                    </button>
+                `).join('');
+            } else if (state.quizMode === 'fill') {
+                badge.textContent = '✍️ Egészítsd ki a mondatot a megfelelő angol névmással!';
+                // Helyettesítsük a névmást a mondatban aláhúzással
+                const regex = new RegExp(`\\b${target.en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+                const maskedSentence = regex.test(target.sentenceEn)
+                    ? target.sentenceEn.replace(regex, '________')
+                    : `${target.sentenceEn} (Jelentés: ${target.hu})`;
+
+                mainPrompt.textContent = maskedSentence;
+                subPrompt.textContent = `Magyarul: „${target.sentenceHu}”`;
+
+                optionsContainer.innerHTML = options.map(opt => `
+                    <button onclick="checkQuizAnswer(${opt.id}, this)" class="quiz-opt-btn w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-brand-400 hover:bg-brand-50/40 font-bold text-slate-800 transition">
+                        ${opt.en}
+                    </button>
+                `).join('');
+            } else if (state.quizMode === 'listening') {
+                badge.textContent = '🎧 Hallgasd meg a mondatot, és válaszd ki a magyar jelentését!';
+                mainPrompt.textContent = '🔊 Hallgasd meg a hanganyagot!';
+                subPrompt.textContent = 'Kattints a „Meghallgatás” gombra, ha újra hallani szeretnéd.';
+                speakPair(target.en, target.sentenceEn);
+
+                optionsContainer.innerHTML = options.map(opt => `
+                    <button onclick="checkQuizAnswer(${opt.id}, this)" class="quiz-opt-btn w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-brand-400 hover:bg-brand-50/40 font-semibold text-slate-800 transition">
+                        ${opt.sentenceHu} <span class="text-xs text-brand-600 font-bold">(${opt.hu})</span>
+                    </button>
+                `).join('');
+            }
+        }
+
+        function speakQuizPrompt() {
+            if (!state.currentQuizItem) return;
+            speakPair(state.currentQuizItem.en, state.currentQuizItem.sentenceEn);
+        }
+
+        function checkQuizAnswer(selectedId, btnEl) {
+            if (state.quizAnswered) return;
+            state.quizAnswered = true;
+            state.quizTotal++;
+
+            const target = state.currentQuizItem;
+            const isCorrect = selectedId === target.id;
+            if (isCorrect) state.quizScore++;
+
+            document.getElementById('quizScore').textContent = state.quizScore;
+            document.getElementById('quizTotal').textContent = state.quizTotal;
+
+            // Gombok színezése
+            document.querySelectorAll('.quiz-opt-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-brand-400', 'hover:bg-brand-50/40');
+            });
+
+            if (isCorrect) {
+                btnEl.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-900');
+            } else {
+                btnEl.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-900');
+            }
+
+            const fb = document.getElementById('quizFeedback');
+            fb.classList.remove('hidden');
+            fb.className = isCorrect
+                ? 'rounded-2xl p-4 text-sm font-medium bg-emerald-50 border border-emerald-200 text-emerald-900'
+                : 'rounded-2xl p-4 text-sm font-medium bg-rose-50 border border-rose-200 text-rose-900';
+
+            fb.innerHTML = `
+                <p class="font-bold mb-1">${isCorrect ? '✅ Helyes válasz!' : '❌ Nem egészen!'}</p>
+                <p><strong>${target.en}</strong> = ${target.hu}</p>
+                <p class="text-xs mt-1 opacity-90">„${target.sentenceEn}” — <em>${target.sentenceHu}</em></p>
+            `;
+
+            speakText(target.sentenceEn);
+        }
+
+        // ============================================================================
+        // 4. NYELVTANI KISOKOS RENDERELÉSE
+        // ============================================================================
+        function renderGrammarCards() {
+            const grid = document.getElementById('grammarCardsGrid');
+            grid.innerHTML = Object.entries(CATEGORIES).map(([id, cat]) => {
+                const count = PRONOUNS_DB.filter(x => x.catId === Number(id)).length;
+                const coreCount = PRONOUNS_DB.filter(x => x.catId === Number(id) && x.isCore).length;
+                return `
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between gap-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-700 font-bold text-xs">${id}. kategória</span>
+                            <span class="text-xs font-semibold text-slate-500">${coreCount} alapfokú / ${count} összes</span>
+                        </div>
+                        <h3 class="text-lg font-extrabold text-slate-900 mb-2">${cat.name}</h3>
+                        <p class="text-sm text-slate-600 mb-3">${cat.desc}</p>
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
+                            <strong>💡 Vizsgaszabály:</strong> ${cat.tip}
+                        </div>
+                    </div>
+                    <button onclick="practiceCategory('${cat.name}')" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-brand-600 text-white text-xs font-bold transition">
+                        Kategória gyakorlása kártyákkal ➡️
+                    </button>
+                </div>`;
+            }).join('');
+        }
+
+        function practiceCategory(catName) {
+            document.getElementById('categorySelect').value = catName;
+            applyFilters();
+            switchTab('flashcards');
+        }
+
+        // ============================================================================
+        // MODAL ÉS INICIALIZÁLÁS
+        // ============================================================================
+        function resetAllProgress() {
+            document.getElementById('modalTitle').textContent = 'Haladás törlése';
+            document.getElementById('modalText').textContent = 'Biztosan törölni szeretnéd az összes megtanultként megjelölt tételt?';
+            const modal = document.getElementById('customModal');
+            modal.classList.remove('hidden');
+
+            document.getElementById('modalConfirmBtn').onclick = () => {
+                state.learnedIds = [];
+                saveProgress();
+                applyFilters();
+                closeModal();
+            };
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // Billentyűzet támogatás (nyilak + szóköz a kártyafordításhoz)
+        document.addEventListener('keydown', (e) => {
+            if (state.activeTab !== 'flashcards') return;
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+            if (e.code === 'ArrowRight') nextCard();
+            else if (e.code === 'ArrowLeft') prevCard();
+            else if (e.code === 'Space') {
+                e.preventDefault();
+                flipCard();
+            }
+        });
+
+        window.onload = () => {
+            updateProgressUI();
+            renderGrammarCards();
+            applyFilters();
+        };
+    </script>
+</body>
+</html>
