@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Interaktív Kódkiegészítő</title>
+<style>
+  :root {
+    --bg-main: #0f172a;
+    --bg-header: #1e293b;
+    --bg-card: #1e293b;
+    --bg-code: #0b1120;
+    --border-color: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-blue: #2563eb;
+    --accent-blue-hover: #1d4ed8;
+    --accent-green: #16a34a;
+    --accent-green-hover: #15803d;
+    --accent-orange: #d97706;
+    --accent-orange-hover: #b45309;
+    --accent-gray: #475569;
+    --accent-gray-hover: #334155;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding-bottom: 40px;
+  }
+
+  header {
+    background-color: var(--bg-header);
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .py-logo {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #3776ab 50%, #ffd43b 50%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #0f172a;
+    font-size: 18px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .title-block h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .title-block .school {
+    font-size: 11px;
+    color: #cbd5e1;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+  }
+
+  .title-block .subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .score-box {
+    background-color: #0f172a;
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .score-box span.val {
+    color: #22c55e;
+    font-size: 16px;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 20px;
+  }
+
+  .tabs-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+  }
+
+  .tab-btn {
+    background-color: var(--bg-card);
+    color: #cbd5e1;
+    border: 1px solid var(--border-color);
+    padding: 9px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .tab-btn:hover {
+    background-color: #283548;
+    color: #ffffff;
+  }
+
+  .tab-btn.active {
+    background-color: var(--accent-blue);
+    border-color: #3b82f6;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+  }
+
+  .tab-btn.completed {
+    border-left: 3px solid #22c55e;
+  }
+
+  .task-info {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+
+  .task-info h2 {
+    font-size: 16px;
+    color: #38bdf8;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .task-info p {
+    font-size: 13.5px;
+    color: #cbd5e1;
+  }
+
+  .task-info code {
+    background-color: #0f172a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #fbbf24;
+    font-family: 'Consolas', monospace;
+  }
+
+  .editor-box {
+    background-color: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14.5px;
+    line-height: 1.85;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    white-space: pre;
+    color: #e2e8f0;
+  }
+
+  .kw { color: #c084fc; font-weight: bold; }
+  .fn { color: #38bdf8; }
+  .str { color: #4ade80; }
+  .num { color: #fb923c; }
+  .cmt { color: #64748b; font-style: italic; }
+
+  .blank-input {
+    background-color: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 4px;
+    color: #f8fafc;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+    padding: 2px 8px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+
+  .blank-input::placeholder {
+    color: #64748b;
+  }
+
+  .blank-input:focus {
+    border-color: #38bdf8;
+    background-color: #0f172a;
+  }
+
+  .blank-input.correct {
+    border-color: #22c55e;
+    background-color: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    font-weight: bold;
+  }
+
+  .blank-input.wrong {
+    border-color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .ctrl-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.15s, transform 0.05s;
+  }
+
+  .ctrl-btn:active {
+    transform: translateY(1px);
+  }
+
+  .btn-run { background-color: var(--accent-green); }
+  .btn-run:hover { background-color: var(--accent-green-hover); }
+
+  .btn-check { background-color: var(--accent-blue); }
+  .btn-check:hover { background-color: var(--accent-blue-hover); }
+
+  .btn-solve { background-color: var(--accent-orange); }
+  .btn-solve:hover { background-color: var(--accent-orange-hover); }
+
+  .btn-reset { background-color: var(--accent-gray); }
+  .btn-reset:hover { background-color: var(--accent-gray-hover); }
+
+  .terminal-box {
+    background-color: #050811;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .terminal-header {
+    background-color: #1e293b;
+    padding: 8px 16px;
+    font-size: 12.5px;
+    color: #94a3b8;
+    border-bottom: 1px solid var(--border-color);
+    font-family: 'Consolas', monospace;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .terminal-body {
+    padding: 16px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13.5px;
+    color: #cbd5e1;
+    min-height: 110px;
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+
+  .term-cmd {
+    color: #38bdf8;
+    font-style: italic;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .term-ok { color: #4ade80; }
+  .term-err { color: #f87171; }
+  .term-warn { color: #fbbf24; }
+  .term-prompt { color: #e2e8f0; }
+
+  .term-input-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .term-input {
+    background-color: #0f172a;
+    border: 1px solid #38bdf8;
+    border-radius: 4px;
+    color: #fbbf24;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13.5px;
+    padding: 3px 8px;
+    width: 140px;
+    outline: none;
+  }
+
+  .term-submit {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 12.5px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .term-submit:hover {
+    background-color: #1d4ed8;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="py-logo">Py</div>
+    <div class="title-block">
+      <h1>Python Interaktív Kódkiegészítő</h1>
+      <div class="school">NAGYBOLDOGASSZONY RÓMAI KATOLIKUS GIMNÁZIUM, ÁLTALÁNOS ISKOLA ÉS ALAPFOKÚ MŰVÉSZETI ISKOLA - 11/B</div>
+      <div class="subtitle">Teljes Tananyag: Python 01 - 09 + Gyakorlás + Feladat 1-8 + prim_e.py</div>
+    </div>
+  </div>
+  <div class="score-box">
+    🏆 Eredmény: <span class="val" id="score-display">0 / 0</span>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabs-bar" id="tabs-bar"></div>
+
+  <div class="task-info">
+    <h2 id="task-title"></h2>
+    <p id="task-desc"></p>
+  </div>
+
+  <div class="editor-box" id="editor-box"></div>
+
+  <div class="controls">
+    <button class="ctrl-btn btn-run" onclick="runCode()">▶ Kód Futtatása</button>
+    <button class="ctrl-btn btn-check" onclick="checkAnswers()">✔ Ellenőrzés</button>
+    <button class="ctrl-btn btn-solve" onclick="showSolution()">🪄 Megoldás</button>
+    <button class="ctrl-btn btn-reset" onclick="resetCurrent()">↻ Újraindítás</button>
+  </div>
+
+  <div class="terminal-box">
+    <div class="terminal-header">
+      <span>&gt;_ Python Terminál Szimulátor</span>
+      <span style="font-size:11px; color:#64748b;">Interaktív input() támogatással</span>
+    </div>
+    <div class="terminal-body" id="terminal-body"></div>
+  </div>
+</div>
+
+<script>
+const lessons = [
+  {
+    id: "Python01.py",
+    title: "Feladat: Python01.py - Kiíratás és f-string",
+    desc: "Egészítsd ki a hiányzó <code>print</code>, <code>str</code> és <code>f</code> kifejezéseket!",
+    template: `<span class="cmt"># Cím összefűzése típuskonverzióval</span>
+hazszam = <span class="num">46</span>
+{{0:print:75}} ( <span class="str">"A címem: "</span> + <span class="str">"Teréz körút "</span> + {{1:str:60}} (hazszam) + <span class="str">"."</span>)
+
+<span class="cmt"># Ugyanez formázott szöveggel (f-string)</span>
+hazszam = <span class="num">146</span>
+{{2:print:75}} ( {{3:f:40}} <span class="str">"A címem: Teréz körút {hazszam}."</span> )
+
+<span class="cmt"># Elmentjük a nevedet és az életkorodat egy-egy változóba</span>
+nev = <span class="str">"Péter"</span>
+kor = <span class="num">25</span>
+{{4:print:75}} (f <span class="str">"Szia {nev}! Úgy látom, {kor} éves vagy."</span> )`,
+    output: `A címem: Teréz körút 46.
+A címem: Teréz körút 146.
+Szia Péter! Úgy látom, 25 éves vagy.`
+  },
+  {
+    id: "Python02.py",
+    title: "Feladat: Python02.py - Adatbekérés és típuskonverzió",
+    desc: "Egészítsd ki az adatbekéréshez (<code>input</code>) és az egész számmá alakításhoz (<code>int</code>) szükséges függvényeket!",
+    template: `nev = {{0:input:75}}(<span class="str">"Hogy hívnak? "</span>)
+kor = {{1:int:60}}({{2:input:75}}(<span class="str">"Hány éves vagy? "</span>))
+jovo_ev = kor + <span class="num">1</span>
+<span class="fn">print</span>(f<span class="str">"Szia {nev}! Jövőre már {jovo_ev} éves leszel."</span>)`,
+    interactiveType: "python02"
+  },
+  {
+    id: "Python03.py",
+    title: "Feladat: Python03.py - Négyzetszámok és prímszámok",
+    desc: "Egészítsd ki a <code>while</code> ciklust, az f-string kiíratást és a prímszám-ellenőrző függvény elemeit!",
+    template: `n = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Adj meg egy számot: "</span>))
+i = <span class="num">1</span>
+{{0:while:75}} i * i <= n:
+    <span class="fn">print</span>({{1:f:40}}<span class="str">"{i} -> {i*i}"</span>)
+    i += <span class="num">1</span>
+
+<span class="kw">def</span> <span class="fn">prim_e</span>(szam):
+    <span class="kw">if</span> szam < <span class="num">2</span>:
+        <span class="kw">return</span> {{2:False:75}}
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">2</span>, <span class="fn">int</span>(szam**<span class="num">0.5</span>)+<span class="num">1</span>):
+        <span class="kw">if</span> szam % i == <span class="num">0</span>:
+            <span class="kw">return</span> <span class="kw">False</span>
+    <span class="kw">return</span> {{3:True:75}}
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, n+<span class="num">1</span>):
+    <span class="kw">if</span> <span class="fn">prim_e</span>(i):
+        <span class="fn">print</span>(i, end=<span class="str">" "</span>)`,
+    interactiveType: "python03"
+  },
+  {
+    id: "Python04.py",
+    title: "Feladat: Python04.py - Elágazások (if, elif, else)",
+    desc: "Egészítsd ki a feltételes elágazás kulcsszavait!",
+    template: `pontszam = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Elért pontszám: "</span>))
+{{0:if:55}} pontszam >= <span class="num">90</span>:
+    <span class="fn">print</span>(<span class="str">"Jeles (5)"</span>)
+{{1:elif:65}} pontszam >= <span class="num">75</span>:
+    <span class="fn">print</span>(<span class="str">"Jó (4)"</span>)
+{{2:else:65}}:
+    <span class="fn">print</span>(<span class="str">"További gyakorlás szükséges."</span>)`,
+    interactiveType: "python04"
+  },
+  {
+    id: "Python05.py",
+    title: "Feladat: Python05.py - Számláló ciklus (for és range)",
+    desc: "Egészítsd ki a <code>for</code> ciklust és a <code>range</code> függvényt!",
+    template: `osszeg = <span class="num">0</span>
+{{0:for:60}} i <span class="kw">in</span> {{1:range:75}}(<span class="num">1</span>, <span class="num">6</span>):
+    osszeg += i
+<span class="fn">print</span>(f<span class="str">"Az első 5 szám összege: {osszeg}"</span>)`,
+    output: `Az első 5 szám összege: 15`
+  },
+  {
+    id: "Python06.py",
+    title: "Feladat: Python06.py - Listák kezelése",
+    desc: "Egészítsd ki a lista létrehozását, az elem hozzáadását (<code>append</code>) és a hossz lekérdezését (<code>len</code>)!",
+    template: `jegyek = {{0:[]:60}}
+jegyek.{{1:append:85}}(<span class="num">5</span>)
+jegyek.{{2:append:85}}(<span class="num">4</span>)
+<span class="fn">print</span>(<span class="str">"Jegyek száma:"</span>, {{3:len:60}}(jegyek))`,
+    output: `Jegyek száma: 2`
+  },
+  {
+    id: "Python07.py",
+    title: "Feladat: Python07.py - Saját függvények",
+    desc: "Egészítsd ki a függvénydefiníciót (<code>def</code>) és a visszatérési értéket (<code>return</code>)!",
+    template: `{{0:def:60}} <span class="fn">teglalap_terulet</span>(a, b):
+    {{1:return:80}} a * b
+
+<span class="fn">print</span>(<span class="str">"Terület:"</span>, <span class="fn">teglalap_terulet</span>(<span class="num">5</span>, <span class="num">4</span>))`,
+    output: `Terület: 20`
+  },
+  {
+    id: "Python08.py",
+    title: "Feladat: Python08.py - Hibakezelés (try - except)",
+    desc: "Egészítsd ki a kivételkezelés kulcsszavait!",
+    template: `{{0:try:60}}:
+    szam = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Adj meg egy számot: "</span>))
+    <span class="fn">print</span>(<span class="str">"Megadott szám:"</span>, szam)
+{{1:except:80}} ValueError:
+    <span class="fn">print</span>(<span class="str">"Hibás formátum, egész számot adj meg!"</span>)`,
+    interactiveType: "python08"
+  },
+  {
+    id: "Python07-08_gyakorlas.py",
+    title: "Feladat: Python07-08_gyakorlas.py - Függvények és hibakezelés",
+    desc: "Egészítsd ki a biztonságos osztást végző függvény hiányzó részeit!",
+    template: `{{0:def:60}} <span class="fn">biztonsagos_osztas</span>(a, b):
+    {{1:try:60}}:
+        {{2:return:80}} a / b
+    {{3:except:80}} ZeroDivisionError:
+        <span class="kw">return</span> <span class="str">"Nullával nem lehet osztani!"</span>
+
+<span class="fn">print</span>(<span class="fn">biztonsagos_osztas</span>(<span class="num">10</span>, <span class="num">2</span>))`,
+    output: `5.0`
+  },
+  {
+    id: "Feladat_1-8_megoldás.py",
+    title: "Összefoglaló feladat: Feladat_1-8_megoldás.py - Edzőtermi Bérletpénztár",
+    desc: "Egészítsd ki a függvényeket (<code>def</code>, <code>return</code>), a listakezelést (<code>[]</code>, <code>append</code>), a függvényhívásokat és a statisztikai függvényeket!",
+    template: `<span class="cmt"># 1. FÜGGVÉNY: A bérlet árának kiszámítása életkor alapján</span>
+{{0:def:60}} <span class="fn">berletarat_szamol</span>(kor):
+    <span class="kw">if</span> kor < <span class="num">14</span>:
+        {{1:return:80}} <span class="num">0</span>
+    <span class="kw">elif</span> kor <= <span class="num">25</span>:
+        <span class="kw">return</span> <span class="num">6000</span>
+    <span class="kw">elif</span> kor > <span class="num">65</span>:
+        <span class="kw">return</span> <span class="num">5000</span>
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="num">10000</span>
+
+<span class="cmt"># 2. FÜGGVÉNY: Biztonságos életkor-bekérés hibakezeléssel</span>
+{{2:def:60}} <span class="fn">eletkort_beker</span>():
+    <span class="kw">while</span> <span class="kw">True</span>:
+        <span class="kw">try</span>:
+            kor = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Hány éves vagy? "</span>))
+            <span class="kw">if</span> kor < <span class="num">0</span>:
+                <span class="fn">print</span>(<span class="str">"Hiba! Az életkor nem lehet negatív szám."</span>)
+            <span class="kw">else</span>:
+                {{3:return:80}} kor
+        <span class="kw">except</span> ValueError:
+            <span class="fn">print</span>(<span class="str">"Hiba! Kérlek egész számot adj meg!"</span>)
+
+<span class="cmt"># Főprogram</span>
+eladott_arak = {{4:[]:60}}
+eladott_arak.{{5:append:85}}(<span class="fn">berletarat_szamol</span>(<span class="num">20</span>))
+eladott_arak.{{6:append:85}}(<span class="fn">berletarat_szamol</span>(<span class="num">35</span>))
+<span class="fn">print</span>(<span class="str">"Összes bevétel:"</span>, {{7:sum:65}}(eladott_arak), <span class="str">"Ft"</span>)`,
+    output: `Összes bevétel: 16000 Ft`
+  },
+  {
+    id: "prim_e.py",
+    title: "Feladat: prim_e.py - Prímszám-vizsgálat és osztók kiíratása (3 változat)",
+    desc: "Egészítsd ki a <code>while</code> tartomány-ellenőrzést, az osztók számlálását (<code>%</code>), a prímszám-feltételt (<code>2</code>) és a formázott sorvégi kiíratást (<code>end</code>)!",
+    template: `<span class="cmt"># --- 1. VÁLTOZAT: Alap prímszám-vizsgálat ---</span>
+szam = <span class="num">0</span>
+
+{{0:while:75}} szam < <span class="num">1</span> <span class="kw">or</span> szam > <span class="num">100</span>:
+    szam = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Adj meg egy egész számot 1 és 100 között: "</span>))
+    <span class="kw">if</span> szam < <span class="num">1</span> <span class="kw">or</span> szam > <span class="num">100</span>:
+        <span class="fn">print</span>(<span class="str">"A számnak 1 és 100 között kell lennie."</span>)
+
+osztok_szama = <span class="num">0</span>
+
+<span class="kw">for</span> oszto <span class="kw">in</span> {{1:range:75}}(<span class="num">1</span>, szam + <span class="num">1</span>):
+    <span class="kw">if</span> szam {{2:%:45}} oszto == <span class="num">0</span>:
+        osztok_szama = osztok_szama + <span class="num">1</span>
+
+<span class="kw">if</span> osztok_szama == {{3:2:45}}:
+    <span class="fn">print</span>(<span class="str">"A szám prímszám."</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"A szám nem prímszám."</span>)
+
+<span class="fn">print</span>(<span class="str">"\n"</span> * <span class="num">1</span>)
+
+<span class="cmt"># --- 2. VÁLTOZAT: Osztók kiírása külön sorokba ---</span>
+szam = <span class="num">0</span>
+
+<span class="kw">while</span> szam < <span class="num">1</span> <span class="kw">or</span> szam > <span class="num">100</span>:
+    szam = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Adj meg egy egész számot 1 és 100 között: "</span>))
+    <span class="kw">if</span> szam < <span class="num">1</span> <span class="kw">or</span> szam > <span class="num">100</span>:
+        <span class="fn">print</span>(<span class="str">"A számnak 1 és 100 között kell lennie."</span>)
+
+osztok_szama = <span class="num">0</span>
+
+<span class="fn">print</span>(<span class="str">"A szám osztói:"</span>)
+<span class="kw">for</span> oszto <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, szam + <span class="num">1</span>):
+    <span class="kw">if</span> szam % oszto == <span class="num">0</span>:
+        {{4:print:75}}(oszto)
+        osztok_szama = osztok_szama + <span class="num">1</span>
+
+<span class="kw">if</span> osztok_szama == <span class="num">2</span>:
+    <span class="fn">print</span>(<span class="str">"A szám prímszám."</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"A szám nem prímszám."</span>)
+
+<span class="fn">print</span>(<span class="str">"\n"</span> * <span class="num">1</span>)
+
+<span class="cmt"># --- 3. VÁLTOZAT: Osztók egy sorban, vesszővel elválasztva ---</span>
+szam = <span class="num">0</span>
+
+<span class="kw">while</span> szam < <span class="num">1</span> <span class="kw">or</span> szam > <span class="num">100</span>:
+    szam = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Adj meg egy egész számot 1 és 100 között: "</span>))
+    <span class="kw">if</span> szam < <span class="num">1</span> <span class="kw">or</span> szam > <span class="num">100</span>:
+        <span class="fn">print</span>(<span class="str">"A számnak 1 és 100 között kell lennie."</span>)
+
+osztok_szama = <span class="num">0</span>
+
+<span class="fn">print</span>(<span class="str">"A szám osztói:"</span>, {{5:end:60}}=<span class="str">" "</span>)
+<span class="kw">for</span> oszto <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, szam + <span class="num">1</span>):
+    <span class="kw">if</span> szam % oszto == <span class="num">0</span>:
+        <span class="kw">if</span> oszto == szam:
+            <span class="fn">print</span>(oszto)
+        <span class="kw">else</span>:
+            <span class="fn">print</span>(oszto, {{6:end:60}}=<span class="str">", "</span>)
+        osztok_szama = osztok_szama + <span class="num">1</span>
+
+<span class="kw">if</span> osztok_szama == <span class="num">2</span>:
+    <span class="fn">print</span>(<span class="str">"A szám prímszám."</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"A szám nem prímszám."</span>)`,
+    interactiveType: "prim_e"
+  },
+  {
+    id: "Python09_programozasi_tetelek.py",
+    title: "Feladat: Python09_programozasi_tetelek.py - Alapvető programozási tételek",
+    desc: "Egészítsd ki a 6 alapvető programozási tétel (sorozatszámítás, eldöntés, kiválasztás, keresés, megszámlálás, szélsőérték-kiválasztás) hiányzó kulcsszavait és műveleteit (<code>len</code>, <code>+=</code>, <code>while</code>, <code>not</code>, <code>if</code>, <code>range</code>)!",
+    template: `<span class="cmt"># Bemeneti adatok (egy hét napi középhőmérsékletei)</span>
+homersekletek = [<span class="num">4</span>, <span class="num">2</span>, <span class="num">-1</span>, <span class="num">0</span>, <span class="num">-5</span>, <span class="num">3</span>, <span class="num">1</span>]
+n = {{0:len:60}}(homersekletek)
+<span class="fn">print</span>(homersekletek)
+
+<span class="cmt"># 1. SOROZATSZÁMÍTÁS (Összegzés)</span>
+<span class="cmt"># Feladat: Adjuk össze a heti hőmérsékleteket (ebből számolható pl. az átlag).</span>
+osszeg = <span class="num">0</span>
+<span class="kw">for</span> h <span class="kw">in</span> homersekletek:
+    osszeg {{1:+=:55}} h
+<span class="fn">print</span>(f<span class="str">"1. Sorozatszámítás (összeg): {osszeg}"</span>)
+
+
+<span class="cmt"># 2. ELDÖNTÉS</span>
+<span class="cmt"># Feladat: Volt-e legalább egy fagyos nap (h < 0) a héten?</span>
+i = <span class="num">0</span>
+{{2:while:75}} i < n <span class="kw">and</span> <span class="kw">not</span> (homersekletek[i] < <span class="num">0</span>):
+    i += <span class="num">1</span>
+van_fagy = i < n
+<span class="fn">print</span>(f<span class="str">"2. Eldöntés (volt fagyos nap?): {van_fagy}"</span>)
+
+
+<span class="cmt"># 3. KIVÁLASZTÁS</span>
+<span class="cmt"># Feladat: Tudjuk, hogy volt fagyos nap. Hányadik napon (indexen) volt az első?</span>
+i = <span class="num">0</span>
+<span class="kw">while</span> {{3:not:60}} (homersekletek[i] < <span class="num">0</span>):
+    i += <span class="num">1</span>
+<span class="fn">print</span>(f<span class="str">"3. Kiválasztás (első fagyos nap indexe): {i} (értéke: {homersekletek[i]})"</span>)
+
+
+<span class="cmt"># 4. KERESÉS (Lineáris keresés)</span>
+<span class="cmt"># Feladat: Volt-e fagyos nap, és ha igen, hányadik napon volt az első?</span>
+i = <span class="num">0</span>
+<span class="kw">while</span> i < n <span class="kw">and</span> <span class="kw">not</span> (homersekletek[i] < <span class="num">0</span>):
+    i += <span class="num">1</span>
+
+{{4:if:55}} i < n:
+    <span class="fn">print</span>(f<span class="str">"4. Keresés: Volt fagyos nap, az első indexe: {i}"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"4. Keresés: Nem volt fagyos nap."</span>)
+
+
+<span class="cmt"># 5. MEGSZÁMLÁLÁS</span>
+<span class="cmt"># Feladat: Hány fagyos nap volt összesen a héten?</span>
+darab = <span class="num">0</span>
+<span class="kw">for</span> h <span class="kw">in</span> homersekletek:
+    <span class="kw">if</span> h < <span class="num">0</span>:
+        darab {{5:+=:55}} <span class="num">1</span>
+<span class="fn">print</span>(f<span class="str">"5. Megszámlálás (fagyos napok száma): {darab} db"</span>)
+
+
+<span class="cmt"># 6. SZÉLSŐÉRTÉK-KIVÁLASZTÁS (Minimumkeresés)</span>
+<span class="cmt"># Feladat: Melyik napon volt a leghidegebb, és hány fok volt akkor?</span>
+min_index = <span class="num">0</span>
+<span class="kw">for</span> i <span class="kw">in</span> {{6:range:75}}(<span class="num">1</span>, n):
+    <span class="kw">if</span> homersekletek[i] < homersekletek[min_index]:
+        min_index = i
+<span class="fn">print</span>(f<span class="str">"6. Szélsőérték (leghidegebb nap indexe): {min_index}, értéke: {homersekletek[min_index]} °C"</span>)`,
+    output: `[4, 2, -1, 0, -5, 3, 1]
+1. Sorozatszámítás (összeg): 4
+2. Eldöntés (volt fagyos nap?): True
+3. Kiválasztás (első fagyos nap indexe): 2 (értéke: -1)
+4. Keresés: Volt fagyos nap, az első indexe: 2
+5. Megszámlálás (fagyos napok száma): 2 db
+6. Szélsőérték (leghidegebb nap indexe): 4, értéke: -5 °C`
+  }
+];
+
+let currentTab = 11;
+const userInputs = {};
+const completedTabs = new Set();
+
+function renderTabs() {
+  const bar = document.getElementById("tabs-bar");
+  bar.innerHTML = "";
+  lessons.forEach((lesson, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "tab-btn" + (idx === currentTab ? " active" : "") + (completedTabs.has(idx) ? " completed" : "");
+    btn.textContent = lesson.id;
+    btn.onclick = () => selectTab(idx);
+    bar.appendChild(btn);
+  });
+}
+
+function selectTab(idx) {
+  currentTab = idx;
+  renderTabs();
+  renderLesson();
+}
+
+function renderLesson() {
+  const lesson = lessons[currentTab];
+  document.getElementById("task-title").innerHTML = `💡 ${lesson.title}`;
+  document.getElementById("task-desc").innerHTML = lesson.desc;
+
+  const editor = document.getElementById("editor-box");
+  const saved = userInputs[currentTab] || {};
+
+  const html = lesson.template.replace(/\{\{(\d+):([^:]+):(\d+)\}\}/g, (_, idx, ans, width) => {
+    const val = saved[idx] !== undefined ? saved[idx] : "";
+    return `<input type="text" class="blank-input" data-idx="${idx}" data-ans="${ans}" placeholder="..." value="${val.replace(/"/g, '&quot;')}" style="width:${width}px" oninput="saveInput(${idx}, this)">`;
+  });
+
+  editor.innerHTML = html;
+  updateScore();
+  resetTerminal();
+}
+
+function saveInput(idx, el) {
+  if (!userInputs[currentTab]) userInputs[currentTab] = {};
+  userInputs[currentTab][idx] = el.value;
+  el.classList.remove("correct", "wrong");
+  updateScore();
+}
+
+function updateScore() {
+  const inputs = document.querySelectorAll("#editor-box .blank-input");
+  let correctCount = 0;
+  inputs.forEach(inp => {
+    if (inp.value.trim() === inp.dataset.ans) {
+      correctCount++;
+    }
+  });
+  document.getElementById("score-display").textContent = `${correctCount} / ${inputs.length}`;
+}
+
+function resetTerminal() {
+  const lesson = lessons[currentTab];
+  document.getElementById("terminal-body").innerHTML =
+    `<span class="term-cmd">$ python ${lesson.id}</span>Töltsd ki a mezőket és kattints a "▶ Kód Futtatása" gombra!`;
+}
+
+function checkAnswers() {
+  const inputs = document.querySelectorAll("#editor-box .blank-input");
+  let allCorrect = true;
+  let correctCount = 0;
+
+  inputs.forEach(inp => {
+    const val = inp.value.trim();
+    if (val === inp.dataset.ans) {
+      inp.classList.remove("wrong");
+      inp.classList.add("correct");
+      correctCount++;
+    } else {
+      inp.classList.remove("correct");
+      inp.classList.add("wrong");
+      allCorrect = false;
+    }
+  });
+
+  updateScore();
+
+  const lesson = lessons[currentTab];
+  const term = document.getElementById("terminal-body");
+  if (allCorrect) {
+    completedTabs.add(currentTab);
+    renderTabs();
+    term.innerHTML = `<span class="term-cmd">$ python ${lesson.id}</span><span class="term-ok">✔ Minden mező helyes (${correctCount} / ${inputs.length})! Kattints a "▶ Kód Futtatása" gombra a program interaktív futtatásához.</span>`;
+  } else {
+    term.innerHTML = `<span class="term-cmd">$ python ${lesson.id}</span><span class="term-warn">⚠ Eredmény: ${correctCount} / ${inputs.length} helyes válasz. A pirossal jelölt mezőket javítsd ki!</span>`;
+  }
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function runCode() {
+  const inputs = document.querySelectorAll("#editor-box .blank-input");
+  let allCorrect = true;
+  inputs.forEach(inp => {
+    if (inp.value.trim() !== inp.dataset.ans) {
+      allCorrect = false;
+      inp.classList.add("wrong");
+    } else {
+      inp.classList.remove("wrong");
+      inp.classList.add("correct");
+    }
+  });
+
+  const lesson = lessons[currentTab];
+  const term = document.getElementById("terminal-body");
+
+  if (!allCorrect) {
+    term.innerHTML = `<span class="term-cmd">$ python ${lesson.id}</span><span class="term-err">SyntaxError / NameError: A kód még hiányos vagy hibás mezőt tartalmaz! Ellenőrizd a pirossal jelölt részeket.</span>`;
+    return;
+  }
+
+  completedTabs.add(currentTab);
+  renderTabs();
+
+  if (lesson.interactiveType === "prim_e") {
+    startPrimESimulator(1);
+  } else if (lesson.interactiveType === "python02") {
+    startPython02Simulator();
+  } else if (lesson.interactiveType === "python03") {
+    startPython03Simulator();
+  } else if (lesson.interactiveType === "python04") {
+    startPython04Simulator();
+  } else if (lesson.interactiveType === "python08") {
+    startPython08Simulator();
+  } else {
+    term.innerHTML = `<span class="term-cmd">$ python ${lesson.id}</span><span class="term-ok">${lesson.output}</span>`;
+  }
+}
+
+// --- Interaktív Terminál Szimulátorok ---
+
+function appendTerminalPrompt(promptText, onSubmit, inputType = "number", placeholder = "pl. 17") {
+  const term = document.getElementById("terminal-body");
+  const wrapper = document.createElement("div");
+  wrapper.className = "term-input-form";
+
+  const label = document.createElement("span");
+  label.className = "term-prompt";
+  label.textContent = promptText;
+
+  const input = document.createElement("input");
+  input.type = inputType;
+  input.className = "term-input";
+  input.placeholder = placeholder;
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "term-submit";
+  btn.textContent = "Enter ↵";
+
+  const submitHandler = () => {
+    const val = input.value.trim();
+    wrapper.remove();
+    const echo = document.createElement("div");
+    echo.innerHTML = `<span class="term-prompt">${escapeHtml(promptText)}</span><span class="term-warn">${escapeHtml(val)}</span>`;
+    term.appendChild(echo);
+    onSubmit(val);
+  };
+
+  btn.onclick = submitHandler;
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submitHandler();
+    }
+  });
+
+  wrapper.appendChild(label);
+  wrapper.appendChild(input);
+  wrapper.appendChild(btn);
+  term.appendChild(wrapper);
+  input.focus();
+}
+
+function appendTerminalLine(text, cssClass = "term-ok") {
+  const term = document.getElementById("terminal-body");
+  const div = document.createElement("div");
+  div.className = cssClass;
+  div.textContent = text;
+  term.appendChild(div);
+}
+
+function startPrimESimulator(part) {
+  const term = document.getElementById("terminal-body");
+  if (part === 1) {
+    term.innerHTML = `<span class="term-cmd">$ python prim_e.py</span>`;
+  }
+
+  appendTerminalPrompt("Adj meg egy egész számot 1 és 100 között: ", (rawVal) => {
+    const szam = parseInt(rawVal, 10);
+    if (isNaN(szam) || String(szam) !== rawVal) {
+      appendTerminalLine("ValueError: invalid literal for int() with base 10: '" + rawVal + "'", "term-err");
+      return;
+    }
+
+    if (szam < 1 || szam > 100) {
+      appendTerminalLine("A számnak 1 és 100 között kell lennie.", "term-ok");
+      startPrimESimulator(part);
+      return;
+    }
+
+    const osztok = [];
+    for (let o = 1; o <= szam; o++) {
+      if (szam % o === 0) osztok.push(o);
+    }
+
+    if (part === 1) {
+      appendTerminalLine(osztok.length === 2 ? "A szám prímszám." : "A szám nem prímszám.");
+      appendTerminalLine(" ");
+      startPrimESimulator(2);
+    } else if (part === 2) {
+      appendTerminalLine("A szám osztói:");
+      osztok.forEach(o => appendTerminalLine(String(o)));
+      appendTerminalLine(osztok.length === 2 ? "A szám prímszám." : "A szám nem prímszám.");
+      appendTerminalLine(" ");
+      startPrimESimulator(3);
+    } else if (part === 3) {
+      appendTerminalLine("A szám osztói: " + osztok.join(", "));
+      appendTerminalLine(osztok.length === 2 ? "A szám prímszám." : "A szám nem prímszám.");
+    }
+  }, "text", "1 - 100");
+}
+
+function startPython02Simulator() {
+  const term = document.getElementById("terminal-body");
+  term.innerHTML = `<span class="term-cmd">$ python Python02.py</span>`;
+  appendTerminalPrompt("Hogy hívnak? ", (nev) => {
+    appendTerminalPrompt("Hány éves vagy? ", (korRaw) => {
+      const kor = parseInt(korRaw, 10);
+      if (isNaN(kor)) {
+        appendTerminalLine("ValueError: Egész számot adj meg!", "term-err");
+        return;
+      }
+      appendTerminalLine(`Szia ${nev}! Jövőre már ${kor + 1} éves leszel.`);
+    }, "number", "pl. 17");
+  }, "text", "pl. Anna");
+}
+
+function startPython03Simulator() {
+  const term = document.getElementById("terminal-body");
+  term.innerHTML = `<span class="term-cmd">$ python Python03.py</span>`;
+  appendTerminalPrompt("Adj meg egy számot: ", (nRaw) => {
+    const n = parseInt(nRaw, 10);
+    if (isNaN(n)) {
+      appendTerminalLine("ValueError: Egész számot adj meg!", "term-err");
+      return;
+    }
+    let i = 1;
+    while (i * i <= n) {
+      appendTerminalLine(`${i} -> ${i * i}`);
+      i++;
+    }
+    const primes = [];
+    for (let x = 2; x <= n; x++) {
+      let isP = true;
+      for (let d = 2; d <= Math.floor(Math.sqrt(x)); d++) {
+        if (x % d === 0) { isP = false; break; }
+      }
+      if (isP) primes.push(x);
+    }
+    appendTerminalLine(primes.join(" "));
+  }, "number", "pl. 15");
+}
+
+function startPython04Simulator() {
+  const term = document.getElementById("terminal-body");
+  term.innerHTML = `<span class="term-cmd">$ python Python04.py</span>`;
+  appendTerminalPrompt("Elért pontszám: ", (pRaw) => {
+    const p = parseInt(pRaw, 10);
+    if (isNaN(p)) {
+      appendTerminalLine("ValueError: Egész számot adj meg!", "term-err");
+      return;
+    }
+    if (p >= 90) appendTerminalLine("Jeles (5)");
+    else if (p >= 75) appendTerminalLine("Jó (4)");
+    else appendTerminalLine("További gyakorlás szükséges.");
+  }, "number", "0 - 100");
+}
+
+function startPython08Simulator() {
+  const term = document.getElementById("terminal-body");
+  term.innerHTML = `<span class="term-cmd">$ python Python08.py</span>`;
+  appendTerminalPrompt("Adj meg egy számot: ", (sRaw) => {
+    const s = parseInt(sRaw, 10);
+    if (isNaN(s) || String(s) !== sRaw) {
+      appendTerminalLine("Hibás formátum, egész számot adj meg!", "term-warn");
+    } else {
+      appendTerminalLine("Megadott szám: " + s);
+    }
+  }, "text", "szám vagy szöveg");
+}
+
+function showSolution() {
+  const inputs = document.querySelectorAll("#editor-box .blank-input");
+  if (!userInputs[currentTab]) userInputs[currentTab] = {};
+
+  inputs.forEach(inp => {
+    inp.value = inp.dataset.ans;
+    userInputs[currentTab][inp.dataset.idx] = inp.dataset.ans;
+    inp.classList.remove("wrong");
+    inp.classList.add("correct");
+  });
+
+  updateScore();
+  completedTabs.add(currentTab);
+  renderTabs();
+
+  const lesson = lessons[currentTab];
+  document.getElementById("terminal-body").innerHTML =
+    `<span class="term-cmd">$ python ${lesson.id}</span><span class="term-ok">✔ Megoldás beillesztve. Kattints a "▶ Kód Futtatása" gombra a kimenet megtekintéséhez!</span>`;
+}
+
+function resetCurrent() {
+  userInputs[currentTab] = {};
+  completedTabs.delete(currentTab);
+  renderTabs();
+  renderLesson();
+}
+
+renderTabs();
+renderLesson();
+</script>
+
+</body>
+</html>
